@@ -1,0 +1,3542 @@
+#include "MyRootMaker/MyRootMaker/interface/RootMaker.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+
+using namespace reco;
+typedef ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3> > SMatrixSym3D;
+typedef ROOT::Math::SVector<double, 3> SVector3;
+
+RootMaker::RootMaker(const edm::ParameterSet& iConfig) :
+	cgen(iConfig.getUntrackedParameter<bool>("GenSomeParticles", false)),
+	cgenallparticles(iConfig.getUntrackedParameter<bool>("GenAllParticles", false)),
+	cgenak5jets(iConfig.getUntrackedParameter<bool>("GenAK5Jets", false)),
+	ctrigger(iConfig.getUntrackedParameter<bool>("Trigger", false)),
+	cbeamspot(iConfig.getUntrackedParameter<bool>("RecBeamSpot", false)),
+	crectrack(iConfig.getUntrackedParameter<bool>("RecTrack", false)),
+	crecprimvertex(iConfig.getUntrackedParameter<bool>("RecPrimVertex", false)),
+	crecsupercluster(iConfig.getUntrackedParameter<bool>("RecSuperCluster", false)),
+	crecsuperclusterFilterPtMin(iConfig.getUntrackedParameter<double>("RecSuperClusterFilterPtMin", 0.)),
+	crecsuperclusterFilterEtaMax(iConfig.getUntrackedParameter<double>("RecSuperClusterFilterEtaMax", 100000.)),
+	crecsuperclustermember(iConfig.getUntrackedParameter<bool>("RecSuperClusterBasicCluster", false)),
+	crecsuperclusterhit(iConfig.getUntrackedParameter<bool>("RecSuperClusterHit", false)),
+	crecmuon(iConfig.getUntrackedParameter<bool>("RecMuon", false)),
+	crectau(iConfig.getUntrackedParameter<bool>("RecTau", false)),
+	crecelectron(iConfig.getUntrackedParameter<bool>("RecElectron", false)),
+	crecphoton(iConfig.getUntrackedParameter<bool>("RecPhoton", false)),
+	crecallconversion(iConfig.getUntrackedParameter<bool>("RecAllConversion", false)),
+	crecak5calojet(iConfig.getUntrackedParameter<bool>("RecAK5CaloJet", false)),
+	crecak5jptjet(iConfig.getUntrackedParameter<bool>("RecAK5JPTJet", false)),
+	crecak5pfjet(iConfig.getUntrackedParameter<bool>("RecAK5PFJet", false)),
+	crecak5pfchsjet(iConfig.getUntrackedParameter<bool>("RecAK5PFCHSJet", false)),
+	creccalomet(iConfig.getUntrackedParameter<bool>("RecCaloMet", false)),
+	crectcmet(iConfig.getUntrackedParameter<bool>("RecTCMet", false)),
+	crecpfmet(iConfig.getUntrackedParameter<bool>("RecPFMet", false)),
+	crecpfmettype1(iConfig.getUntrackedParameter<bool>("RecPFMetType1", false)),  
+	crecsecvertices(iConfig.getUntrackedParameter<bool>("RecSecVertices", false)),
+	crecmusecvertices(iConfig.getUntrackedParameter<bool>("RecMuSecVertices", false)),
+	cHLTriggerNamesSelection(iConfig.getUntrackedParameter<vector<string> >("HLTriggerSelection")),
+	cTriggerProcess(iConfig.getUntrackedParameter<string>("TriggerProcess", "HLT")),
+	cMuPtMin(iConfig.getUntrackedParameter<double>("RecMuonPtMin", 0.)),
+	cMuTrackIso(iConfig.getUntrackedParameter<double>("RecMuonTrackIso", 100000.)),
+	cMuEtaMax(iConfig.getUntrackedParameter<double>("RecMuonEtaMax", 1000000.)),
+	cMuHLTriggerMatching(iConfig.getUntrackedParameter<vector<string> >("RecMuonHLTriggerMatching")),
+	cMuNum(iConfig.getUntrackedParameter<int>("RecMuonNum", 0)),
+	cElPtMin(iConfig.getUntrackedParameter<double>("RecElectronPtMin", 0.)),
+	cElTrackIso(iConfig.getUntrackedParameter<double>("RecElectronTrackIso", 1000000.)),
+	cElEtaMax(iConfig.getUntrackedParameter<double>("RecElectronEtaMax", 1000000.)),
+	cElHLTriggerMatching(iConfig.getUntrackedParameter<vector<string> >("RecElectronHLTriggerMatching")),
+	cElNum(iConfig.getUntrackedParameter<int>("RecElectronNum", 0)),
+	cElFilterPtMin(iConfig.getUntrackedParameter<double>("RecElectronFilterPtMin", 0.)),
+	cElFilterEtaMax(iConfig.getUntrackedParameter<double>("RecElectronFilterEtaMax", 1000000.)),
+	cTauPtMin(iConfig.getUntrackedParameter<double>("RecTauPtMin", 0.)),
+	cTauEtaMax(iConfig.getUntrackedParameter<double>("RecTauEtaMax", 1000000.)),
+	cTauHLTriggerMatching(iConfig.getUntrackedParameter<vector<string> >("RecTauHLTriggerMatching")),
+	cTauDiscriminators(iConfig.getUntrackedParameter<vector<string> >("RecTauDiscriminators")),
+	cTauNum(iConfig.getUntrackedParameter<int>("RecTauNum", 0)),
+	cTrackFilterPtMin(iConfig.getUntrackedParameter<double>("RecTrackFilterPtMin", 0.)),
+	cTrackPtMin(iConfig.getUntrackedParameter<double>("RecTrackPtMin", 0.)),
+	cTrackEtaMax(iConfig.getUntrackedParameter<double>("RecTrackEtaMax", 1000000.)),
+	cTrackNum(iConfig.getUntrackedParameter<int>("RecTrackNum", 0)),
+	cPhotonPtMin(iConfig.getUntrackedParameter<double>("RecPhotonPtMin", 0.)),
+	cPhotonEtaMax(iConfig.getUntrackedParameter<double>("RecPhotonEtaMax", 1000000.)),
+	cPhotonHLTriggerMatching(iConfig.getUntrackedParameter<vector<string> >("RecPhotonHLTriggerMatching")),
+	cPhotonNum(iConfig.getUntrackedParameter<int>("RecPhotonNum", 0)),
+	cPhotonFilterPtMin(iConfig.getUntrackedParameter<double>("RecPhotonFilterPtMin", 0.)),
+	cPhotonFilterEtaMax(iConfig.getUntrackedParameter<double>("RecPhotonFilterEtaMax", 1000000.)),
+	cAK5CaloFilterPtMin(iConfig.getUntrackedParameter<double>("RecAK5CaloFilterPtMin", 0.)),
+	cAK5CaloPtMin(iConfig.getUntrackedParameter<double>("RecAK5CaloPtMin", 0.)),
+	cAK5CaloEtaMax(iConfig.getUntrackedParameter<double>("RecAK5CaloEtaMax", 1000000.)),
+	cAK5CaloNum(iConfig.getUntrackedParameter<int>("RecAK5CaloNum", 0)),
+	cAK5JPTFilterPtMin(iConfig.getUntrackedParameter<double>("RecAK5JPTFilterPtMin", 0.)),
+	cAK5JPTPtMin(iConfig.getUntrackedParameter<double>("RecAK5JPTPtMin", 0.)),
+	cAK5JPTEtaMax(iConfig.getUntrackedParameter<double>("RecAK5JPTEtaMax", 1000000.)),
+	cAK5JPTNum(iConfig.getUntrackedParameter<int>("RecAK5JPTNum", 0)),
+	cAK5PFCHSFilterPtMin(iConfig.getUntrackedParameter<double>("RecAK5PFCHSFilterPtMin", 0.)),
+	cAK5PFCHSPtMin(iConfig.getUntrackedParameter<double>("RecAK5PFCHSPtMin", 0.)),
+	cAK5PFCHSEtaMax(iConfig.getUntrackedParameter<double>("RecAK5PFCHSEtaMax", 1000000.)),
+	cAK5PFCHSNum(iConfig.getUntrackedParameter<int>("RecAK5PFCHSNum", 0)),
+	cAK5PFFilterPtMin(iConfig.getUntrackedParameter<double>("RecAK5PFFilterPtMin", 0.)),
+	cAK5PFPtMin(iConfig.getUntrackedParameter<double>("RecAK5PFPtMin", 0.)),
+	cAK5PFEtaMax(iConfig.getUntrackedParameter<double>("RecAK5PFEtaMax", 1000000.)),
+	cAK5PFNum(iConfig.getUntrackedParameter<int>("RecAK5PFNum", 0)),
+	cJetCorrection(iConfig.getUntrackedParameter<string>("JetCorrection", "L1FastL2L3Residual")),
+	cJetHLTriggerMatching(iConfig.getUntrackedParameter<vector<string> >("RecJetHLTriggerMatching")),
+	cMassMuMuMin(iConfig.getUntrackedParameter<double>("RecMassMuMuMin", 0.)),
+	cMassMuMuMax(iConfig.getUntrackedParameter<double>("RecMassMuMuMax", 0.)),
+	cVertexTRKChi2(iConfig.getUntrackedParameter<double>("RecVertexTRKChi2", 10.)),
+	cVertexTRKHitsMin(iConfig.getUntrackedParameter<int>("RecVertexTRKHitsMin", 6)),
+	cVertexChi2(iConfig.getUntrackedParameter<double>("RecVertexChi2", 5.)),
+	cVertexSig2D(iConfig.getUntrackedParameter<double>("RecVertexSig2D", 15.)),
+	cKaonMassWindow(iConfig.getUntrackedParameter<double>("RecVertexKaonMassWin", 0.05)),
+	cLambdaMassWindow(iConfig.getUntrackedParameter<double>("RecVertexLambdaMassWin", 0.02)),
+	propagatorWithMaterial(0)
+{
+	testids.push_back(24);//0
+	testids.push_back(-24);//1
+	testids.push_back(22);//2
+	testids.push_back(23);//3
+	testids.push_back(25);//4
+	testids.push_back(35);//5
+	testids.push_back(36);//6
+	testids.push_back(37);//7
+	testids.push_back(-37);//8
+	testids.push_back(6);//9
+	testids.push_back(-6);//10
+	testids.push_back(5);//11
+	testids.push_back(-5);//12
+	testids.push_back(32);//13
+	testids.push_back(8);//14
+	testids.push_back(-8);//15
+	testids.push_back(15);//16
+	testids.push_back(-15);//17
+	//bdisclabel.push_back("jetBProbabilityBJetTags");
+	//bdisclabel.push_back("jetProbabilityBJetTags");
+	bdisclabel.push_back("trackCountingHighPurBJetTags");
+	bdisclabel.push_back("trackCountingHighEffBJetTags");
+	bdisclabel.push_back("simpleSecondaryVertexHighPurBJetTags");
+	bdisclabel.push_back("simpleSecondaryVertexHighEffBJetTags");
+	bdisclabel.push_back("combinedSecondaryVertexBJetTags");
+	bdisclabel.push_back("combinedSecondaryVertexMVABJetTags");
+
+	double barrelRadius = 129.; //p81, p50, ECAL TDR
+	double endcapZ = 320.5; // fig 3.26, p81, ECAL TDR
+	Surface::RotationType rot;
+
+	ecalBarrel = Cylinder::build(Surface::PositionType(0, 0, 0), rot, barrelRadius);
+	ecalNegativeEtaEndcap = Plane::build(Surface::PositionType(0, 0, -endcapZ), rot);
+	ecalPositiveEtaEndcap = Plane::build(Surface::PositionType(0, 0, endcapZ), rot);
+}
+
+RootMaker::~RootMaker(){
+	if(propagatorWithMaterial != 0){ delete propagatorWithMaterial;}
+}
+
+void RootMaker::beginJob(){
+	edm::Service<TFileService> FS;
+	tree = FS->make<TTree>("AC1B", "AC1B", 1);
+	drhist = FS->make<TH1D>("drhist", "drhist", 10000, 0., 100.);
+
+	tree->Branch("errors", &errors, "errors/i");
+	tree->Branch("event_nr", &event_nr, "event_nr/D");
+	tree->Branch("event_run", &event_run, "event_run/i");
+	tree->Branch("event_timeunix", &event_timeunix, "event_timeunix/i");
+	tree->Branch("event_timemicrosec", &event_timemicrosec, "event_timemicrosec/i");
+	tree->Branch("event_luminosityblock", &event_luminosityblock, "event_luminosityblock/i");
+	tree->Branch("trigger_level1bits", &trigger_level1bits, "trigger_level1bits[8]/b");
+	tree->Branch("trigger_level1", &trigger_level1, "trigger_level1[128]/b");
+	tree->Branch("trigger_HLT", &trigger_HLT, "trigger_HLT[128]/b");
+
+	tree->Branch("beamspot_x", &beamspot_x, "beamspot_x/F");
+	tree->Branch("beamspot_y", &beamspot_y, "beamspot_y/F");
+	tree->Branch("beamspot_z", &beamspot_z, "beamspot_z/F");
+	tree->Branch("beamspot_xwidth", &beamspot_xwidth, "beamspot_xwidth/F");
+	tree->Branch("beamspot_ywidth", &beamspot_ywidth, "beamspot_ywidth/F");
+	tree->Branch("beamspot_zsigma", &beamspot_zsigma, "beamspot_zsigma/F");
+	tree->Branch("beamspot_cov", &beamspot_cov, "beamspot_cov[6]/F");
+
+	tree->Branch("track_count", &track_count, "track_count/i"); 
+	tree->Branch("track_vtx", track_vtx, "track_vtx[track_count]/I");
+	tree->Branch("track_px", track_px, "track_px[track_count]/F");
+	tree->Branch("track_py", track_py, "track_py[track_count]/F");
+	tree->Branch("track_pz", track_pz, "track_pz[track_count]/F");
+	tree->Branch("track_outerx", track_outerx, "track_outerx[track_count]/F");
+	tree->Branch("track_outery", track_outery, "track_outery[track_count]/F");
+	tree->Branch("track_outerz", track_outerz, "track_outerz[track_count]/F");
+	tree->Branch("track_closestpointx", track_closestpointx, "track_closestpointx[track_count]/F");
+	tree->Branch("track_closestpointy", track_closestpointy, "track_closestpointy[track_count]/F");
+	tree->Branch("track_closestpointz", track_closestpointz, "track_closestpointz[track_count]/F");
+	tree->Branch("track_chi2", track_chi2, "track_chi2[track_count]/F");
+	tree->Branch("track_ndof", track_ndof, "track_ndof[track_count]/F");
+	tree->Branch("track_dxy", track_dxy, "track_dxy[track_count]/F");
+	tree->Branch("track_dxyerr", track_dxyerr, "track_dxyerr[track_count]/F");
+	tree->Branch("track_dz", track_dz, "track_dz[track_count]/F");
+	tree->Branch("track_dzerr", track_dzerr, "track_dzerr[track_count]/F");
+	tree->Branch("track_dedxharmonic2", track_dedxharmonic2, "track_dedxharmonic2[track_count]/F");
+	tree->Branch("track_charge", track_charge, "track_charge[track_count]/I");
+	tree->Branch("track_nhits", track_nhits, "track_nhits[track_count]/b");
+	tree->Branch("track_npixelhits", track_npixelhits, "track_npixelhits[track_count]/b");
+	tree->Branch("track_nmissinghits", track_nmissinghits, "track_nmissinghits[track_count]/b");
+	tree->Branch("track_npixellayers", track_npixellayers, "track_npixellayers[track_count]/b");
+	tree->Branch("track_nstriplayers", track_nstriplayers, "track_nstriplayers[track_count]/b");
+
+	tree->Branch("primvertex_count", &primvertex_count, "primvertex_count/i"); 
+	tree->Branch("primvertex_x", primvertex_x, "primvertex_x[primvertex_count]/F");
+	tree->Branch("primvertex_y", primvertex_y, "primvertex_y[primvertex_count]/F");
+	tree->Branch("primvertex_z", primvertex_z, "primvertex_z[primvertex_count]/F");
+	tree->Branch("primvertex_chi2", primvertex_chi2, "primvertex_chi2[primvertex_count]/F");
+	tree->Branch("primvertex_ndof", primvertex_ndof, "primvertex_ndof[primvertex_count]/F");
+	tree->Branch("primvertex_ptq", primvertex_ptq, "primvertex_pdf[primvertex_count]/F");
+	tree->Branch("primvertex_ntracks", primvertex_ntracks, "primvertex_ntracks[primvertex_count]/I");
+	tree->Branch("primvertex_cov", primvertex_cov, "primvertex_cov[primvertex_count][6]/F");
+
+	tree->Branch("supercluster_count", &supercluster_count, "supercluster_count/i");
+	tree->Branch("supercluster_e", supercluster_e, "supercluster_e[supercluster_count]/F");
+	tree->Branch("supercluster_x", supercluster_x, "supercluster_x[supercluster_count]/F");
+	tree->Branch("supercluster_y", supercluster_y, "supercluster_y[supercluster_count]/F");
+	tree->Branch("supercluster_z", supercluster_z, "supercluster_z[supercluster_count]/F");
+	tree->Branch("supercluster_rawe", supercluster_rawe, "supercluster_rawe[supercluster_count]/F");
+	tree->Branch("supercluster_phiwidth", supercluster_phiwidth, "supercluster_phiwidth[supercluster_count]/F");
+	tree->Branch("supercluster_etawidth", supercluster_etawidth, "supercluster_etawidth[supercluster_count]/F");
+	tree->Branch("supercluster_nbasiccluster", supercluster_nbasiccluster, "supercluster_nbasiccluster[supercluster_count]/I");
+	tree->Branch("supercluster_basicclusterbegin", supercluster_basicclusterbegin, "supercluster_basicclusterbegin[supercluster_count]/I");
+	tree->Branch("supercluster_esclusterbegin", supercluster_esclusterbegin, "supercluster_esclusterbegin[supercluster_count]/I");
+
+	tree->Branch("supercluster_basiccluster_count", &supercluster_basiccluster_count, "supercluster_basiccluster_count/i");
+	tree->Branch("supercluster_basiccluster_e", supercluster_basiccluster_e, "supercluster_basiccluster_e[supercluster_basiccluster_count]/F");
+	tree->Branch("supercluster_basiccluster_x", supercluster_basiccluster_x, "supercluster_basiccluster_x[supercluster_basiccluster_count]/F");
+	tree->Branch("supercluster_basiccluster_y", supercluster_basiccluster_y, "supercluster_basiccluster_y[supercluster_basiccluster_count]/F");
+	tree->Branch("supercluster_basiccluster_z", supercluster_basiccluster_z, "supercluster_basiccluster_z[supercluster_basiccluster_count]/F");
+	tree->Branch("supercluster_basiccluster_nhit", supercluster_basiccluster_nhit, "supercluster_basiccluster_nhit[supercluster_basiccluster_count]/I");
+	tree->Branch("supercluster_basiccluster_hitbegin", supercluster_basiccluster_hitbegin, "supercluster_basiccluster_hitbegin[supercluster_basiccluster_count]/I");
+
+	tree->Branch("supercluster_basiccluster_hit_count", &supercluster_basiccluster_hit_count, "supercluster_basiccluster_hit_count/i");
+	tree->Branch("supercluster_basiccluster_hit_e", supercluster_basiccluster_hit_e, "supercluster_basiccluster_hit_e[supercluster_basiccluster_hit_count]/F");
+	tree->Branch("supercluster_basiccluster_hit_x", supercluster_basiccluster_hit_x, "supercluster_basiccluster_hit_x[supercluster_basiccluster_hit_count]/F");
+	tree->Branch("supercluster_basiccluster_hit_y", supercluster_basiccluster_hit_y, "supercluster_basiccluster_hit_y[supercluster_basiccluster_hit_count]/F");
+	tree->Branch("supercluster_basiccluster_hit_z", supercluster_basiccluster_hit_z, "supercluster_basiccluster_hit_z[supercluster_basiccluster_hit_count]/F");
+
+	tree->Branch("supercluster_escluster_count", &supercluster_escluster_count, "supercluster_escluster_count/i");
+	tree->Branch("supercluster_escluster_e", supercluster_escluster_e, "supercluster_escluster_e[supercluster_escluster_count]/F");
+	tree->Branch("supercluster_escluster_x", supercluster_escluster_x, "supercluster_escluster_x[supercluster_escluster_count]/F");
+	tree->Branch("supercluster_escluster_y", supercluster_escluster_y, "supercluster_escluster_y[supercluster_escluster_count]/F");
+	tree->Branch("supercluster_escluster_z", supercluster_escluster_z, "supercluster_escluster_z[supercluster_escluster_count]/F");
+	tree->Branch("supercluster_escluster_nhit", supercluster_escluster_nhit, "supercluster_escluster_nhit[supercluster_escluster_count]/I");
+	tree->Branch("supercluster_escluster_hitbegin", supercluster_escluster_hitbegin, "supercluster_escluster_hitbegin[supercluster_escluster_count]/I");
+
+	tree->Branch("supercluster_escluster_hit_count", &supercluster_escluster_hit_count, "supercluster_escluster_hit_count/i");
+	tree->Branch("supercluster_escluster_hit_e", supercluster_escluster_hit_e, "supercluster_escluster_hit_e[supercluster_escluster_hit_count]/F");
+	tree->Branch("supercluster_escluster_hit_x", supercluster_escluster_hit_x, "supercluster_escluster_hit_x[supercluster_escluster_hit_count]/F");
+	tree->Branch("supercluster_escluster_hit_y", supercluster_escluster_hit_y, "supercluster_escluster_hit_y[supercluster_escluster_hit_count]/F");
+	tree->Branch("supercluster_escluster_hit_z", supercluster_escluster_hit_z, "supercluster_escluster_hit_z[supercluster_escluster_hit_count]/F");
+
+	tree->Branch("muon_count", &muon_count, "muon_count/i");
+	tree->Branch("muon_px", muon_px, "muon_px[muon_count]/F");
+	tree->Branch("muon_py", muon_py, "muon_py[muon_count]/F");
+	tree->Branch("muon_pz", muon_pz, "muon_pz[muon_count]/F");
+	tree->Branch("muon_pterror", muon_pterror, "muon_pterror[muon_count]/F");
+	tree->Branch("muon_chi2", muon_chi2, "muon_chi2[muon_count]/F");
+	tree->Branch("muon_ndof", muon_ndof, "muon_ndof[muon_count]/F");
+	tree->Branch("muon_innertrack_vtx", muon_innertrack_vtx, "muon_innertrack_vtx[muon_count]/I");
+	tree->Branch("muon_innertrack_px", muon_innertrack_px, "muon_innertrack_px[muon_count]/F");
+	tree->Branch("muon_innertrack_py", muon_innertrack_py, "muon_innertrack_py[muon_count]/F");
+	tree->Branch("muon_innertrack_pz", muon_innertrack_pz, "muon_innertrack_pz[muon_count]/F");
+	tree->Branch("muon_innertrack_outerx", muon_innertrack_outerx, "muon_innertrack_outerx[muon_count]/F");
+	tree->Branch("muon_innertrack_outery", muon_innertrack_outery, "muon_innertrack_outery[muon_count]/F");
+	tree->Branch("muon_innertrack_outerz", muon_innertrack_outerz, "muon_innertrack_outerz[muon_count]/F");
+	tree->Branch("muon_innertrack_closestpointx", muon_innertrack_closestpointx, "muon_innertrack_closestpointx[muon_count]/F");
+	tree->Branch("muon_innertrack_closestpointy", muon_innertrack_closestpointy, "muon_innertrack_closestpointy[muon_count]/F");
+	tree->Branch("muon_innertrack_closestpointz", muon_innertrack_closestpointz, "muon_innertrack_closestpointz[muon_count]/F");
+	tree->Branch("muon_innertrack_chi2", muon_innertrack_chi2, "muon_innertrack_chi2[muon_count]/F");
+	tree->Branch("muon_innertrack_ndof", muon_innertrack_ndof, "muon_innertrack_ndof[muon_count]/F");
+	tree->Branch("muon_innertrack_dxy", muon_innertrack_dxy, "muon_innertrack_dxy[muon_count]/F");
+	tree->Branch("muon_innertrack_dxyerr", muon_innertrack_dxyerr, "muon_innertrack_dxyerr[muon_count]/F");
+	tree->Branch("muon_innertrack_dz", muon_innertrack_dz, "muon_innertrack_dz[muon_count]/F");
+	tree->Branch("muon_innertrack_dzerr", muon_innertrack_dzerr, "muon_innertrack_dzerr[muon_count]/F");
+	tree->Branch("muon_innertrack_dedxharmonic2", muon_innertrack_dedxharmonic2, "muon_innertrack_dedxharmonic2[muon_count]/F");
+	tree->Branch("muon_innertrack_charge", muon_innertrack_charge, "muon_innertrack_charge[muon_count]/I");
+	tree->Branch("muon_innertrack_nhits", muon_innertrack_nhits, "muon_innertrack_nhits[muon_count]/b");
+	tree->Branch("muon_innertrack_npixelhits", muon_innertrack_npixelhits, "muon_innertrack_npixelhits[muon_count]/b");
+	tree->Branch("muon_innertrack_nmissinghits", muon_innertrack_nmissinghits, "muon_innertrack_nmissinghits[muon_count]/b");
+	tree->Branch("muon_innertrack_npixellayers", muon_innertrack_npixellayers, "muon_innertrack_npixellayers[muon_count]/b");
+	tree->Branch("muon_innertrack_nstriplayers", muon_innertrack_nstriplayers, "muon_innertrack_nstriplayers[muon_count]/b");
+	tree->Branch("muon_outertrack_px", muon_outertrack_px, "muon_outertrack_px[muon_count]/F");
+	tree->Branch("muon_outertrack_py", muon_outertrack_py, "muon_outertrack_py[muon_count]/F");
+	tree->Branch("muon_outertrack_pz", muon_outertrack_pz, "muon_outertrack_pz[muon_count]/F");
+	tree->Branch("muon_outertrack_hits", muon_outertrack_hits, "muon_outertrack_hits[muon_count]/b");
+	tree->Branch("muon_outertrack_missinghits", muon_outertrack_missinghits, "muon_outertrack_missinghits[muon_count]/b");
+	tree->Branch("muon_outertrack_chi2", muon_outertrack_chi2, "muon_outertrack_chi2[muon_count]/F");
+	tree->Branch("muon_outertrack_ndof", muon_outertrack_ndof, "muon_outertrack_ndof[muon_count]/F");
+	tree->Branch("muon_isolationr3track", muon_isolationr3track, "muon_isolationr3track[muon_count]/F");
+	tree->Branch("muon_isolationr3ntrack", muon_isolationr3ntrack, "muon_isolationr3ntrack[muon_count]/I");
+	tree->Branch("muon_isolationr3ecal", muon_isolationr3ecal, "muon_isolationr3ecal[muon_count]/F");
+	tree->Branch("muon_isolationr3hcal", muon_isolationr3hcal, "muon_isolationr3hcal[muon_count]/F");
+	tree->Branch("muon_pfisolationr3_sumchargedhadronpt", muon_pfisolationr3_sumchargedhadronpt, "muon_pfisolationr3_sumchargedhadronpt[muon_count]/F");  
+	tree->Branch("muon_pfisolationr3_sumchargedparticlept", muon_pfisolationr3_sumchargedparticlept, "muon_pfisolationr3_sumchargedparticlept[muon_count]/F"); 
+	tree->Branch("muon_pfisolationr3_sumneutralhadronet", muon_pfisolationr3_sumneutralhadronet, "muon_pfisolationr3_sumneutralhadronet[muon_count]/F"); 
+	tree->Branch("muon_pfisolationr3_sumphotonet", muon_pfisolationr3_sumphotonet, "muon_pfisolationr3_sumphotonet[muon_count]/F"); 
+	tree->Branch("muon_pfisolationr3_sumneutralhadronethighthreshold", muon_pfisolationr3_sumneutralhadronethighthreshold, "muon_pfisolationr3_sumneutralhadronethighthreshold[muon_count]/F"); 
+	tree->Branch("muon_pfisolationr3_sumphotonethighthreshold", muon_pfisolationr3_sumphotonethighthreshold, "muon_pfisolationr3_sumphotonethighthreshold[muon_count]/F"); 
+	tree->Branch("muon_pfisolationr3_sumpupt", muon_pfisolationr3_sumpupt, "muon_pfisolationr3_sumpupt[muon_count]/F");   
+	tree->Branch("muon_pfisolationr4_sumchargedhadronpt", muon_pfisolationr4_sumchargedhadronpt, "muon_pfisolationr4_sumchargedhadronpt[muon_count]/F");  
+	tree->Branch("muon_pfisolationr4_sumchargedparticlept", muon_pfisolationr4_sumchargedparticlept, "muon_pfisolationr4_sumchargedparticlept[muon_count]/F"); 
+	tree->Branch("muon_pfisolationr4_sumneutralhadronet", muon_pfisolationr4_sumneutralhadronet, "muon_pfisolationr4_sumneutralhadronet[muon_count]/F"); 
+	tree->Branch("muon_pfisolationr4_sumphotonet", muon_pfisolationr4_sumphotonet, "muon_pfisolationr4_sumphotonet[muon_count]/F"); 
+	tree->Branch("muon_pfisolationr4_sumneutralhadronethighthreshold", muon_pfisolationr4_sumneutralhadronethighthreshold, "muon_pfisolationr4_sumneutralhadronethighthreshold[muon_count]/F"); 
+	tree->Branch("muon_pfisolationr4_sumphotonethighthreshold", muon_pfisolationr4_sumphotonethighthreshold, "muon_pfisolationr4_sumphotonethighthreshold[muon_count]/F"); 
+	tree->Branch("muon_pfisolationr4_sumpupt", muon_pfisolationr4_sumpupt, "muon_pfisolationr4_sumpupt[muon_count]/F");   
+	tree->Branch("muon_ecalenergy", muon_ecalenergy, "muon_ecalenergy[muon_count]/F");
+	tree->Branch("muon_hcalenergy", muon_hcalenergy, "muon_hcalenergy[muon_count]/F");
+	tree->Branch("muon_charge", muon_charge, "muon_charge[muon_count]/I");
+	tree->Branch("muon_numchambers", muon_numchambers, "muon_numchambers[muon_count]/I");
+	tree->Branch("muon_numchamberswithsegments", muon_numchamberswithsegments, "muon_numchamberswithsegments[muon_count]/I");
+	tree->Branch("muon_numvalidmuonhits", muon_numvalidmuonhits, "muon_numvalidmuonhits[muon_count]/I");
+	tree->Branch("muon_nummatchedstations", muon_nummatchedstations, "muon_nummatchedstations[muon_count]/I");
+	tree->Branch("muon_type", muon_type, "muon_type[muon_count]/b");
+	tree->Branch("muon_trigger", muon_trigger, "muon_trigger[muon_count]/i");
+	tree->Branch("muon_trackermuonquality", muon_trackermuonquality, "muon_trackermuonquality[muon_count]/i");
+
+	tree->Branch("ak5calojet_count", &ak5calojet_count, "ak5calojet_count/i");
+	tree->Branch("ak5calojet_e", ak5calojet_e, "ak5calojet_e[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_px", ak5calojet_px, "ak5calojet_px[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_py", ak5calojet_py, "ak5calojet_py[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_pz", ak5calojet_pz, "ak5calojet_pz[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_hadronicenergy", ak5calojet_hadronicenergy, "ak5calojet_hadronicenergy[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_emenergy", ak5calojet_emenergy, "ak5calojet_emenergy[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_energycorr", ak5calojet_energycorr, "ak5calojet_energycorr[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_energycorrl7uds", ak5calojet_energycorrl7uds, "ak5calojet_energycorrl7uds[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_energycorrl7bottom", ak5calojet_energycorrl7bottom, "ak5calojet_energycorrl7bottom[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_fhpd", ak5calojet_fhpd, "ak5calojet_fhpd[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_restrictedemf", ak5calojet_restrictedemf, "ak5calojet_restrictedemf[ak5calojet_count]/F");
+	tree->Branch("ak5calojet_btag", ak5calojet_btag, "ak5calojet_btag[ak5calojet_count][4]/F");
+	tree->Branch("ak5calojet_n90", ak5calojet_n90, "ak5calojet_n90[ak5calojet_count]/i");
+	tree->Branch("ak5calojet_n60", ak5calojet_n60, "ak5calojet_n60[ak5calojet_count]/i");
+
+	tree->Branch("ak5jptjet_count", &ak5jptjet_count, "ak5jptjet_count/i");
+	tree->Branch("ak5jptjet_e", ak5jptjet_e, "ak5jptjet_e[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_px", ak5jptjet_px, "ak5jptjet_px[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_py", ak5jptjet_py, "ak5jptjet_py[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_pz", ak5jptjet_pz, "ak5jptjet_pz[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_hadronicenergy", ak5jptjet_hadronicenergy, "ak5jptjet_hadronicenergy[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_chargedhadronicenergy", ak5jptjet_chargedhadronicenergy, "ak5jptjet_chargedhadronicenergy[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_emenergy", ak5jptjet_emenergy, "ak5jptjet_emenergy[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_chargedemenergy", ak5jptjet_chargedemenergy, "ak5jptjet_chargedemenergy[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_chargedmulti", ak5jptjet_chargedmulti, "ak5jptjet_chargedmulti[ak5jptjet_count]/i");	
+	tree->Branch("ak5jptjet_energycorr", ak5jptjet_energycorr, "ak5jptjet_energycorr[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_energycorrl7uds", ak5jptjet_energycorrl7uds, "ak5jptjet_energycorrl7uds[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_energycorrl7bottom", ak5jptjet_energycorrl7bottom, "ak5jptjet_energycorrl7bottom[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_fhpd", ak5jptjet_fhpd, "ak5jptjet_fhpd[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_restrictedemf", ak5jptjet_restrictedemf, "ak5jptjet_restrictedemf[ak5jptjet_count]/F");
+	tree->Branch("ak5jptjet_btag", ak5jptjet_btag, "ak5jptjet_btag[ak5jptjet_count][4]/F");
+	tree->Branch("ak5jptjet_n90", ak5jptjet_n90, "ak5jptjet_n90[ak5jptjet_count]/i");
+
+	tree->Branch("ak5pfjet_count", &ak5pfjet_count, "ak5pfjet_count/i");
+	tree->Branch("ak5pfjet_e", ak5pfjet_e, "ak5pfjet_e[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_px", ak5pfjet_px, "ak5pfjet_px[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_py", ak5pfjet_py, "ak5pfjet_py[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_pz", ak5pfjet_pz, "ak5pfjet_pz[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_area", ak5pfjet_area, "ak5pfjet_area[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_hadronicenergy", ak5pfjet_hadronicenergy, "ak5pfjet_hadronicenergy[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_chargedhadronicenergy", ak5pfjet_chargedhadronicenergy, "ak5pfjet_chargedhadronicenergy[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_emenergy", ak5pfjet_emenergy, "ak5pfjet_emenergy[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_chargedemenergy", ak5pfjet_chargedemenergy, "ak5pfjet_chargedemenergy[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_hfhadronicenergy", ak5pfjet_hfhadronicenergy, "ak5pfjet_hfhadronicenergy[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_hfemenergy", ak5pfjet_hfemenergy, "ak5pfjet_hfemenergy[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_electronenergy", ak5pfjet_electronenergy, "ak5pfjet_electronenergy[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_muonenergy", ak5pfjet_muonenergy, "ak5pfjet_muonenergy[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_chargedmulti", ak5pfjet_chargedmulti, "ak5pfjet_chargedmulti[ak5pfjet_count]/i");	
+	tree->Branch("ak5pfjet_neutralmulti", ak5pfjet_neutralmulti, "ak5pfjet_neutralmulti[ak5pfjet_count]/i");	
+	tree->Branch("ak5pfjet_hfhadronicmulti", ak5pfjet_hfhadronicmulti, "ak5pfjet_hfhadronicmulti[ak5pfjet_count]/i");	
+	tree->Branch("ak5pfjet_hfemmulti", ak5pfjet_hfemmulti, "ak5pfjet_hfemmulti[ak5pfjet_count]/i");	
+	tree->Branch("ak5pfjet_electronmulti", ak5pfjet_electronmulti, "ak5pfjet_electronmulti[ak5pfjet_count]/i");	
+	tree->Branch("ak5pfjet_muonmulti", ak5pfjet_muonmulti, "ak5pfjet_muonmulti[ak5pfjet_count]/i");	
+	tree->Branch("ak5pfjet_chargeda", ak5pfjet_chargeda, "ak5pfjet_chargeda[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_chargedb", ak5pfjet_chargedb, "ak5pfjet_chargedb[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_neutrala", ak5pfjet_neutrala, "ak5pfjet_neutrala[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_neutralb", ak5pfjet_neutralb, "ak5pfjet_neutralb[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_alla", ak5pfjet_alla, "ak5pfjet_alla[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_allb", ak5pfjet_allb, "ak5pfjet_allb[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_chargedfractionmv", ak5pfjet_chargedfractionmv, "ak5pfjet_chargedfractionmv[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_energycorr", ak5pfjet_energycorr, "ak5pfjet_energycorr[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_energycorrunc", ak5pfjet_energycorrunc, "ak5pfjet_energycorrunc[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_energycorrl7uds", ak5pfjet_energycorrl7uds, "ak5pfjet_energycorrl7uds[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_energycorrl7bottom", ak5pfjet_energycorrl7bottom, "ak5pfjet_energycorrl7bottom[ak5pfjet_count]/F");
+	tree->Branch("ak5pfjet_btag", ak5pfjet_btag, "ak5pfjet_btag[ak5pfjet_count][6]/F");
+	tree->Branch("ak5pfjet_trigger", ak5pfjet_trigger, "ak5pfjet_trigger[ak5pfjet_count]/i");
+	tree->Branch("ak5pfjet_mcflavour", ak5pfjet_mcflavour, "ak5pfjet_mcflavour[ak5pfjet_count]/I");
+
+	tree->Branch("ak5pfchsjet_count", &ak5pfchsjet_count, "ak5pfchsjet_count/i");
+	tree->Branch("ak5pfchsjet_e", ak5pfchsjet_e, "ak5pfchsjet_e[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_px", ak5pfchsjet_px, "ak5pfchsjet_px[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_py", ak5pfchsjet_py, "ak5pfchsjet_py[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_pz", ak5pfchsjet_pz, "ak5pfchsjet_pz[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_area", ak5pfchsjet_area, "ak5pfchsjet_area[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_hadronicenergy", ak5pfchsjet_hadronicenergy, "ak5pfchsjet_hadronicenergy[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_chargedhadronicenergy", ak5pfchsjet_chargedhadronicenergy, "ak5pfchsjet_chargedhadronicenergy[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_emenergy", ak5pfchsjet_emenergy, "ak5pfchsjet_emenergy[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_chargedemenergy", ak5pfchsjet_chargedemenergy, "ak5pfchsjet_chargedemenergy[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_hfhadronicenergy", ak5pfchsjet_hfhadronicenergy, "ak5pfchsjet_hfhadronicenergy[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_hfemenergy", ak5pfchsjet_hfemenergy, "ak5pfchsjet_hfemenergy[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_electronenergy", ak5pfchsjet_electronenergy, "ak5pfchsjet_electronenergy[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_muonenergy", ak5pfchsjet_muonenergy, "ak5pfchsjet_muonenergy[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_chargedmulti", ak5pfchsjet_chargedmulti, "ak5pfchsjet_chargedmulti[ak5pfchsjet_count]/i");	
+	tree->Branch("ak5pfchsjet_neutralmulti", ak5pfchsjet_neutralmulti, "ak5pfchsjet_neutralmulti[ak5pfchsjet_count]/i");	
+	tree->Branch("ak5pfchsjet_hfhadronicmulti", ak5pfchsjet_hfhadronicmulti, "ak5pfchsjet_hfhadronicmulti[ak5pfchsjet_count]/i");	
+	tree->Branch("ak5pfchsjet_hfemmulti", ak5pfchsjet_hfemmulti, "ak5pfchsjet_hfemmulti[ak5pfchsjet_count]/i");	
+	tree->Branch("ak5pfchsjet_electronmulti", ak5pfchsjet_electronmulti, "ak5pfchsjet_electronmulti[ak5pfchsjet_count]/i");	
+	tree->Branch("ak5pfchsjet_muonmulti", ak5pfchsjet_muonmulti, "ak5pfchsjet_muonmulti[ak5pfchsjet_count]/i");	
+	tree->Branch("ak5pfchsjet_energycorr", ak5pfchsjet_energycorr, "ak5pfchsjet_energycorr[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_chargeda", ak5pfchsjet_chargeda, "ak5pfchsjet_chargeda[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_chargedb", ak5pfchsjet_chargedb, "ak5pfchsjet_chargedb[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_neutrala", ak5pfchsjet_neutrala, "ak5pfchsjet_neutrala[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_neutralb", ak5pfchsjet_neutralb, "ak5pfchsjet_neutralb[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_alla", ak5pfchsjet_alla, "ak5pfchsjet_alla[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_allb", ak5pfchsjet_allb, "ak5pfchsjet_allb[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_chargedfractionmv", ak5pfchsjet_chargedfractionmv, "ak5pfchsjet_chargedfractionmv[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_energycorrunc", ak5pfchsjet_energycorrunc, "ak5pfchsjet_energycorrunc[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_energycorrl7uds", ak5pfchsjet_energycorrl7uds, "ak5pfchsjet_energycorrl7uds[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_energycorrl7bottom", ak5pfchsjet_energycorrl7bottom, "ak5pfchsjet_energycorrl7bottom[ak5pfchsjet_count]/F");
+	tree->Branch("ak5pfchsjet_btag", ak5pfchsjet_btag, "ak5pfchsjet_btag[ak5pfchsjet_count][6]/F");
+	tree->Branch("ak5pfchsjet_trigger", ak5pfchsjet_trigger, "ak5pfchsjet_trigger[ak5pfchsjet_count]/i");
+	tree->Branch("ak5pfchsjet_mcflavour", ak5pfchsjet_mcflavour, "ak5pfchsjet_mcflavour[ak5pfchsjet_count]/I");
+
+	tree->Branch("electron_count", &electron_count, "electron_count/i");
+	tree->Branch("electron_vtx", electron_vtx, "electron_vtx[electron_count]/I");
+	tree->Branch("electron_px", electron_px, "electron_px[electron_count]/F");
+	tree->Branch("electron_py", electron_py, "electron_py[electron_count]/F");
+	tree->Branch("electron_pz", electron_pz, "electron_pz[electron_count]/F");
+	tree->Branch("electron_correctedecalenergy", electron_correctedecalenergy, "electron_correctedecalenergy[electron_count]/F");
+	tree->Branch("electron_trackchi2", electron_trackchi2, "electron_trackchi2[electron_count]/F");
+	tree->Branch("electron_trackndof", electron_trackndof, "electron_trackndof[electron_count]/F");
+	tree->Branch("electron_outerx", electron_outerx, "electron_outerx[electron_count]/F");
+	tree->Branch("electron_outery", electron_outery, "electron_outery[electron_count]/F");
+	tree->Branch("electron_outerz", electron_outerz, "electron_outerz[electron_count]/F");
+	tree->Branch("electron_closestpointx", electron_closestpointx, "electron_closestpointx[electron_count]/F");
+	tree->Branch("electron_closestpointy", electron_closestpointy, "electron_closestpointy[electron_count]/F");
+	tree->Branch("electron_closestpointz", electron_closestpointz, "electron_closestpointz[electron_count]/F");
+	tree->Branch("electron_esuperclusterovertrack", electron_esuperclusterovertrack, "electron_esuperclusterovertrack[electron_count]/F");
+	tree->Branch("electron_eseedclusterovertrack", electron_eseedclusterovertrack, "electron_eseedclusterovertrack[electron_count]/F");
+	tree->Branch("electron_deltaetasuperclustertrack", electron_deltaetasuperclustertrack, "electron_deltaetasuperclustertrack[electron_count]/F");
+	tree->Branch("electron_deltaphisuperclustertrack", electron_deltaphisuperclustertrack, "electron_deltaphisuperclustertrack[electron_count]/F");
+	tree->Branch("electron_e1x5", electron_e1x5, "electron_e1x5[electron_count]/F");
+	tree->Branch("electron_e2x5", electron_e2x5, "electron_e2x5[electron_count]/F");
+	tree->Branch("electron_e5x5", electron_e5x5, "electron_e5x5[electron_count]/F");
+	tree->Branch("electron_sigmaetaeta", electron_sigmaetaeta, "electron_sigmaetaeta[electron_count]/F");
+	tree->Branch("electron_sigmaietaieta", electron_sigmaietaieta, "electron_sigmaietaieta[electron_count]/F");
+	tree->Branch("electron_ehcaloverecaldepth1", electron_ehcaloverecaldepth1, "electron_ehcaloverecaldepth1[electron_count]/F");
+	tree->Branch("electron_ehcaloverecaldepth2", electron_ehcaloverecaldepth2, "electron_ehcaloverecaldepth2[electron_count]/F");
+	tree->Branch("electron_ehcaltoweroverecaldepth1", electron_ehcaltoweroverecaldepth1, "electron_ehcaltoweroverecaldepth1[electron_count]/F");
+	tree->Branch("electron_ehcaltoweroverecaldepth2", electron_ehcaltoweroverecaldepth2, "electron_ehcaltoweroverecaldepth2[electron_count]/F");
+	tree->Branch("electron_isolationr3track", electron_isolationr3track, "electron_isolationr3track[electron_count]/F");
+	tree->Branch("electron_isolationr3ecal", electron_isolationr3ecal, "electron_isolationr3ecal[electron_count]/F");
+	tree->Branch("electron_isolationr3hcal", electron_isolationr3hcal, "electron_isolationr3hcal[electron_count]/F");
+	tree->Branch("electron_isolationr4track", electron_isolationr4track, "electron_isolationr4track[electron_count]/F");
+	tree->Branch("electron_isolationr4ecal", electron_isolationr4ecal, "electron_isolationr4ecal[electron_count]/F");
+	tree->Branch("electron_isolationr4hcal", electron_isolationr4hcal, "electron_isolationr4hcal[electron_count]/F");
+	tree->Branch("electron_isolationpfr3charged", electron_isolationpfr3charged, "electron_isolationpfr3charged[electron_count]/F");
+	tree->Branch("electron_isolationpfr3photon", electron_isolationpfr3photon, "electron_isolationpfr3photon[electron_count]/F");
+	tree->Branch("electron_isolationpfr3neutral", electron_isolationpfr3neutral, "electron_isolationpfr3neutral[electron_count]/F");
+	tree->Branch("electron_nhits", electron_nhits, "electron_nhits[electron_count]/b");
+	tree->Branch("electron_npixelhits", electron_npixelhits, "electron_npixelhits[electron_count]/b"); 
+	tree->Branch("electron_nmissinghits", electron_nmissinghits, "electron_nmissinghits[electron_count]/b");
+	tree->Branch("electron_npixellayers", electron_npixellayers, "electron_npixellayers[electron_count]/b");
+	tree->Branch("electron_nstriplayers", electron_nstriplayers, "electron_nstriplayers[electron_count]/b");
+	tree->Branch("electron_nhitsexpected", electron_nhitsexpected, "electron_nhitsexpected[electron_count]/b");
+	tree->Branch("electron_dxy", electron_dxy, "electron_dxy[electron_count]/F");
+	tree->Branch("electron_dxyerr", electron_dxyerr, "electron_dxyerr[electron_count]/F");
+	tree->Branch("electron_dz", electron_dz, "electron_dz[electron_count]/F");
+	tree->Branch("electron_dzerr", electron_dzerr, "electron_dzerr[electron_count]/F"); 
+	tree->Branch("electron_convdist", electron_convdist, "electron_convdist[electron_count]/F");
+	tree->Branch("electron_convdcot", electron_convdcot, "electron_convdcot[electron_count]/F");
+	tree->Branch("electron_convradius", electron_convradius, "electron_convradius[electron_count]/F");
+	tree->Branch("electron_gapinfo", electron_gapinfo, "electron_gapinfo[electron_count]/i");
+	tree->Branch("electron_fbrems", electron_fbrems, "electron_fbrems[electron_count]/F");
+	tree->Branch("electron_numbrems", electron_numbrems, "electron_numbrems[electron_count]/I");
+	tree->Branch("electron_charge", electron_charge, "electron_charge[electron_count]/I");
+	tree->Branch("electron_superclusterindex", electron_superclusterindex, "electron_superclusterindex[electron_count]/I");
+	tree->Branch("electron_info", electron_info, "electron_info[electron_count]/b");
+	tree->Branch("electron_trigger", electron_trigger, "electron_trigger[electron_count]/i");
+	tree->Branch("electron_eID", electron_eID, "electron_eID[electron_count]/b");
+
+	tree->Branch("photon_count", &photon_count, "photon_count/i");
+	tree->Branch("photon_px", photon_px, "photon_px[photon_count]/F");
+	tree->Branch("photon_py", photon_py, "photon_py[photon_count]/F");
+	tree->Branch("photon_pz", photon_pz, "photon_pz[photon_count]/F");
+	tree->Branch("photon_e1x5", photon_e1x5, "photon_e1x5[photon_count]/F");
+	tree->Branch("photon_e2x5", photon_e2x5, "photon_e2x5[photon_count]/F");
+	tree->Branch("photon_e3x3", photon_e3x3, "photon_e3x3[photon_count]/F");
+	tree->Branch("photon_e5x5", photon_e5x5, "photon_e5x5[photon_count]/F");
+	tree->Branch("photon_sigmaetaeta", photon_sigmaetaeta, "photon_sigmaetaeta[photon_count]/F");
+	tree->Branch("photon_sigmaietaieta", photon_sigmaietaieta, "photon_sigmaietaieta[photon_count]/F");
+	tree->Branch("photon_ehcaloverecaldepth1", photon_ehcaloverecaldepth1, "photon_ehcaloverecaldepth1[photon_count]/F");
+	tree->Branch("photon_ehcaloverecaldepth2", photon_ehcaloverecaldepth2, "photon_ehcaloverecaldepth2[photon_count]/F");
+	tree->Branch("photon_ehcaltoweroverecaldepth1", photon_ehcaltoweroverecaldepth1, "photon_ehcaltoweroverecaldepth1[photon_count]/F");
+	tree->Branch("photon_ehcaltoweroverecaldepth2", photon_ehcaltoweroverecaldepth2, "photon_ehcaltoweroverecaldepth2[photon_count]/F");
+	tree->Branch("photon_maxenergyxtal", photon_maxenergyxtal, "photon_maxenergyxtal[photon_count]/F");
+	tree->Branch("photon_isolationr3track", photon_isolationr3track, "photon_isolationr3track[photon_count]/F");
+	tree->Branch("photon_isolationr3trackhollow", photon_isolationr3trackhollow, "photon_isolationr3trackhollow[photon_count]/F");
+	tree->Branch("photon_isolationr3ntrack", photon_isolationr3ntrack, "photon_isolationr3ntrack[photon_count]/i");
+	tree->Branch("photon_isolationr3ntrackhollow", photon_isolationr3ntrackhollow, "photon_isolationr3ntrackhollow[photon_count]/i");
+	tree->Branch("photon_isolationr3ecal", photon_isolationr3ecal, "photon_isolationr3ecal[photon_count]/F");
+	tree->Branch("photon_isolationr3hcal", photon_isolationr3hcal, "photon_isolationr3hcal[photon_count]/F");
+	tree->Branch("photon_isolationr4track", photon_isolationr4track, "photon_isolationr4track[photon_count]/F");
+	tree->Branch("photon_isolationr4trackhollow", photon_isolationr4trackhollow, "photon_isolationr4trackhollow[photon_count]/F");
+	tree->Branch("photon_isolationr4ntrack", photon_isolationr4ntrack, "photon_isolationr4ntrack[photon_count]/i");
+	tree->Branch("photon_isolationr4ntrackhollow", photon_isolationr4ntrackhollow, "photon_isolationr4ntrackhollow[photon_count]/i");
+	tree->Branch("photon_isolationr4ecal", photon_isolationr4ecal, "photon_isolationr4ecal[photon_count]/F");
+	tree->Branch("photon_isolationr4hcal", photon_isolationr4hcal, "photon_isolationr4hcal[photon_count]/F");
+	tree->Branch("photon_isolationpfr3charged", photon_isolationpfr3charged, "photon_isolationpfr3charged[photon_count]/F");
+	tree->Branch("photon_isolationpfr3photon", photon_isolationpfr3photon, "photon_isolationpfr3photon[photon_count]/F");
+	tree->Branch("photon_isolationpfr3neutral", photon_isolationpfr3neutral, "photon_isolationpfr3neutral[photon_count]/F");
+	tree->Branch("photon_superclusterindex", photon_superclusterindex, "photon_superclusterindex[photon_count]/I");
+	tree->Branch("photon_info", photon_info, "photon_info[photon_count]/b");
+	tree->Branch("photon_gapinfo", photon_gapinfo, "photon_gapinfo[photon_count]/i");
+	tree->Branch("photon_trigger", photon_trigger, "photon_trigger[photon_count]/i");
+	tree->Branch("photon_conversionbegin", photon_conversionbegin, "photon_conversionbegin[photon_count]/i");
+
+	tree->Branch("conversion_count", &conversion_count, "conversion_count/i");
+	tree->Branch("conversion_info", conversion_info, "conversion_info[conversion_count]/b");
+	tree->Branch("conversion_vx", conversion_vx, "conversion_vx[conversion_count]/F");
+	tree->Branch("conversion_vy", conversion_vy, "conversion_vy[conversion_count]/F");
+	tree->Branch("conversion_vz", conversion_vz, "conversion_vz[conversion_count]/F");
+	tree->Branch("conversion_chi2", conversion_chi2, "conversion_chi2[conversion_count]/F");
+	tree->Branch("conversion_ndof", conversion_ndof, "conversion_ndof[conversion_count]/F");
+	tree->Branch("conversion_cov", conversion_cov, "conversion_cov[conversion_count][6]/F");
+	tree->Branch("conversion_mvaout", conversion_mvaout, "conversion_mvaout[conversion_count]/F");
+	tree->Branch("conversion_trackecalpointx", conversion_trackecalpointx, "conversion_trackecalpointx[conversion_count][2]/F");
+	tree->Branch("conversion_trackecalpointy", conversion_trackecalpointy, "conversion_trackecalpointy[conversion_count][2]/F");
+	tree->Branch("conversion_trackecalpointz", conversion_trackecalpointz, "conversion_trackecalpointz[conversion_count][2]/F");
+	tree->Branch("conversion_trackpx", conversion_trackpx, "conversion_trackpx[conversion_count][2]/F");
+	tree->Branch("conversion_trackpy", conversion_trackpy, "conversion_trackpy[conversion_count][2]/F");
+	tree->Branch("conversion_trackpz", conversion_trackpz, "conversion_trackpz[conversion_count][2]/F");
+	tree->Branch("conversion_trackclosestpointx", conversion_trackclosestpointx, "conversion_trackclosestpointx[conversion_count][2]/F");
+	tree->Branch("conversion_trackclosestpointy", conversion_trackclosestpointy, "conversion_trackclosestpointy[conversion_count][2]/F");
+	tree->Branch("conversion_trackclosestpointz", conversion_trackclosestpointz, "conversion_trackclosestpointz[conversion_count][2]/F");
+	tree->Branch("conversion_trackchi2", conversion_trackchi2, "conversion_trackchi2[conversion_count][2]/F");
+	tree->Branch("conversion_trackndof", conversion_trackndof, "conversion_trackndof[conversion_count][2]/F");
+	tree->Branch("conversion_trackdxy", conversion_trackdxy, "conversion_trackdxy[conversion_count][2]/F");
+	tree->Branch("conversion_trackdxyerr", conversion_trackdxyerr, "conversion_trackdxyerr[conversion_count][2]/F");
+	tree->Branch("conversion_trackdz", conversion_trackdz, "conversion_trackdz[conversion_count][2]/F");
+	tree->Branch("conversion_trackdzerr", conversion_trackdzerr, "conversion_trackdzerr[conversion_count][2]/F");
+	tree->Branch("conversion_trackcharge", conversion_trackcharge, "conversion_trackcharge[conversion_count][2]/I");
+	tree->Branch("conversion_tracknhits", conversion_tracknhits, "conversion_tracknhits[conversion_count][2]/b");
+	tree->Branch("conversion_tracknmissinghits", conversion_tracknmissinghits, "conversion_tracknmissinghits[conversion_count][2]/b");
+	tree->Branch("conversion_tracknpixelhits", conversion_tracknpixelhits, "conversion_tracknpixelhits[conversion_count][2]/b");
+	tree->Branch("conversion_tracknpixellayers", conversion_tracknpixellayers, "conversion_tracknpixellayers[conversion_count][2]/b");
+	tree->Branch("conversion_tracknstriplayers", conversion_tracknstriplayers, "conversion_tracknstriplayers[conversion_count][2]/b");
+
+	tree->Branch("allconversion_count", &allconversion_count, "allconversion_count/i");
+	tree->Branch("allconversion_info", allconversion_info, "allconversion_info[allconversion_count]/b");
+	tree->Branch("allconversion_vx", allconversion_vx, "allconversion_vx[allconversion_count]/F");
+	tree->Branch("allconversion_vy", allconversion_vy, "allconversion_vy[allconversion_count]/F");
+	tree->Branch("allconversion_vz", allconversion_vz, "allconversion_vz[allconversion_count]/F");
+	tree->Branch("allconversion_chi2", allconversion_chi2, "allconversion_chi2[allconversion_count]/F");
+	tree->Branch("allconversion_ndof", allconversion_ndof, "allconversion_ndof[allconversion_count]/F");
+	tree->Branch("allconversion_cov", allconversion_cov, "allconversion_cov[allconversion_count][6]/F");
+	tree->Branch("allconversion_mvaout", allconversion_mvaout, "allconversion_mvaout[allconversion_count]/F");
+	tree->Branch("allconversion_trackecalpointx", allconversion_trackecalpointx, "allconversion_trackecalpointx[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackecalpointy", allconversion_trackecalpointy, "allconversion_trackecalpointy[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackecalpointz", allconversion_trackecalpointz, "allconversion_trackecalpointz[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackpx", allconversion_trackpx, "allconversion_trackpx[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackpy", allconversion_trackpy, "allconversion_trackpy[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackpz", allconversion_trackpz, "allconversion_trackpz[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackclosestpointx", allconversion_trackclosestpointx, "allconversion_trackclosestpointx[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackclosestpointy", allconversion_trackclosestpointy, "allconversion_trackclosestpointy[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackclosestpointz", allconversion_trackclosestpointz, "allconversion_trackclosestpointz[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackchi2", allconversion_trackchi2, "allconversion_trackchi2[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackndof", allconversion_trackndof, "allconversion_trackndof[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackdxy", allconversion_trackdxy, "allconversion_trackdxy[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackdxyerr", allconversion_trackdxyerr, "allconversion_trackdxyerr[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackdz", allconversion_trackdz, "allconversion_trackdz[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackdzerr", allconversion_trackdzerr, "allconversion_trackdzerr[allconversion_count][2]/F");
+	tree->Branch("allconversion_trackcharge", allconversion_trackcharge, "allconversion_trackcharge[allconversion_count][2]/I");
+	tree->Branch("allconversion_tracknhits", allconversion_tracknhits, "allconversion_tracknhits[allconversion_count][2]/b");
+	tree->Branch("allconversion_tracknmissinghits", allconversion_tracknmissinghits, "allconversion_tracknmissinghits[allconversion_count][2]/b");
+	tree->Branch("allconversion_tracknpixelhits", allconversion_tracknpixelhits, "allconversion_tracknpixelhits[allconversion_count][2]/b");
+	tree->Branch("allconversion_tracknpixellayers", allconversion_tracknpixellayers, "allconversion_tracknpixellayers[allconversion_count][2]/b");
+	tree->Branch("allconversion_tracknstriplayers", allconversion_tracknstriplayers, "allconversion_tracknstriplayers[allconversion_count][2]/b");
+
+	tree->Branch("tau_count", &tau_count, "tau_count/i");
+	tree->Branch("tau_px", tau_px, "tau_px[tau_count]/F");
+	tree->Branch("tau_py", tau_py, "tau_py[tau_count]/F");
+	tree->Branch("tau_pz", tau_pz, "tau_pz[tau_count]/F");
+	tree->Branch("tau_isolationneutralspt", tau_isolationneutralspt, "tau_isolationneutralspt[tau_count]/F");
+	tree->Branch("tau_isolationneutralsnum", tau_isolationneutralsnum, "tau_isolationneutralsnum[tau_count]/i");
+	tree->Branch("tau_isolationchargedpt", tau_isolationchargedpt, "tau_isolationchargedpt[tau_count]/F");
+	tree->Branch("tau_isolationchargednum", tau_isolationchargednum, "tau_isolationchargednum[tau_count]/i");
+	tree->Branch("tau_isolationgammapt", tau_isolationgammapt, "tau_isolationgammapt[tau_count]/F");
+	tree->Branch("tau_isolationgammanum", tau_isolationgammanum, "tau_isolationgammanum[tau_count]/i");
+	tree->Branch("tau_charge", tau_charge, "tau_charge[tau_count]/I");
+	tree->Branch("tau_emfraction", tau_emfraction, "tau_emfraction[tau_count]/F");
+	tree->Branch("tau_hcaltotoverplead", tau_hcaltotoverplead, "tau_hcaltotoverplead[tau_count]/F");
+	tree->Branch("tau_hcal3x3overplead", tau_hcal3x3overplead, "tau_hcal3x3overplead[tau_count]/F");
+	tree->Branch("tau_ecalstripsumeoverplead", tau_ecalstripsumeoverplead, "tau_ecalstripsumeoverplead[tau_count]/F");
+	tree->Branch("tau_bremsrecoveryeoverplead", tau_bremsrecoveryeoverplead, "tau_bremsrecoveryeoverplead[tau_count]/F");
+	tree->Branch("tau_calocomp", tau_calocomp, "tau_calocomp[tau_count]/F");
+	tree->Branch("tau_segcomp", tau_segcomp, "tau_segcomp[tau_count]/F");
+	tree->Branch("tau_dishps", tau_dishps, "tau_dishps[tau_count]/i");
+	tree->Branch("tau_trigger", tau_trigger, "tau_trigger[tau_count]/i");
+
+	tree->Branch("tau_ak5pfjet_e", tau_ak5pfjet_e, "tau_ak5pfjet_e[tau_count]/F");
+	tree->Branch("tau_ak5pfjet_px", tau_ak5pfjet_px, "tau_ak5pfjet_px[tau_count]/F");
+	tree->Branch("tau_ak5pfjet_py", tau_ak5pfjet_py, "tau_ak5pfjet_py[tau_count]/F");
+	tree->Branch("tau_ak5pfjet_pz", tau_ak5pfjet_pz, "tau_ak5pfjet_pz[tau_count]/F");
+	tree->Branch("tau_ak5pfjet_hadronicenergy", tau_ak5pfjet_hadronicenergy, "tau_ak5pfjet_hadronicenergy[tau_count]/F");
+	tree->Branch("tau_ak5pfjet_chargedhadronicenergy", tau_ak5pfjet_chargedhadronicenergy, "tau_ak5pfjet_chargedhadronicenergy[tau_count]/F");
+	tree->Branch("tau_ak5pfjet_emenergy", tau_ak5pfjet_emenergy, "tau_ak5pfjet_emenergy[tau_count]/F");
+	tree->Branch("tau_ak5pfjet_chargedemenergy", tau_ak5pfjet_chargedemenergy, "tau_ak5pfjet_chargedemenergy[tau_count]/F");
+	tree->Branch("tau_ak5pfjet_chargedmulti", tau_ak5pfjet_chargedmulti, "tau_ak5pfjet_chargedmulti[tau_count]/i");	
+	tree->Branch("tau_ak5pfjet_neutralmulti", tau_ak5pfjet_neutralmulti, "tau_ak5pfjet_neutralmulti[tau_count]/i");	
+	tree->Branch("tau_ak5pfjet_trigger", tau_ak5pfjet_trigger, "tau_ak5pfjet_trigger[tau_count]/i");
+	tree->Branch("tau_chargedbegin", tau_chargedbegin, "tau_chargedbegin[tau_count]/i");
+	tree->Branch("tau_charged_count", &tau_charged_count, "tau_charged_count/i");
+	tree->Branch("tau_charged_px", tau_charged_px, "tau_charged_px[tau_charged_count]/F");
+	tree->Branch("tau_charged_py", tau_charged_py, "tau_charged_py[tau_charged_count]/F");
+	tree->Branch("tau_charged_pz", tau_charged_pz, "tau_charged_pz[tau_charged_count]/F");
+	tree->Branch("tau_charged_outerx", tau_charged_outerx, "tau_charged_outerx[tau_charged_count]/F");
+	tree->Branch("tau_charged_outery", tau_charged_outery, "tau_charged_outery[tau_charged_count]/F");
+	tree->Branch("tau_charged_outerz", tau_charged_outerz, "tau_charged_outerz[tau_charged_count]/F");
+	tree->Branch("tau_charged_closestpointx", tau_charged_closestpointx, "tau_charged_closestpointx[tau_charged_count]/F");
+	tree->Branch("tau_charged_closestpointy", tau_charged_closestpointy, "tau_charged_closestpointy[tau_charged_count]/F");
+	tree->Branch("tau_charged_closestpointz", tau_charged_closestpointz, "tau_charged_closestpointz[tau_charged_count]/F");
+	tree->Branch("tau_charged_chi2", tau_charged_chi2, "tau_charged_chi2[tau_charged_count]/F");
+	tree->Branch("tau_charged_ndof", tau_charged_ndof, "tau_charged_ndof[tau_charged_count]/F");
+	tree->Branch("tau_charged_dxy", tau_charged_dxy, "tau_charged_dxy[tau_charged_count]/F");
+	tree->Branch("tau_charged_dxyerr", tau_charged_dxyerr, "tau_charged_dxyerr[tau_charged_count]/F");
+	tree->Branch("tau_charged_dz", tau_charged_dz, "tau_charged_dz[tau_charged_count]/F");
+	tree->Branch("tau_charged_dzerr", tau_charged_dzerr, "tau_charged_dzerr[tau_charged_count]/F");
+	tree->Branch("tau_charged_dedxharmonic2", tau_charged_dedxharmonic2, "tau_charged_dedxharmonic2[tau_charged_count]/F");
+	tree->Branch("tau_charged_charge", tau_charged_charge, "tau_charged_charge[tau_charged_count]/I");
+	tree->Branch("tau_charged_nhits", tau_charged_nhits, "tau_charged_nhits[tau_charged_count]/b");
+	tree->Branch("tau_charged_nmissinghits", tau_charged_nmissinghits, "tau_charged_nmissinghits[tau_charged_count]/b");
+	tree->Branch("tau_charged_npixelhits", tau_charged_npixelhits, "tau_charged_npixelhits[tau_charged_count]/b");
+	tree->Branch("tau_charged_npixellayers", tau_charged_npixellayers, "tau_charged_npixellayers[tau_charged_count]/b");
+	tree->Branch("tau_charged_nstriplayers", tau_charged_nstriplayers, "tau_charged_nstriplayers[tau_charged_count]/b");
+
+	tree->Branch("ak5pfjet_rho", &ak5pfjet_rho, "ak5pfjet_rho/F");
+	tree->Branch("ak5pfjet_sigma", &ak5pfjet_sigma, "ak5pfjet_sigma/F");
+
+	tree->Branch("calomet_ex", &calomet_ex, "calomet_ex/F");
+	tree->Branch("calomet_ey", &calomet_ey, "calomet_ey/F");
+	tree->Branch("calomet_exmuons", &calomet_exmuons, "calomet_exmuons/F");
+	tree->Branch("calomet_eymuons", &calomet_eymuons, "calomet_eymuons/F");
+
+	tree->Branch("tcmet_ex", &tcmet_ex, "tcmet_ex/F");
+	tree->Branch("tcmet_ey", &tcmet_ey, "tcmet_ey/F");
+
+	tree->Branch("pfmet_ex", &pfmet_ex, "pfmet_ex/F");
+	tree->Branch("pfmet_ey", &pfmet_ey, "pfmet_ey/F");
+	tree->Branch("pfmettype1_ex", &pfmettype1_ex, "pfmettype1_ex/F");
+	tree->Branch("pfmettype1_ey", &pfmettype1_ey, "pfmettype1_ey/F");
+
+	tree->Branch("secvertices_count", &secvertices_count, "secvertices_count/i");
+	tree->Branch("secvertices_vx", secvertices_vx, "secvertices_vx[secvertices_count]/F");
+	tree->Branch("secvertices_vy", secvertices_vy, "secvertices_vy[secvertices_count]/F");
+	tree->Branch("secvertices_vz", secvertices_vz, "secvertices_vz[secvertices_count]/F");
+	tree->Branch("secvertices_chi2", secvertices_chi2, "secvertices_chi2[secvertices_count]/F");
+	tree->Branch("secvertices_ndof", secvertices_ndof, "secvertices_ndof[secvertices_count]/F");
+	tree->Branch("secvertices_cov", secvertices_cov, "secvertices_cov[secvertices_count][6]/F");
+	tree->Branch("secvertices_track_px", secvertices_track_px, "secvertices_track_px[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_py", secvertices_track_py, "secvertices_track_py[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_pz", secvertices_track_pz, "secvertices_track_pz[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_closestpointx", secvertices_track_closestpointx, "secvertices_track_closestpointx[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_closestpointy", secvertices_track_closestpointy, "secvertices_track_closestpointy[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_closestpointz", secvertices_track_closestpointz, "secvertices_track_closestpointz[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_chi2", secvertices_track_chi2, "secvertices_track_chi2[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_ndof", secvertices_track_ndof, "secvertices_track_ndof[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_dxy", secvertices_track_dxy, "secvertices_track_dxy[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_dxyerr", secvertices_track_dxyerr, "secvertices_track_dxyerr[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_dz", secvertices_track_dz, "secvertices_track_dz[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_dzerr", secvertices_track_dzerr, "secvertices_track_dzerr[secvertices_count][2]/F");
+	tree->Branch("secvertices_track_dedxharmonic2", secvertices_track_dedxharmonic2, "secvertices_track_dedxharmonic2[track_count][2]/F");
+	tree->Branch("secvertices_track_charge", secvertices_track_charge, "secvertices_track_charge[secvertices_count][2]/I");
+	tree->Branch("secvertices_track_nhits", secvertices_track_nhits, "secvertices_track_nhits[secvertices_count][2]/b");
+	tree->Branch("secvertices_track_nmissinghits", secvertices_track_nmissinghits, "secvertices_track_nmissinghits[secvertices_count][2]/b");
+	tree->Branch("secvertices_track_npixelhits", secvertices_track_npixelhits, "secvertices_track_npixelhits[secvertices_count][2]/b");
+	tree->Branch("secvertices_track_npixellayers", secvertices_track_npixellayers, "secvertices_track_npixellayers[secvertices_count][2]/b");
+	tree->Branch("secvertices_track_nstriplayers", secvertices_track_nstriplayers, "secvertices_track_nstriplayers[secvertices_count][2]/b");
+
+	tree->Branch("musecvertices_count", &musecvertices_count, "musecvertices_count/i");
+	tree->Branch("musecvertices_vx", musecvertices_vx, "musecvertices_vx[musecvertices_count]/F");
+	tree->Branch("musecvertices_vy", musecvertices_vy, "musecvertices_vy[musecvertices_count]/F");
+	tree->Branch("musecvertices_vz", musecvertices_vz, "musecvertices_vz[musecvertices_count]/F");
+	tree->Branch("musecvertices_chi2", musecvertices_chi2, "musecvertices_chi2[musecvertices_count]/F");
+	tree->Branch("musecvertices_ndof", musecvertices_ndof, "musecvertices_ndof[musecvertices_count]/F");
+	tree->Branch("musecvertices_cov", musecvertices_cov, "musecvertices_cov[musecvertices_count][6]/F");
+	tree->Branch("musecvertices_track_px", musecvertices_track_px, "musecvertices_track_px[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_py", musecvertices_track_py, "musecvertices_track_py[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_pz", musecvertices_track_pz, "musecvertices_track_pz[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_closestpointx", musecvertices_track_closestpointx, "musecvertices_track_closestpointx[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_closestpointy", musecvertices_track_closestpointy, "musecvertices_track_closestpointy[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_closestpointz", musecvertices_track_closestpointz, "musecvertices_track_closestpointz[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_chi2", musecvertices_track_chi2, "musecvertices_track_chi2[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_ndof", musecvertices_track_ndof, "musecvertices_track_ndof[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_dxy", musecvertices_track_dxy, "musecvertices_track_dxy[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_dxyerr", musecvertices_track_dxyerr, "musecvertices_track_dxyerr[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_dz", musecvertices_track_dz, "musecvertices_track_dz[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_dzerr", musecvertices_track_dzerr, "musecvertices_track_dzerr[musecvertices_count][2]/F");
+	tree->Branch("musecvertices_track_dedxharmonic2", musecvertices_track_dedxharmonic2, "musecvertices_track_dedxharmonic2[track_count][2]/F");
+	tree->Branch("musecvertices_track_charge", musecvertices_track_charge, "musecvertices_track_charge[musecvertices_count][2]/I");
+	tree->Branch("musecvertices_track_nhits", musecvertices_track_nhits, "musecvertices_track_nhits[musecvertices_count][2]/b");
+	tree->Branch("musecvertices_track_nmissinghits", musecvertices_track_nmissinghits, "musecvertices_track_nmissinghits[musecvertices_count][2]/b");
+	tree->Branch("musecvertices_track_npixelhits", musecvertices_track_npixelhits, "musecvertices_track_npixelhits[musecvertices_count][2]/b");
+	tree->Branch("musecvertices_track_npixellayers", musecvertices_track_npixellayers, "musecvertices_track_npixellayers[musecvertices_count][2]/b");
+	tree->Branch("musecvertices_track_nstriplayers", musecvertices_track_nstriplayers, "musecvertices_track_nstriplayers[musecvertices_count][2]/b");
+
+	tree->Branch("genweight", &genweight, "genweight/F");
+	tree->Branch("genid1", &genid1, "genid1/F");
+	tree->Branch("genx1", &genx1, "genx1/F");
+	tree->Branch("genid2", &genid2, "genid2/F");
+	tree->Branch("genx2", &genx2, "genx2/F");
+	tree->Branch("genScale", &genScale, "genScale/F");
+
+	tree->Branch("numpileupinteractionsminus", &numpileupinteractionsminus, "numpileupinteractionsminus/I");
+	tree->Branch("numpileupinteractions", &numpileupinteractions, "numpileupinteractions/I");
+	tree->Branch("numpileupinteractionsplus", &numpileupinteractionsplus, "numpileupinteractionsplus/I");
+	tree->Branch("numtruepileupinteractions", &numtruepileupinteractions, "numtruepileupinteractions/F");
+
+	tree->Branch("genparticles_count", &genparticles_count, "genparticles_count/i");
+	tree->Branch("genparticles_e", genparticles_e, "genparticles_e[genparticles_count]/F");
+	tree->Branch("genparticles_px", genparticles_px, "genparticles_px[genparticles_count]/F");
+	tree->Branch("genparticles_py", genparticles_py, "genparticles_py[genparticles_count]/F");
+	tree->Branch("genparticles_pz", genparticles_pz, "genparticles_pz[genparticles_count]/F");
+	tree->Branch("genparticles_vx", genparticles_vx, "genparticles_vx[genparticles_count]/F");
+	tree->Branch("genparticles_vy", genparticles_vy, "genparticles_vy[genparticles_count]/F");
+	tree->Branch("genparticles_vz", genparticles_vz, "genparticles_vz[genparticles_count]/F");
+	tree->Branch("genparticles_pdgid", genparticles_pdgid, "genparticles_pdgid[genparticles_count]/I");
+	tree->Branch("genparticles_status", genparticles_status, "genparticles_status[genparticles_count]/I");
+	tree->Branch("genparticles_indirectmother", genparticles_indirectmother, "genparticles_indirectmother[genparticles_count]/I");
+	tree->Branch("genparticles_info", genparticles_info, "genparticles_info[genparticles_count]/i");
+
+	tree->Branch("genallparticles_count", &genallparticles_count, "genallparticles_count/i");
+	tree->Branch("genallparticles_e", genallparticles_e, "genallparticles_e[genallparticles_count]/F");
+	tree->Branch("genallparticles_px", genallparticles_px, "genallparticles_px[genallparticles_count]/F");
+	tree->Branch("genallparticles_py", genallparticles_py, "genallparticles_py[genallparticles_count]/F");
+	tree->Branch("genallparticles_pz", genallparticles_pz, "genallparticles_pz[genallparticles_count]/F");
+	tree->Branch("genallparticles_vx", genallparticles_vx, "genallparticles_vx[genallparticles_count]/F");
+	tree->Branch("genallparticles_vy", genallparticles_vy, "genallparticles_vy[genallparticles_count]/F");
+	tree->Branch("genallparticles_vz", genallparticles_vz, "genallparticles_vz[genallparticles_count]/F");
+	tree->Branch("genallparticles_pdgid", genallparticles_pdgid, "genallparticles_pdgid[genallparticles_count]/I");
+	tree->Branch("genallparticles_status", genallparticles_status, "genallparticles_status[genallparticles_count]/I");
+	tree->Branch("genallparticles_motherbeg", genallparticles_motherbeg, "genallparticles_motherbeg[genallparticles_count]/i");
+	tree->Branch("genallparticles_daughterbeg", genallparticles_daughterbeg, "genallparticles_daughterbeg[genallparticles_count]/i");
+
+	tree->Branch("genallparticlesmother_count", &genallparticlesmother_count, "genallparticlesmother_count/i");
+	tree->Branch("genallparticles_mothers", genallparticles_mothers, "genallparticles_mothers[genallparticlesmother_count]/i");
+
+	tree->Branch("genallparticlesdaughter_count", &genallparticlesdaughter_count, "genallparticlesdaughter_count/i");
+	tree->Branch("genallparticles_daughters", genallparticles_daughters, "genallparticles_daughters[genallparticlesdaughter_count]/i");
+
+	tree->Branch("genmetcalo_ex", &genmetcalo_ex, "genmetcalo_ex/F");
+	tree->Branch("genmetcalo_ey", &genmetcalo_ey, "genmetcalo_ey/F");
+	tree->Branch("genmettrue_ex", &genmettrue_ex, "genmettrue_ex/F");
+	tree->Branch("genmettrue_ey", &genmettrue_ey, "genmettrue_ey/F");
+
+	tree->Branch("genak5jet_count", &genak5jet_count, "genak5jet_count/i");
+	tree->Branch("genak5jet_e", genak5jet_e, "genak5jet_e[genak5jet_count]/F");
+	tree->Branch("genak5jet_px", genak5jet_px, "genak5jet_px[genak5jet_count]/F");
+	tree->Branch("genak5jet_py", genak5jet_py, "genak5jet_py[genak5jet_count]/F");
+	tree->Branch("genak5jet_pz", genak5jet_pz, "genak5jet_pz[genak5jet_count]/F");
+	tree->Branch("genak5jet_einvisible", genak5jet_einvisible, "genak5jet_einvisible[genak5jet_count]/F");
+	tree->Branch("genak5jet_flavour", genak5jet_flavour, "genak5jet_flavour[genak5jet_count]/I");
+	tree->Branch("genak5jet_info", genak5jet_info, "genak5jet_info[genak5jet_count]/i");
+
+	lumitree = FS->make<TTree>("AC1Blumi", "AC1Blumi", 1);
+
+	lumitree->Branch("lumi_run", &lumi_run, "lumi_run/i");
+	lumitree->Branch("lumi_block", &lumi_block, "lumi_block/i");
+	lumitree->Branch("lumi_value", &lumi_value, "lumi_value/F");
+	lumitree->Branch("lumi_valueerr", &lumi_valueerr, "lumi_valueerr/F");
+	lumitree->Branch("lumi_livefrac", &lumi_livefrac, "lumi_livefrac/F");
+	lumitree->Branch("lumi_deadfrac", &lumi_deadfrac, "lumi_deadfrac/F");
+	lumitree->Branch("lumi_quality", &lumi_quality, "lumi_quality/i");
+	lumitree->Branch("lumi_eventsprocessed", &lumi_eventsprocessed, "lumi_eventsprocessed/i");
+	lumitree->Branch("lumi_eventsfiltered", &lumi_eventsfiltered, "lumi_eventsfiltered/i");
+	lumitree->Branch("lumi_hltprescaletable", &lumi_hltprescaletable, "lumi_hltprescaletable/i");
+	lumitree->Branch("lumi_l1algoprescaletable", &lumi_l1algoprescaletable, "lumi_l1algoprescaletable/i");
+	lumitree->Branch("lumi_l1techprescaletable", &lumi_l1techprescaletable, "lumi_l1techprescaletable/i");
+
+	runtree = FS->make<TTree>("AC1Brun", "AC1Brun", 1);
+
+	runtree->Branch("run_number", &run_number, "run_number/i");
+	runtree->Branch("run_hltcount", &run_hltcount, "run_hltcount/i");
+	runtree->Branch("run_hltnames", run_hltnames, "run_hltnames/C");
+	runtree->Branch("run_hltmunames", run_hltmunames, "run_hltmunames/C");
+	runtree->Branch("run_hltelnames", run_hltelnames, "run_hltelnames/C");
+	runtree->Branch("run_hlttaunames", run_hlttaunames, "run_hlttaunames/C");
+	runtree->Branch("run_hltphotonnames", run_hltphotonnames, "run_hltphotonnames/C");
+	runtree->Branch("run_hltjetnames", run_hltjetnames, "run_hltjetnames/C");
+	runtree->Branch("run_taudiscriminators", run_taudiscriminators, "run_taudiscriminators/C");
+	runtree->Branch("run_hltprescaletablescount", &run_hltprescaletablescount, "run_hltprescaletablescount/i");
+	runtree->Branch("run_hltprescaletables", run_hltprescaletables, "run_hltprescaletables[run_hltprescaletablescount]/i");
+	runtree->Branch("run_hltl1prescaletables", run_hltl1prescaletables, "run_hltl1prescaletables[run_hltprescaletablescount]/i");
+	runtree->Branch("run_l1algocount", &run_l1algocount, "run_l1algocount/i");
+	runtree->Branch("run_l1algoprescaletablescount", &run_l1algoprescaletablescount, "run_l1algoprescaletablescount/i");
+	runtree->Branch("run_l1algoprescaletables", run_l1algoprescaletables, "run_l1algoprescaletables[run_l1algoprescaletablescount]/i");
+	runtree->Branch("run_l1techcount", &run_l1techcount, "run_l1techcount/i");
+	runtree->Branch("run_l1techprescaletablescount", &run_l1techprescaletablescount, "run_l1techprescaletablescount/i");
+	runtree->Branch("run_l1techprescaletables", run_l1techprescaletables, "run_l1techprescaletables[run_l1techprescaletablescount]/i");
+
+}
+
+void RootMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+	if(propagatorWithMaterial != 0){ delete propagatorWithMaterial;}
+	iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+	propagatorWithMaterial = new PropagatorWithMaterial(alongMomentum, 0.10566, &(*magneticField));
+	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", TTrackBuilder);
+
+	run_number = iRun.run();
+	//L1 prescales
+	edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
+	iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
+
+	unsigned numl1algo = (l1GtPfAlgo.product()->gtPrescaleFactors())[0].size();
+	unsigned numl1algotables = (l1GtPfAlgo.product()->gtPrescaleFactors()).size();
+
+	run_l1algoprescaletablescount = numl1algo*numl1algotables;
+	run_l1algocount = numl1algo;
+	if(l1GtPfAlgo.isValid())
+	{
+		for(unsigned i = 0 ; i < numl1algotables ; i++)
+		{
+			for(unsigned j = 0 ; j < numl1algo ; j++)
+			{
+				run_l1algoprescaletables[j+numl1algo*i] = (l1GtPfAlgo.product()->gtPrescaleFactors())[i][j];
+			}
+		}
+	}
+
+	edm::ESHandle<L1GtPrescaleFactors> l1GtPfTech;
+	iSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
+
+	unsigned numl1tech = (l1GtPfTech.product()->gtPrescaleFactors())[0].size();
+	unsigned numl1techtables = (l1GtPfTech.product()->gtPrescaleFactors()).size();
+
+	run_l1techprescaletablescount = numl1tech*numl1techtables;
+	run_l1techcount = numl1tech;
+	if(l1GtPfTech.isValid())
+	{
+		for(unsigned i = 0 ; i < numl1techtables ; i++)
+		{
+			for(unsigned j = 0 ; j < numl1tech ; j++)
+			{
+				run_l1techprescaletables[j+numl1tech*i] = (l1GtPfTech.product()->gtPrescaleFactors())[i][j];
+			}
+		}
+	}
+
+	//HLT names and prescales
+	bool changed = true;
+	if(ctrigger)
+	{
+		HLTConfiguration.init(iRun, iSetup, cTriggerProcess, changed);
+	}
+	run_hltcount = HLTConfiguration.size();
+
+	boost::cmatch what;
+	vector<boost::regex> trigregexes;
+	for(unsigned i = 0 ; i < cHLTriggerNamesSelection.size() ; i++)
+	{
+		trigregexes.push_back(boost::regex(cHLTriggerNamesSelection[i].c_str()));
+	}
+
+	string allnames;
+	for(unsigned i = 0 ; i < HLTConfiguration.size() ; i++)
+	{
+		unsigned TriggerIndex = HLTConfiguration.triggerIndex(HLTConfiguration.triggerName(i));
+		for(unsigned j = 0 ; j < trigregexes.size() ; j++)
+		{
+			if(boost::regex_match(HLTConfiguration.triggerName(i).c_str(), what, trigregexes[j]))
+			{
+				HLTriggerIndexSelection.push_back(TriggerIndex);
+			}
+		}
+		allnames += HLTConfiguration.triggerName(i) + string(" ");
+	}
+
+	string allmuonnames;
+	string allelectronnames;
+	string alltaunames;
+	string allphotonnames;
+	string alljetnames;
+
+	TriggerIndexSelection(cMuHLTriggerMatching, muontriggers, allmuonnames);
+	TriggerIndexSelection(cElHLTriggerMatching, electrontriggers, allelectronnames);
+	TriggerIndexSelection(cTauHLTriggerMatching, tautriggers, alltaunames);
+	TriggerIndexSelection(cPhotonHLTriggerMatching, photontriggers, allphotonnames);
+	TriggerIndexSelection(cJetHLTriggerMatching, jettriggers, alljetnames);
+
+	if(allnames.size() > 20000)
+	{
+		allnames = string("TOOLONGTRIGGERNAMES::ERROR ");
+	}
+	strcpy(run_hltnames, allnames.c_str());
+	strcpy(run_hltmunames, allmuonnames.c_str());
+	strcpy(run_hltelnames, allelectronnames.c_str());
+	strcpy(run_hlttaunames, alltaunames.c_str());
+	strcpy(run_hltphotonnames, allphotonnames.c_str());
+	strcpy(run_hltjetnames, alljetnames.c_str());
+
+	string alltaudiscriminators;
+	for(unsigned i = 0 ; i < cTauDiscriminators.size() ; i++)
+	{
+		alltaudiscriminators += cTauDiscriminators[i] + string(" ");
+	}
+	strcpy(run_taudiscriminators, alltaudiscriminators.c_str());
+
+
+	L1GtUtils l1info;
+	l1info.retrieveL1EventSetup(iSetup);
+
+	run_hltprescaletablescount = HLTConfiguration.prescaleSize()*HLTConfiguration.size();
+	for(unsigned j = 0 ; j < HLTConfiguration.prescaleSize() ; j++)
+	{
+		for(unsigned i = 0 ; i < HLTConfiguration.size() ; i++)
+		{
+			int l1bit = -1;
+			int l1prescale = 0;
+			L1GtUtils::TriggerCategory trigCategory;
+			const vector<pair<bool, string> > l1seed = HLTConfiguration.hltL1GTSeeds(i);
+			if(l1seed.size() == 1)
+			{
+				//cout << HLTConfiguration.triggerName(i) << " " << l1seed[0].second << " " << trigCategory << " " << l1bit << " " << (l1GtPfAlgo.product()->gtPrescaleFactors())[j][l1bit] <<endl;
+				l1info.l1AlgoTechTrigBitNumber(l1seed[0].second, trigCategory, l1bit);
+				l1prescale = (l1GtPfAlgo.product()->gtPrescaleFactors())[j][l1bit];
+			}
+			run_hltprescaletables[i+HLTConfiguration.size()*j] = HLTConfiguration.prescaleValue(j, HLTConfiguration.triggerName(i));
+			run_hltl1prescaletables[i+HLTConfiguration.size()*j] = l1prescale;
+			//cout << HLTConfiguration.triggerName(i) << " " << j << " " << run_hltl1prescaletables[i+HLTConfiguration.size()*j] << " " << run_hltprescaletables[i+HLTConfiguration.size()*j] <<endl;
+		}
+	}	
+
+	runtree->Fill();
+}
+
+void RootMaker::beginLuminosityBlock(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup)
+{
+	lumi_run = iLumiBlock.run();
+	lumi_block = iLumiBlock.luminosityBlock();
+	lumi_eventsprocessed = 0;
+	lumi_eventsfiltered = 0;
+
+	edm::Handle<LumiSummary> lumiSummary;
+	iLumiBlock.getByLabel(edm::InputTag("lumiProducer"), lumiSummary);
+	if(lumiSummary.isValid())
+	{
+		lumi_value = lumiSummary->avgInsDelLumi();
+		lumi_valueerr = lumiSummary->avgInsDelLumiErr();
+		lumi_livefrac = lumiSummary->lumiSecQual();
+		lumi_deadfrac = lumiSummary->deadFrac();
+		lumi_quality = lumiSummary->liveFrac();
+	}
+	else
+	{
+		lumi_value = -1.;
+		lumi_valueerr = -1.;
+		lumi_livefrac = -1.;
+		lumi_deadfrac = -1.;
+		lumi_quality = 0;
+	}
+
+}
+
+void RootMaker::endLuminosityBlock(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup)
+{
+	lumitree->Fill();
+}
+
+
+void RootMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+	track_count = 0;
+	primvertex_count = 0;
+	supercluster_count = 0;
+	supercluster_basiccluster_count = 0;
+	supercluster_basiccluster_hit_count = 0;
+	supercluster_escluster_count = 0;
+	supercluster_escluster_hit_count = 0;
+	muon_count = 0;
+	tau_count = 0;
+	tau_charged_count = 0;
+	ak5calojet_count = 0;
+	ak5jptjet_count = 0;
+	ak5pfjet_count = 0;
+	ak5pfchsjet_count = 0;
+	electron_count = 0;
+	photon_count = 0;
+	conversion_count = 0;
+	secvertices_count = 0;
+	musecvertices_count = 0;
+	allconversion_count = 0;
+	genallparticles_count = 0;
+	genparticles_count = 0;
+	genak5jet_count = 0;
+	genallparticlesmother_count = 0;
+	genallparticlesdaughter_count = 0;
+	MuVector.clear();
+	TrackVector.clear();
+	errors = 0;
+	bool takeevent = false;
+
+	pv_position = math::XYZPoint(0.,0.,0.);
+
+	lumi_eventsprocessed++;
+
+	event_nr = iEvent.id().event();
+	event_run = iEvent.id().run();
+	event_timeunix = iEvent.time().unixTime();
+	event_timemicrosec = iEvent.time().microsecondOffset();
+	event_luminosityblock = iEvent.getLuminosityBlock().luminosityBlock();
+	//L1TriggerBits
+	edm::Handle<L1GlobalTriggerReadoutRecord> L1trigger;
+	iEvent.getByLabel(edm::InputTag("gtDigis"), L1trigger);
+	const TechnicalTriggerWord& L1triggerbits = L1trigger->technicalTriggerWord();
+	for(int i  = 0  ; i < 8 ; i++){trigger_level1bits[i] = 0;}
+	for(unsigned i = 0 ; i < min(unsigned(L1triggerbits.size()), unsigned(64)) ; i++)
+	{
+		trigger_level1bits[i/8] |= (Byte_t)L1triggerbits[i] << (i%8);
+	}
+
+	//L1TriggerAlgos
+	const DecisionWord& L1triggeralgos = L1trigger->decisionWord();
+	for(int i = 0  ; i < 128 ; i++){trigger_level1[i] = 0;}
+	for(unsigned i = 0 ; i < min(unsigned(L1triggeralgos.size()), unsigned(1024)) ; i++)
+	{
+		trigger_level1[i/8] |= (Byte_t)L1triggeralgos[i] << (i%8);
+	}
+	lumi_l1techprescaletable = (L1trigger->gtFdlWord()).gtPrescaleFactorIndexTech();
+	lumi_l1algoprescaletable = (L1trigger->gtFdlWord()).gtPrescaleFactorIndexAlgo();	
+	lumi_hltprescaletable = HLTConfiguration.prescaleSet(iEvent, iSetup);
+	//cout << lumi_l1techprescaletable << " " << lumi_l1algoprescaletable << " " << lumi_hltprescaletable << " " <<  HLTConfiguration.prescaleValues(iEvent, iSetup,"HLT_Mu17_Mu8_v16").first << " " << HLTConfiguration.prescaleValues(iEvent, iSetup,"HLT_Mu17_Mu8_v16").second << endl;
+
+	//HLTriggerResults
+	iEvent.getByLabel(edm::InputTag("TriggerResults", "", cTriggerProcess), HLTrigger);
+	for(int i = 0  ; i < 128 ; i++){trigger_HLT[i] = 0;}
+
+	for(unsigned i = 0 ; i < min(unsigned(HLTrigger->size()), unsigned(1024)) ; i++)
+	{
+		trigger_HLT[i/8] |= (Byte_t)HLTrigger->accept(i) << (i%8);
+		if(HLTrigger->accept(i) && find(HLTriggerIndexSelection.begin(), HLTriggerIndexSelection.end(), i) != HLTriggerIndexSelection.end())
+		{ takeevent = true;}
+	}
+	//TriggerEvent for matching
+	iEvent.getByLabel(edm::InputTag("hltTriggerSummaryAOD", "", cTriggerProcess), HLTriggerEvent);
+	//cout<<"PASSED!"<<endl;
+	if(HLTriggerIndexSelection.size() == 0 || !ctrigger)
+	{
+		takeevent = true;
+	}
+
+	if(!takeevent) return;
+
+	if(crecprimvertex)
+	{
+		iEvent.getByLabel(edm::InputTag("goodVertices"), Vertices);
+
+		if(Vertices.isValid())
+		{
+			for(unsigned i = 0 ; i < Vertices->size(); i++)
+			{
+				if((*Vertices)[i].isValid() && !(*Vertices)[i].isFake())
+				{
+					primvertex_x[i] = (*Vertices)[i].x();
+					primvertex_y[i] = (*Vertices)[i].y();
+					primvertex_z[i] = (*Vertices)[i].z();
+					primvertex_chi2[i] = (*Vertices)[i].chi2();
+					primvertex_ndof[i] = (*Vertices)[i].ndof();
+					primvertex_ntracks[i] = (*Vertices)[i].tracksSize();
+					primvertex_cov[i][0] = (*Vertices)[i].covariance(0,0);
+					primvertex_cov[i][1] = (*Vertices)[i].covariance(0,1);
+					primvertex_cov[i][2] = (*Vertices)[i].covariance(0,2);
+					primvertex_cov[i][3] = (*Vertices)[i].covariance(1,1);
+					primvertex_cov[i][4] = (*Vertices)[i].covariance(1,2);
+					primvertex_cov[i][5] = (*Vertices)[i].covariance(2,2);
+					Float_t ptq = 0.;
+					for(Vertex::trackRef_iterator it = (*Vertices)[i].tracks_begin() ; it != (*Vertices)[i].tracks_end() ; ++it)
+					{
+						ptq += (*it)->pt() * (*it)->pt();
+					}
+					primvertex_ptq[i] = ptq;
+					primvertex_count++;
+					if(primvertex_count == M_primvertexmaxcount)
+					{
+						cerr << "number of vertices > M_primvertexmaxcount. They are missing." << endl; errors |= 1<<14; break;
+					}
+				}
+			}
+			if(Vertices->size() > 0)
+			{
+				pv_position = (*Vertices)[0].position();
+				primvertex = (*Vertices)[0];
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+
+	if(cbeamspot)
+	{
+		edm::Handle<BeamSpot> TheBeamSpot;
+		iEvent.getByLabel(edm::InputTag("offlineBeamSpot"), TheBeamSpot);
+		if(TheBeamSpot.isValid())
+		{
+			beamspot_x = TheBeamSpot->x0();
+			beamspot_y = TheBeamSpot->y0();
+			beamspot_z = TheBeamSpot->z0();
+			beamspot_xwidth = TheBeamSpot->BeamWidthX();
+			beamspot_ywidth = TheBeamSpot->BeamWidthY();
+			beamspot_zsigma = TheBeamSpot->sigmaZ();
+			beamspot_cov[0] = TheBeamSpot->covariance(0,0); 
+			beamspot_cov[1] = TheBeamSpot->covariance(0,1); 
+			beamspot_cov[2] = TheBeamSpot->covariance(0,2); 
+			beamspot_cov[3] = TheBeamSpot->covariance(1,1); 
+			beamspot_cov[4] = TheBeamSpot->covariance(1,2); 
+			beamspot_cov[5] = TheBeamSpot->covariance(2,2); 
+		}
+		else
+		{
+			beamspot_x = 0.;
+			beamspot_y = 0.;
+			beamspot_z = 0.;
+			beamspot_xwidth = 0.;
+			beamspot_ywidth = 0.;
+			beamspot_zsigma = 0.;
+			beamspot_cov[0] = 0.;
+			beamspot_cov[1] = 0.;
+			beamspot_cov[2] = 0.;
+			beamspot_cov[3] = 0.;
+			beamspot_cov[4] = 0.;
+			beamspot_cov[5] = 0.;
+		}
+	}
+
+	if(crecsupercluster)
+	{
+		bool error = false;
+		edm::Handle<SuperClusterCollection> SCbarrel;
+		iEvent.getByLabel(edm::InputTag("correctedHybridSuperClusters"), SCbarrel);
+		edm::Handle<SuperClusterCollection> SCendcap;
+		iEvent.getByLabel(edm::InputTag("correctedMulti5x5SuperClustersWithPreshower"), SCendcap);
+
+		edm::ESHandle<CaloGeometry> caloGeo;
+		edm::Handle<EcalRecHitCollection> barrelHits;
+		edm::Handle<EcalRecHitCollection> endcapHits;
+		edm::Handle<EcalRecHitCollection> esHits;
+		if(crecsuperclusterhit)
+		{
+			iSetup.get<CaloGeometryRecord>().get(caloGeo);
+			iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsEB"), barrelHits);
+			iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsEE"), endcapHits);
+			iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsES"), esHits);
+		}
+		if(SCbarrel.isValid())
+		{
+			for(SuperClusterCollection::const_iterator itsceb = SCbarrel->begin() ; itsceb != SCbarrel->end() ; ++itsceb)
+			{
+				const SuperCluster& sceb = *itsceb; 
+				TVector3 sc(sceb.x() - pv_position.x(), sceb.y() - pv_position.y(), sceb.z() - pv_position.z());
+				sc *= sceb.energy()/sc.Mag();
+				if(sc.Perp() > crecsuperclusterFilterPtMin && TMath::Abs(sc.PseudoRapidity()) < crecsuperclusterFilterEtaMax)
+				{
+					supercluster_e[supercluster_count] = sceb.energy();
+					supercluster_x[supercluster_count] = sceb.x();
+					supercluster_y[supercluster_count] = sceb.y();
+					supercluster_z[supercluster_count] = sceb.z();
+					supercluster_rawe[supercluster_count] = sceb.rawEnergy();
+					supercluster_phiwidth[supercluster_count] = sceb.phiWidth();
+					supercluster_etawidth[supercluster_count] = sceb.etaWidth();
+					supercluster_nbasiccluster[supercluster_count] = sceb.clustersSize();
+					if(crecsuperclustermember)
+					{
+						supercluster_basicclusterbegin[supercluster_count] = supercluster_basiccluster_count;
+						for(CaloCluster_iterator CC = sceb.clustersBegin() ; CC != sceb.clustersEnd() ; CC++)
+						{
+							supercluster_basiccluster_e[supercluster_basiccluster_count] = (*CC)->energy();
+							supercluster_basiccluster_x[supercluster_basiccluster_count] = (*CC)->x();
+							supercluster_basiccluster_y[supercluster_basiccluster_count] = (*CC)->y();
+							supercluster_basiccluster_z[supercluster_basiccluster_count] = (*CC)->z();
+							supercluster_basiccluster_nhit[supercluster_basiccluster_count] = (*CC)->size();
+							if(crecsuperclusterhit && barrelHits.isValid())
+							{
+								supercluster_basiccluster_hitbegin[supercluster_basiccluster_count] = supercluster_basiccluster_hit_count;
+								const std::vector< std::pair<DetId, float> >& hits = (*CC)->hitsAndFractions();
+								for(unsigned m = 0 ; m < hits.size() ; m++)
+								{ 
+									float energy = -1;
+									for(unsigned u = 0 ; u < barrelHits->size() ; u++)
+									{
+										if((*barrelHits)[u].id() == hits[m].first) {energy = (*barrelHits)[u].energy(); break;}
+									} 
+									supercluster_basiccluster_hit_e[supercluster_basiccluster_hit_count] = energy*hits[m].second;
+									supercluster_basiccluster_hit_x[supercluster_basiccluster_hit_count] = caloGeo->getPosition(hits[m].first).x();
+									supercluster_basiccluster_hit_y[supercluster_basiccluster_hit_count] = caloGeo->getPosition(hits[m].first).y();
+									supercluster_basiccluster_hit_z[supercluster_basiccluster_hit_count] = caloGeo->getPosition(hits[m].first).z();
+									supercluster_basiccluster_hit_count++;
+									if(supercluster_basiccluster_hit_count == M_superclusterhitmaxcount) {error = true; break;}
+								}
+							}
+							supercluster_basiccluster_count++;
+							if(error || supercluster_basiccluster_count == M_superclustermembermaxcount){error = true; break;}
+						}
+					}
+					supercluster_count++;
+					if(error || supercluster_count == M_superclustermaxcount){cerr << "Error filling SuperClusters. They are missing." << endl; errors |= 1<<12; break;}
+				}
+
+			}
+		}
+		//EndCap Clusters
+		if(SCendcap.isValid() && !error)
+		{
+			for(SuperClusterCollection::const_iterator itscee = SCendcap->begin() ; itscee != SCendcap->end() ; ++itscee)
+			{
+				const SuperCluster& scee = *itscee;
+				TVector3 sc(scee.x() - pv_position.x(), scee.y() - pv_position.y(), scee.z() - pv_position.z());
+				sc *= scee.energy()/sc.Mag();
+				if(sc.Perp() > crecsuperclusterFilterPtMin && TMath::Abs(sc.PseudoRapidity()) < crecsuperclusterFilterEtaMax)
+				{ 
+					supercluster_e[supercluster_count] = scee.energy();
+					supercluster_x[supercluster_count] = scee.x();
+					supercluster_y[supercluster_count] = scee.y();
+					supercluster_z[supercluster_count] = scee.z();
+					supercluster_rawe[supercluster_count] = scee.rawEnergy();
+					supercluster_phiwidth[supercluster_count] = scee.phiWidth();
+					supercluster_etawidth[supercluster_count] = scee.etaWidth();
+					supercluster_nbasiccluster[supercluster_count] = scee.clustersSize();
+					if(crecsuperclustermember)
+					{
+						supercluster_basicclusterbegin[supercluster_count] = supercluster_basiccluster_count;
+						for(CaloCluster_iterator CC = scee.clustersBegin() ; CC != scee.clustersEnd() ; CC++)
+						{
+							supercluster_basiccluster_e[supercluster_basiccluster_count] = (*CC)->energy();
+							supercluster_basiccluster_x[supercluster_basiccluster_count] = (*CC)->x();
+							supercluster_basiccluster_y[supercluster_basiccluster_count] = (*CC)->y();
+							supercluster_basiccluster_z[supercluster_basiccluster_count] = (*CC)->z();
+							supercluster_basiccluster_nhit[supercluster_basiccluster_count] = (*CC)->size();
+							if(crecsuperclusterhit && endcapHits.isValid())
+							{
+								supercluster_basiccluster_hitbegin[supercluster_basiccluster_count] = supercluster_basiccluster_hit_count;
+								const std::vector< std::pair<DetId, float> >& hits = (*CC)->hitsAndFractions();
+								for(unsigned m = 0 ; m < hits.size() ; m++)
+								{ 
+									float energy = -1;
+									for(unsigned u = 0 ; u < barrelHits->size() ; u++)
+									{
+										if((*endcapHits)[u].id() == hits[m].first) {energy = (*endcapHits)[u].energy(); break;}
+									} 
+									supercluster_basiccluster_hit_e[supercluster_basiccluster_hit_count] = energy*hits[m].second;
+									supercluster_basiccluster_hit_x[supercluster_basiccluster_hit_count] = caloGeo->getPosition(hits[m].first).x();
+									supercluster_basiccluster_hit_y[supercluster_basiccluster_hit_count] = caloGeo->getPosition(hits[m].first).y();
+									supercluster_basiccluster_hit_z[supercluster_basiccluster_hit_count] = caloGeo->getPosition(hits[m].first).z();
+									supercluster_basiccluster_hit_count++;
+									if(supercluster_basiccluster_hit_count == M_superclusterhitmaxcount) {error = true; break;}
+								}
+							}
+							supercluster_basiccluster_count++;
+							if(error || supercluster_basiccluster_count == M_superclustermembermaxcount){error = true; break;}
+						}
+						//filling Preshower
+						supercluster_esclusterbegin[supercluster_count] = supercluster_escluster_count;
+						for(CaloCluster_iterator CC = scee.preshowerClustersBegin() ; CC != scee.preshowerClustersEnd() ; CC++)
+						{
+							supercluster_escluster_e[supercluster_escluster_count] = (*CC)->energy();
+							supercluster_escluster_x[supercluster_escluster_count] = (*CC)->x();
+							supercluster_escluster_y[supercluster_escluster_count] = (*CC)->y();
+							supercluster_escluster_z[supercluster_escluster_count] = (*CC)->z();
+							supercluster_escluster_nhit[supercluster_escluster_count] = (*CC)->size();
+							if(crecsuperclusterhit && esHits.isValid())
+							{
+								supercluster_escluster_hitbegin[supercluster_escluster_count] = supercluster_escluster_hit_count;
+								const std::vector< std::pair<DetId, float> >& hits = (*CC)->hitsAndFractions();
+								for(unsigned m = 0 ; m < hits.size() ; m++)
+								{ 
+									float energy = -1;
+									for(unsigned u = 0 ; u < barrelHits->size() ; u++)
+									{
+										if((*barrelHits)[u].id() == hits[m].first) {energy = (*esHits)[u].energy(); break;}
+									} 
+									supercluster_escluster_hit_e[supercluster_escluster_hit_count] = energy*hits[m].second;
+									supercluster_escluster_hit_x[supercluster_escluster_hit_count] = caloGeo->getPosition(hits[m].first).x();
+									supercluster_escluster_hit_y[supercluster_escluster_hit_count] = caloGeo->getPosition(hits[m].first).y();
+									supercluster_escluster_hit_z[supercluster_escluster_hit_count] = caloGeo->getPosition(hits[m].first).z();
+									supercluster_escluster_hit_count++;
+									if(supercluster_escluster_hit_count == M_superclusterhitmaxcount) {error = true; break;}
+								}
+							}
+							supercluster_escluster_count++;
+							if(error || supercluster_escluster_count == M_superclustermembermaxcount){error = true; break;}
+						}
+
+					}
+					supercluster_count++;
+					if(error || supercluster_count == M_superclustermaxcount){cerr << "Error filling SuperClusters. They are missing." << endl; errors |= 1<<12; break;}
+				}
+			}
+		}
+
+	}
+
+	takeevent = false;
+
+	if(crectrack)
+	{
+		takeevent = AddTracks(iEvent) || takeevent;
+	}
+	if(crecmuon)
+	{
+		takeevent = AddMuons(iEvent) || takeevent;
+	}
+	if(crecelectron)
+	{
+		takeevent = AddElectrons(iEvent) || takeevent;
+	}
+	if(crecphoton)
+	{
+		takeevent = AddPhotons(iEvent) || takeevent;
+	}
+	if(crectau)
+	{
+		takeevent = AddTaus(iEvent) || takeevent;
+	}
+	if(crecak5calojet)
+	{
+		takeevent = AddAK5CaloJets(iEvent, iSetup) || takeevent;
+	}
+	if(crecak5jptjet)
+	{
+		takeevent = AddAK5JPTJets(iEvent, iSetup) || takeevent;
+	}
+	if(crecak5pfjet)
+	{
+		takeevent = AddAK5PFJets(iEvent, iSetup) || takeevent;
+	}
+	if(crecak5pfchsjet)
+	{
+		takeevent = AddAK5PFCHSJets(iEvent, iSetup) || takeevent;
+	}
+	if(crecmusecvertices)
+	{
+		AddMuVertices(iEvent);
+	}
+	if(crecallconversion)
+	{
+		AddAllConversions(iEvent);
+	}
+	if(!takeevent) return;
+
+	edm::Handle<double> rho;
+	iEvent.getByLabel(edm::InputTag("kt6PFJets", "rho", "ROOTMAKER"), rho);
+	ak5pfjet_rho = *rho;
+	edm::Handle<double> sigma;
+	iEvent.getByLabel(edm::InputTag("kt6PFJets", "sigma", "ROOTMAKER"), sigma);
+	ak5pfjet_sigma = *sigma;
+
+	if(cMassMuMuMax != cMassMuMuMin)
+	{
+		takeevent = false;
+		for(unsigned i = 0 ; i < MuVector.size() ; i++)
+		{
+			for(unsigned j = 0 ; j < i ; j++)
+			{
+				double Mass = (MuVector[i] + MuVector[j]).M();
+				if(Mass <= cMassMuMuMax && Mass >= cMassMuMuMin)
+				{
+					takeevent = true; break;
+				}
+			}
+			if(takeevent) break;
+			for(unsigned j = 0 ; j < TrackVector.size() ; j++)
+			{
+				double Mass = (MuVector[i] + TrackVector[j]).M();
+				if(Mass <= cMassMuMuMax && Mass >= cMassMuMuMin)
+				{
+					takeevent = true; break;
+				}
+			}
+			if(takeevent) break;
+		}
+	}
+
+	if(!takeevent) return;
+
+	if(creccalomet)
+	{
+		edm::Handle<reco::CaloMETCollection> caloMet;
+		iEvent.getByLabel(edm::InputTag("met"), caloMet);
+		if(caloMet.isValid() && caloMet->size() > 0)
+		{
+			calomet_ex = (*caloMet)[0].px();
+			calomet_ey = (*caloMet)[0].py();
+		}
+		else
+		{
+			errors |= 1<<22;
+		}
+		edm::Handle<reco::CaloMETCollection> caloMetMu;
+		iEvent.getByLabel(edm::InputTag("corMetGlobalMuons"), caloMetMu);
+		if(caloMet.isValid() && caloMet->size() > 0)
+		{
+			calomet_exmuons = (*caloMetMu)[0].px();
+			calomet_eymuons = (*caloMetMu)[0].py();
+		}
+		else
+		{
+			errors |= 1<<23;
+		}
+	}
+
+	if(crectcmet)
+	{
+		edm::Handle<reco::METCollection> tcMet;
+		iEvent.getByLabel(edm::InputTag("tcMet"), tcMet);
+		if(tcMet.isValid() && tcMet->size() > 0)
+		{
+			tcmet_ex = (*tcMet)[0].px();
+			tcmet_ey = (*tcMet)[0].py();
+		}
+		else
+		{
+			errors |= 1<<20;
+		}
+	}
+
+	if(crecpfmet)
+	{
+		edm::Handle<reco::PFMETCollection> pfMet;
+		iEvent.getByLabel(edm::InputTag("pfMet"), pfMet);
+		if(pfMet.isValid() && pfMet->size() > 0)
+		{
+			pfmet_ex = (*pfMet)[0].px();
+			pfmet_ey = (*pfMet)[0].py();
+		}
+		else
+		{
+			errors |= 1<<21;
+		}
+	}
+
+	if(crecpfmettype1)
+	{
+		edm::Handle<reco::PFMETCollection> pfMetType1;
+		iEvent.getByLabel(edm::InputTag("pfType1CorrectedMet"), pfMetType1);
+		if(pfMetType1.isValid() && pfMetType1->size() > 0)
+		{
+			pfmettype1_ex = (*pfMetType1)[0].px();
+			pfmettype1_ey = (*pfMetType1)[0].py();
+		}
+		else
+		{
+			errors |= 1<<24;
+		}
+	}
+
+	genweight = 1.;
+	numpileupinteractionsminus = -1;
+	numpileupinteractions = -1;
+	numpileupinteractionsplus = -1;
+	numtruepileupinteractions = -1;
+	if(cgen || cgenallparticles || cgenak5jets)
+	{
+		edm::Handle<GenEventInfoProduct> HEPMC;
+		iEvent.getByLabel(edm::InputTag("generator"), HEPMC);
+		if(HEPMC.isValid())
+		{
+			genweight = HEPMC->weight();
+			genid1 = HEPMC->pdf()->id.first;
+			genx1 = HEPMC->pdf()->x.second;
+			genid2 = HEPMC->pdf()->id.first;
+			genx2 = HEPMC->pdf()->x.second;
+			genScale = HEPMC->qScale();
+		}
+
+		edm::Handle<vector<PileupSummaryInfo> > PUInfo;
+		iEvent.getByLabel(edm::InputTag("addPileupInfo"), PUInfo);
+
+		if(PUInfo.isValid())
+		{
+			for(vector<PileupSummaryInfo>::const_iterator PVI = PUInfo->begin(); PVI != PUInfo->end(); ++PVI)
+			{
+				int BX = PVI->getBunchCrossing();
+				if(BX == -1)
+				{ 
+					numpileupinteractionsminus = PVI->getPU_NumInteractions();
+				}
+				else if(BX == 0)
+				{ 
+					numpileupinteractions = PVI->getPU_NumInteractions();
+					numtruepileupinteractions = PVI->getTrueNumInteractions();
+				}
+				else if(BX == 1)
+				{ 
+					numpileupinteractionsplus = PVI->getPU_NumInteractions();
+				}
+			}
+		}
+
+		edm::Handle<GenMETCollection> GenMetCalo;
+		iEvent.getByLabel(edm::InputTag("genMetCalo"), GenMetCalo);
+		edm::Handle<GenMETCollection> GenMetTrue;
+		iEvent.getByLabel(edm::InputTag("genMetTrue"), GenMetTrue);
+		if(GenMetCalo.isValid() && GenMetCalo->size() > 0)
+		{
+			genmetcalo_ex = (*GenMetCalo)[0].px();
+			genmetcalo_ey = (*GenMetCalo)[0].py();
+		}
+		else
+		{
+			genmetcalo_ex = 0.;
+			genmetcalo_ey = 0.;
+			errors |= 1<<18;
+		}	
+		if(GenMetTrue.isValid() && GenMetTrue->size() > 0)
+		{
+			genmettrue_ex = (*GenMetTrue)[0].px();
+			genmettrue_ey = (*GenMetTrue)[0].py();
+		}
+		else
+		{
+			genmettrue_ex = 0.;
+			genmettrue_ey = 0.;
+			errors |= 1<<19;
+		}
+
+	}	
+
+	if(cgenallparticles)
+	{
+		edm::Handle<GenParticleCollection> GenParticles;
+		iEvent.getByLabel(edm::InputTag("genPlusSimParticles"), GenParticles);
+		if(!GenParticles.isValid())
+		{
+			iEvent.getByLabel(edm::InputTag("genParticles"), GenParticles);
+		}
+
+		if(GenParticles.isValid())
+		{
+			GenPartons.clear();
+			for(unsigned i = 0 ; i < GenParticles->size() ; i++)
+			{
+				if((abs((*GenParticles)[i].pdgId()) <= 5 || (*GenParticles)[i].pdgId() == 21) && (*GenParticles)[i].pt() > 10.) {GenPartons.push_back((*GenParticles)[i]);}
+				genallparticles_e[genallparticles_count] = (*GenParticles)[i].energy();
+				genallparticles_px[genallparticles_count] = (*GenParticles)[i].px();
+				genallparticles_py[genallparticles_count] = (*GenParticles)[i].py();
+				genallparticles_pz[genallparticles_count] = (*GenParticles)[i].pz();
+				genallparticles_vx[genallparticles_count] = (*GenParticles)[i].vx();
+				genallparticles_vy[genallparticles_count] = (*GenParticles)[i].vy();
+				genallparticles_vz[genallparticles_count] = (*GenParticles)[i].vz();
+				genallparticles_pdgid[genallparticles_count] = (*GenParticles)[i].pdgId();
+				genallparticles_status[genallparticles_count] = (*GenParticles)[i].status();
+
+				genallparticles_count++;
+				if(genallparticles_count == M_genallparticlesmaxcount){cerr << "Number of genallparticles > M_genallparticlesmaxcount. They are missing." << endl; errors |= 1<<15; break;}
+
+			}
+
+			for(unsigned i = 0 ; i < GenParticles->size() ; i++)
+			{
+				genallparticles_motherbeg[i] = genallparticlesmother_count;
+				genallparticles_daughterbeg[i] = genallparticlesdaughter_count;
+
+				for(unsigned j = 0 ; j < (*GenParticles)[i].numberOfMothers() ; j++)
+				{
+					genallparticles_mothers[genallparticlesmother_count] = FindGenParticle((*GenParticles)[i].mother(j));
+					genallparticlesmother_count++;
+					if(genallparticlesmother_count == M_genmotherdaughtermaxcount){break;}
+				}
+
+				for(unsigned j = 0 ; j < (*GenParticles)[i].numberOfDaughters() ; j++)
+				{
+					genallparticles_daughters[genallparticlesdaughter_count] = FindGenParticle((*GenParticles)[i].daughter(j));
+					genallparticlesdaughter_count++;
+					if(genallparticlesdaughter_count == M_genmotherdaughtermaxcount){break;}
+				}
+
+				if(genallparticlesmother_count >= M_genmotherdaughtermaxcount){cerr << "Too many mothers" << endl; errors |= 1<<16; break;}
+				if(genallparticlesdaughter_count >= M_genmotherdaughtermaxcount){cerr << "Too many daughters" << endl; errors |= 1<<17; break;}
+			}
+		}
+	}
+
+	if(cgen)
+	{
+		edm::Handle<GenParticleCollection> GenParticles;
+		iEvent.getByLabel(edm::InputTag("genPlusSimParticles"), GenParticles);
+		if(!GenParticles.isValid())
+		{
+			iEvent.getByLabel(edm::InputTag("genParticles"), GenParticles);
+		}
+
+		if(GenParticles.isValid())
+		{
+			GenPartons.clear();
+			//cout << GenParticles->size() << endl;
+			for(unsigned i = 0 ; i < GenParticles->size() ; i++)
+			{
+				if((abs((*GenParticles)[i].pdgId()) <= 5 || (*GenParticles)[i].pdgId() == 21) && (*GenParticles)[i].pt() > 10.) {GenPartons.push_back((*GenParticles)[i]);}
+				bool fill = false;
+				if(
+						(abs((*GenParticles)[i].pdgId()) >= 11 && abs((*GenParticles)[i].pdgId()) <= 16) //leptons
+						|| (abs((*GenParticles)[i].pdgId()) <= 3 && (*GenParticles)[i].pt() > 15.)//u,d,s
+						|| (abs((*GenParticles)[i].pdgId()) >= 4 && abs((*GenParticles)[i].pdgId()) <= 8)//c,t,b,t'
+						|| ((*GenParticles)[i].pdgId() == 21 && (*GenParticles)[i].pt() > 10.) //gluon
+						|| abs((*GenParticles)[i].pdgId()) == 24 //W
+						|| ((*GenParticles)[i].pdgId() == 22 && (*GenParticles)[i].status() == 3)//gamma from ME
+						|| (*GenParticles)[i].pdgId() == 23 //Z
+						|| (*GenParticles)[i].pdgId() == 25 //h
+						|| (*GenParticles)[i].pdgId() == 35 //H
+						|| (*GenParticles)[i].pdgId() == 36 //A
+						|| abs((*GenParticles)[i].pdgId()) == 37 //H+, H-
+						|| (*GenParticles)[i].pdgId() == 32 //Z'
+				  )
+				{
+					fill = true;
+				}
+				else if((*GenParticles)[i].pdgId() == 22 && (*GenParticles)[i].status() == 1 && (*GenParticles)[i].pt() > 10. && HasAnyMother(&(*GenParticles)[i], 111) == 0)
+				{
+					fill = true;
+				}
+				else if((*GenParticles)[i].pdgId() == 111 && (*GenParticles)[i].pt() > 10. && HasAnyMother(&(*GenParticles)[i], 111) == 0)
+				{
+					fill = true;
+				}
+				if(fill)
+				{
+					genparticles_e[genparticles_count] = (*GenParticles)[i].energy();
+					genparticles_px[genparticles_count] = (*GenParticles)[i].px();
+					genparticles_py[genparticles_count] = (*GenParticles)[i].py();
+					genparticles_pz[genparticles_count] = (*GenParticles)[i].pz();
+					genparticles_vx[genparticles_count] = (*GenParticles)[i].vx();
+					genparticles_vy[genparticles_count] = (*GenParticles)[i].vy();
+					genparticles_vz[genparticles_count] = (*GenParticles)[i].vz();
+					genparticles_pdgid[genparticles_count] = (*GenParticles)[i].pdgId();
+					genparticles_status[genparticles_count] = (*GenParticles)[i].status();
+					pair<Int_t, Int_t> motherinfo = HasAnyMother(&(*GenParticles)[i], testids);
+					genparticles_info[genparticles_count] = motherinfo.first;
+					genparticles_indirectmother[genparticles_count] = motherinfo.second;
+					//cout << (*GenParticles)[i].pdgId() << " " <<oct <<  genparticles_info[genparticles_count] << " " << dec << genparticles_indirectmother[genparticles_count] << endl;
+					genparticles_count++;
+				}
+			}
+			//cout << "Total: " << genparticles_count << endl;
+		}
+	}
+
+	if(cgenak5jets)
+	{
+		edm::Handle<GenJetCollection> GenAK5Jets;
+		iEvent.getByLabel(edm::InputTag("ak5GenJets"), GenAK5Jets);
+		if(GenAK5Jets.isValid())
+		{
+			for(GenJetCollection::const_iterator it = GenAK5Jets->begin() ; it != GenAK5Jets->end() ; ++it)
+			{
+				if(it->pt() > 15.)
+				{
+					genak5jet_e[genak5jet_count] = it->energy();
+					genak5jet_px[genak5jet_count] = it->px();
+					genak5jet_py[genak5jet_count] = it->py();
+					genak5jet_pz[genak5jet_count] = it->pz();
+					genak5jet_einvisible[genak5jet_count] = it->invisibleEnergy();
+					genak5jet_flavour[genak5jet_count] = 0;
+					genak5jet_info[genak5jet_count] = 0;
+					double ptmax = 0;
+					for(size_t j = 0 ; j < GenPartons.size() ; ++j)
+					{
+						if(DR(GenPartons[j], *it) < 0.5)
+						{
+							if(GenPartons[j].pdgId() == 5) {genak5jet_info[genak5jet_count] |= 1<<0;}
+							else if(GenPartons[j].pdgId() == -5) {genak5jet_info[genak5jet_count] |= 1<<1;}
+							else if(GenPartons[j].pdgId() == 4) {genak5jet_info[genak5jet_count] |= 1<<2;}
+							else if(GenPartons[j].pdgId() == -4) {genak5jet_info[genak5jet_count] |= 1<<3;}
+							else if(abs(GenPartons[j].pdgId()) <= 3) {genak5jet_info[genak5jet_count] |= 1<<4;}
+							else if(GenPartons[j].pdgId() == 21) {genak5jet_info[genak5jet_count] |= 1<<5;}
+							if(GenPartons[j].pt() > ptmax)
+							{
+								ptmax = GenPartons[j].pt();
+								genak5jet_flavour[genak5jet_count] = GenPartons[j].pdgId();
+							}
+
+						}
+					}
+					genak5jet_count++;
+					cout << genak5jet_flavour[genak5jet_count] << " " << genak5jet_info[genak5jet_count] << endl;
+				if(genak5jet_count == M_genjetmaxcount){cerr << "Number of genak5jet > M_genjetmaxcount. They are missing." << endl; errors |= 1<<25; break;}
+				}
+			}
+		}
+	}
+
+	if(takeevent)
+	{
+		lumi_eventsfiltered++;
+		tree->Fill();
+	}
+}
+
+pair<Int_t, Int_t> RootMaker::HasAnyMother(const GenParticle* particle, vector<int> ids)
+{
+	Int_t motherid = 0;
+	vector<unsigned> bknummother;
+	vector<const GenParticle*> bkparticle;
+	bknummother.reserve(10);
+	bkparticle.reserve(10);
+	int level = 0;
+	bkparticle.push_back(particle);
+	bknummother.push_back(0);
+
+	vector<int>::const_iterator it;
+	UInt_t result = 0;
+	unsigned j = 0;
+	while(true)
+	{
+		if(j == bkparticle[level]->numberOfMothers())
+		{
+			level--;
+			if(level == -1){break;}
+			j = bknummother[level];
+			bkparticle.resize(level+1);
+			bknummother.resize(level+1);
+			continue;
+		}
+
+		if(motherid == 0 && bkparticle[level]->mother(j)->pdgId() != particle->pdgId()){motherid = bkparticle[level]->mother(j)->pdgId();}
+		it = find(ids.begin(), ids.end(), bkparticle[level]->mother(j)->pdgId());
+		if(it != ids.end()){result |= 1<<(it-ids.begin());}
+
+		if(bkparticle[level]->mother(j)->numberOfMothers() > 0)
+		{
+			bknummother[level] = j+1;
+			bkparticle.push_back(dynamic_cast<const GenParticle*>(bkparticle[level]->mother(j)));
+			bknummother.push_back(0);
+			j = 0;
+			level++;
+			continue;
+		}
+		j++;
+	}
+	return(pair<Int_t, Int_t>(result, motherid));
+}
+
+Int_t RootMaker::HasAnyMother(const GenParticle* particle, int id)
+{
+	vector<unsigned> bknummother;
+	vector<const GenParticle*> bkparticle;
+	bknummother.reserve(10);
+	bkparticle.reserve(10);
+	int level = 0;
+	bkparticle.push_back(particle);
+	bknummother.push_back(0);
+
+	unsigned j = 0;
+	while(true)
+	{
+		if(j == bkparticle[level]->numberOfMothers())
+		{
+			level--;
+			if(level == -1){return(0);}
+			j = bknummother[level];
+			bkparticle.resize(level+1);
+			bknummother.resize(level+1);
+			continue;
+		}
+
+		if(bkparticle[level]->mother(j)->pdgId() == id) return(2);
+		if(abs(bkparticle[level]->mother(j)->pdgId()) == abs(id)) return(1);
+
+		if(bkparticle[level]->mother(j)->numberOfMothers() > 0)
+		{
+			bknummother[level] = j+1;
+			bkparticle.push_back(dynamic_cast<const GenParticle*>(bkparticle[level]->mother(j)));
+			bknummother.push_back(0);
+			j = 0;
+			level++;
+			continue;
+		}
+		j++;
+	}
+	return(0);
+}
+
+void RootMaker::endJob()
+{
+}
+
+UInt_t RootMaker::FindGenParticle(const Candidate* particle)
+{
+	for(unsigned i = 0 ; i < genallparticles_count ; i++)
+	{
+		if(particle->pdgId() == genallparticles_pdgid[i] && particle->status() == genallparticles_status[i] && float(particle->energy()) == genallparticles_e[i] && float(particle->px()) == genallparticles_px[i] && float(particle->py()) == genallparticles_py[i] && float(particle->pz()) == genallparticles_pz[i])
+		{
+			return(i);
+		}
+	}
+	return(genallparticles_count);
+}
+
+math::XYZPoint RootMaker::PositionOnECalSurface(TransientTrack& trTrack)
+{
+	math::XYZPoint ecalPosition(0.,0.,0.);
+	const FreeTrajectoryState myTSOS = trTrack.initialFreeState();
+	TrajectoryStateOnSurface stateAtECal = propagatorWithMaterial->propagate(myTSOS, *ecalBarrel);
+
+	if(stateAtECal.isValid() && stateAtECal.globalPosition().eta() > 1.479) 
+	{
+		stateAtECal= propagatorWithMaterial->propagate(myTSOS, *ecalPositiveEtaEndcap);
+	}    
+
+	if(stateAtECal.isValid() && stateAtECal.globalPosition().eta() < -1.479) 
+	{
+		stateAtECal= propagatorWithMaterial->propagate(myTSOS, *ecalNegativeEtaEndcap);
+	}    
+
+	if(stateAtECal.isValid())
+	{
+		ecalPosition = stateAtECal.globalPosition();
+	}
+	return(ecalPosition);
+}
+
+bool RootMaker::AddMuons(const edm::Event& iEvent)
+{
+	int NumGood = 0;
+	//edm::Handle<pat::MuonCollection> Muons;
+	//iEvent.getByLabel(edm::InputTag("patMuons"), Muons);
+	edm::Handle<MuonCollection> Muons;
+	iEvent.getByLabel(edm::InputTag("muons"), Muons);
+	if(Muons.isValid())
+	{
+		for(unsigned i = 0 ; i < Muons->size() ; i++){
+			const Muon& themu = (*Muons)[i];
+			muon_px[muon_count] = themu.px();
+			muon_py[muon_count] = themu.py();
+			muon_pz[muon_count] = themu.pz();
+			if(themu.globalTrack().isNonnull())
+			{
+				muon_pterror[muon_count] = themu.globalTrack()->ptError();
+				muon_chi2[muon_count] = themu.globalTrack()->chi2();
+				muon_ndof[muon_count] = themu.globalTrack()->ndof();
+				muon_numvalidmuonhits[muon_count] = themu.globalTrack()->hitPattern().numberOfValidMuonHits();
+			}
+			else
+			{	
+				muon_pterror[muon_count] = -1.;
+				muon_chi2[muon_count] = -1.;
+				muon_ndof[muon_count] = 0;
+				muon_numvalidmuonhits[muon_count] = -1.;
+			}
+			muon_isolationr3track[muon_count]  = themu.isolationR03().sumPt;
+			muon_isolationr3ntrack[muon_count] = themu.isolationR03().nTracks;
+			muon_isolationr3ecal[muon_count]   = themu.isolationR03().emEt;
+			muon_isolationr3hcal[muon_count]   = themu.isolationR03().hadEt;
+
+			if(themu.isPFIsolationValid()){
+
+				const reco::MuonPFIsolation pfisor03 = themu.pfIsolationR03();
+				const reco::MuonPFIsolation pfisor04 = themu.pfIsolationR04();
+
+				muon_pfisolationr3_sumchargedhadronpt[muon_count] = pfisor03.sumChargedHadronPt;
+				muon_pfisolationr3_sumchargedparticlept[muon_count] = pfisor03.sumChargedParticlePt;
+				muon_pfisolationr3_sumneutralhadronet[muon_count] = pfisor03.sumNeutralHadronEt;
+				muon_pfisolationr3_sumphotonet[muon_count] = pfisor03.sumPhotonEt;
+				muon_pfisolationr3_sumneutralhadronethighthreshold[muon_count] = pfisor03.sumNeutralHadronEtHighThreshold;
+				muon_pfisolationr3_sumphotonethighthreshold[muon_count] = pfisor03.sumPhotonEtHighThreshold;
+				muon_pfisolationr3_sumpupt[muon_count] = pfisor03.sumPUPt;
+
+				muon_pfisolationr4_sumchargedhadronpt[muon_count] = pfisor04.sumChargedHadronPt;
+				muon_pfisolationr4_sumchargedparticlept[muon_count] = pfisor04.sumChargedParticlePt;
+				muon_pfisolationr4_sumneutralhadronet[muon_count] = pfisor04.sumNeutralHadronEt;
+				muon_pfisolationr4_sumphotonet[muon_count] = pfisor04.sumPhotonEt;
+				muon_pfisolationr4_sumneutralhadronethighthreshold[muon_count] = pfisor04.sumNeutralHadronEtHighThreshold;
+				muon_pfisolationr4_sumphotonethighthreshold[muon_count] = pfisor04.sumPhotonEtHighThreshold;
+				muon_pfisolationr4_sumpupt[muon_count] = pfisor04.sumPUPt;
+
+			}
+
+			muon_ecalenergy[muon_count] = themu.calEnergy().em;
+			muon_hcalenergy[muon_count] = themu.calEnergy().had;
+			muon_charge[muon_count] = themu.charge();
+			muon_type[muon_count] = 0;
+			muon_trackermuonquality[muon_count] = 0;
+			if(themu.isGlobalMuon()){muon_type[muon_count] |= 1 << 0;}
+			if(themu.isTrackerMuon()){muon_type[muon_count] |= 1 << 1;}
+			if(themu.isStandAloneMuon()){muon_type[muon_count] |= 1 << 2;}
+			if(themu.isCaloMuon()){muon_type[muon_count] |= 1 << 3;}
+			if(themu.isPFMuon()){muon_type[muon_count] |= 1 << 6;}
+
+			{
+				using namespace muon;
+				if(isGoodMuon(themu, All)){muon_trackermuonquality[muon_count] |= 1 << 0;}
+				if(isGoodMuon(themu, AllGlobalMuons)){muon_trackermuonquality[muon_count] |= 1 << 1;}
+				if(isGoodMuon(themu, AllStandAloneMuons)){muon_trackermuonquality[muon_count] |= 1 << 2;}
+				if(isGoodMuon(themu, AllTrackerMuons)){muon_trackermuonquality[muon_count] |= 1 << 3;}
+				if(isGoodMuon(themu, TrackerMuonArbitrated)){muon_trackermuonquality[muon_count] |= 1 << 4;}
+				if(isGoodMuon(themu, AllArbitrated)){muon_trackermuonquality[muon_count] |= 1 << 5;}
+				if(isGoodMuon(themu, GlobalMuonPromptTight)){muon_trackermuonquality[muon_count] |= 1 << 6;}
+				if(isGoodMuon(themu, TMLastStationLoose)){muon_trackermuonquality[muon_count] |= 1 << 7;}
+				if(isGoodMuon(themu, TMLastStationTight)){muon_trackermuonquality[muon_count] |= 1 << 8;}
+				if(isGoodMuon(themu, TM2DCompatibilityLoose)){muon_trackermuonquality[muon_count] |= 1 << 9;}
+				if(isGoodMuon(themu, TM2DCompatibilityTight)){muon_trackermuonquality[muon_count] |= 1 << 10;}
+				if(isGoodMuon(themu, TMOneStationLoose)){muon_trackermuonquality[muon_count] |= 1 << 11;}
+				if(isGoodMuon(themu, TMOneStationTight)){muon_trackermuonquality[muon_count] |= 1 << 12;}
+				if(isGoodMuon(themu, TMLastStationOptimizedLowPtLoose)){muon_trackermuonquality[muon_count] |= 1 << 13;}
+				if(isGoodMuon(themu, TMLastStationOptimizedLowPtTight)){muon_trackermuonquality[muon_count] |= 1 << 14;}
+				if(isGoodMuon(themu, GMTkChiCompatibility)){muon_trackermuonquality[muon_count] |= 1 << 15;}
+				if(isGoodMuon(themu, GMStaChiCompatibility)){muon_trackermuonquality[muon_count] |= 1 << 16;}
+				if(isGoodMuon(themu, GMTkKinkTight)){muon_trackermuonquality[muon_count] |= 1 << 17;}
+				if(isGoodMuon(themu, TMLastStationAngLoose)){muon_trackermuonquality[muon_count] |= 1 << 18;}
+				if(isGoodMuon(themu, TMLastStationAngTight)){muon_trackermuonquality[muon_count] |= 1 << 19;}
+				if(isGoodMuon(themu, TMOneStationAngLoose)){muon_trackermuonquality[muon_count] |= 1 << 20;}
+				if(isGoodMuon(themu, TMOneStationAngTight)){muon_trackermuonquality[muon_count] |= 1 << 21;}
+				if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtLoose)){muon_trackermuonquality[muon_count] |= 1 << 22;}
+				if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtTight)){muon_trackermuonquality[muon_count] |= 1 << 23;}
+				//if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<0) {muon_trackermuonquality[muon_count] |= 1 << 24;}
+				//if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<1) {muon_trackermuonquality[muon_count] |= 1 << 25;}
+				//if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<2) {muon_trackermuonquality[muon_count] |= 1 << 26;}
+				//if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<3) {muon_trackermuonquality[muon_count] |= 1 << 27;}
+				//if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<4) {muon_trackermuonquality[muon_count] |= 1 << 28;}
+				//if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<5) {muon_trackermuonquality[muon_count] |= 1 << 29;}
+				//if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<6) {muon_trackermuonquality[muon_count] |= 1 << 30;}
+				//if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<7) {muon_trackermuonquality[muon_count] |= 1 << 31;}
+				muon_numchambers[muon_count] = themu.numberOfChambers();
+				muon_numchamberswithsegments[muon_count] = themu.numberOfMatches(Muon::SegmentAndTrackArbitration);
+				muon_nummatchedstations[muon_count] = themu.numberOfMatchedStations();
+			}
+
+			if(themu.time().direction() == 1)
+			{
+				muon_trackermuonquality[muon_count] |= 1<<30;
+			}
+			else if(themu.time().direction() == -1)
+			{
+				muon_trackermuonquality[muon_count] |= 1<<31;
+			}
+
+			TrackRef innertrack = themu.innerTrack();
+
+			if(innertrack.isNonnull())
+			{
+				muon_type[muon_count] |= 1 << 4;
+				int numvtx = getPrimVertex(*innertrack);
+				TransientTrack TTrack = TTrackBuilder->build(innertrack);
+				TrajectoryStateClosestToPoint TTrackState;
+				if(numvtx == -1)
+				{
+					TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
+				}
+				else
+				{
+					TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(primvertex_x[numvtx], primvertex_y[numvtx], primvertex_z[numvtx]));
+				}
+				edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
+				iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+
+				muon_innertrack_vtx[muon_count] = numvtx;
+				muon_innertrack_px[muon_count] = TTrackState.momentum().x();
+				muon_innertrack_py[muon_count] = TTrackState.momentum().y();
+				muon_innertrack_pz[muon_count] = TTrackState.momentum().z();
+				muon_innertrack_closestpointx[muon_count] = TTrackState.position().x();
+				muon_innertrack_closestpointy[muon_count] = TTrackState.position().y();
+				muon_innertrack_closestpointz[muon_count] = TTrackState.position().z();
+				muon_innertrack_dxy[muon_count]    = TTrackState.perigeeParameters().transverseImpactParameter();
+				muon_innertrack_dxyerr[muon_count] = TTrackState.perigeeError().transverseImpactParameterError();
+				muon_innertrack_dz[muon_count]     = TTrackState.perigeeParameters().longitudinalImpactParameter();
+				muon_innertrack_dzerr[muon_count]  = TTrackState.perigeeError().longitudinalImpactParameterError();
+				muon_innertrack_chi2[muon_count]   = innertrack->chi2();
+				muon_innertrack_ndof[muon_count]   = innertrack->ndof();
+				muon_innertrack_charge[muon_count] = innertrack->charge();
+				muon_innertrack_nhits[muon_count] = innertrack->numberOfValidHits();
+				muon_innertrack_nmissinghits[muon_count] = innertrack->numberOfLostHits();
+				muon_innertrack_npixelhits[muon_count] = innertrack->hitPattern().numberOfValidPixelHits();
+				muon_innertrack_npixellayers[muon_count] = innertrack->hitPattern().pixelLayersWithMeasurement();
+				muon_innertrack_nstriplayers[muon_count] = innertrack->hitPattern().stripLayersWithMeasurement();
+				muon_innertrack_dedxharmonic2[muon_count] = (*dEdxharmonic2)[innertrack].dEdx();
+				math::XYZPoint ecalPos = PositionOnECalSurface(TTrack);
+				muon_innertrack_outerx[muon_count] = ecalPos.x();
+				muon_innertrack_outery[muon_count] = ecalPos.y();
+				muon_innertrack_outerz[muon_count] = ecalPos.z();
+			}
+
+			TrackRef muontrack = themu.outerTrack();
+
+			if(muontrack.isNonnull())
+			{
+				muon_type[muon_count] |= 1 << 5;
+				muon_outertrack_px[muon_count] = muontrack->px();
+				muon_outertrack_py[muon_count] = muontrack->py();
+				muon_outertrack_pz[muon_count] = muontrack->pz();
+				muon_outertrack_hits[muon_count] = muontrack->numberOfValidHits();
+				muon_outertrack_missinghits[muon_count] = muontrack->numberOfLostHits();
+				muon_outertrack_chi2[muon_count] = muontrack->chi2();
+				muon_outertrack_ndof[muon_count] = muontrack->ndof();
+			}
+
+			muon_trigger[muon_count] = GetTrigger(themu, muontriggers);
+			muon_count++;
+			if(muon_count == M_muonmaxcount)
+			{
+				cerr << "number of muon > M_muonmaxcount. They are missing." << endl; 
+				errors |= 1<<0;
+				break;
+			}
+			if(themu.isGlobalMuon() && themu.isTrackerMuon() && themu.pt() >= cMuPtMin && fabs(themu.eta()) <= cMuEtaMax && themu.isolationR03().sumPt/themu.pt() <= cMuTrackIso)
+			{
+				NumGood++;
+				double energy = sqrt(pow(muon_px[i],2) + pow(muon_py[i],2) + pow(muon_pz[i],2));
+				MuVector.push_back(TLorentzVector(muon_px[i], muon_py[i], muon_pz[i], energy));
+
+			}
+		}
+	}
+
+	if(NumGood >= cMuNum) return(true);
+	return(false);
+}
+
+UInt_t RootMaker::GetTrigger(const LeafCandidate& particle, vector<pair<unsigned, int> >& triggers)
+{
+	UInt_t result = 0;
+
+	if(HLTrigger.isValid() && HLTriggerEvent.isValid())
+	{
+		const trigger::TriggerObjectCollection& TOC(HLTriggerEvent->getObjects());
+		for(unsigned n = 0 ; n < triggers.size() ; n++)
+		{
+			unsigned TriggerIndex = triggers[n].first;
+			int Filter = abs(triggers[n].second);
+			const vector<string>& ModuleLabels(HLTConfiguration.moduleLabels(TriggerIndex));
+			const unsigned FilterIndex = HLTriggerEvent->filterIndex(edm::InputTag(ModuleLabels[Filter], "", cTriggerProcess));
+			if(FilterIndex < HLTriggerEvent->sizeFilters())
+			{
+				const trigger::Keys& KEYS(HLTriggerEvent->filterKeys(FilterIndex));
+				for(unsigned j = 0 ; j < KEYS.size() ; j++)
+				{
+					TLorentzVector TA(particle.px(), particle.py(), particle.pz(), particle.energy());
+					TLorentzVector TB(TOC[KEYS[j]].px(), TOC[KEYS[j]].py(), TOC[KEYS[j]].pz(), TOC[KEYS[j]].energy());
+					double dr = TA.DeltaR(TB);
+					//double dpt = TMath::Abs(particle.pt() - TOC[KEYS[j]].pt())/particle.pt();	
+					if(dr < 0.3)
+					{
+						if(triggers[n].second >= 0)
+						{
+							result |= 1<<n;
+							break;
+						}
+						if(triggers[n].second < 0 && TOC[KEYS[j]].pt() > 10.)
+						{
+							drhist->Fill(dr);
+							result |= 1<<n;
+							break;
+						}
+
+					}
+				}
+			}
+		}
+	}
+	return(result);
+}
+
+bool RootMaker::AddPhotons(const edm::Event& iEvent)
+{
+	int NumGood = 0;
+	edm::Handle<PhotonCollection> Photons;
+	iEvent.getByLabel(edm::InputTag("photons"), Photons);
+
+	//vector< edm::Handle< edm::ValueMap<double> > > photonIsoPF(3);
+	//iEvent.getByLabel(edm::InputTag("elPFIsoValueCharged03PFIdPFIso"), photonIsoPF[0]);
+	//iEvent.getByLabel(edm::InputTag("elPFIsoValueGamma03PFIdPFIso"), photonIsoPF[1]);
+	//iEvent.getByLabel(edm::InputTag("elPFIsoValueNeutral03PFIdPFIso"), photonIsoPF[2]);
+	//cout << "PH " << photonIsoPF[0].isValid() << endl;
+
+	if(Photons.isValid() && Photons->size() > 0)
+	{
+		edm::Handle<GsfElectronCollection> Electrons;
+		iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
+		edm::Handle<ConversionCollection> Conversions;
+		iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+		PFIsolationEstimator isolator;
+		VertexRef myprimvertex(Vertices, 0);
+		edm::Handle<PFCandidateCollection> PFCandidates;
+		iEvent.getByLabel(edm::InputTag("particleFlow"), PFCandidates);
+		isolator.initializePhotonIsolation(kTRUE);
+		isolator. setConeSize(0.3);
+		for(size_t n = 0 ; n < Photons->size() ; n++)
+		{
+			const Photon& theph = (*Photons)[n];
+			PhotonRef refph(Photons, n);
+			if(theph.pt() > cPhotonFilterPtMin && TMath::Abs(theph.eta()) < cPhotonFilterEtaMax)
+			{
+				photon_px[photon_count] = theph.px();
+				photon_py[photon_count] = theph.py();
+				photon_pz[photon_count] = theph.pz();
+				photon_e1x5[photon_count] = theph.e1x5();
+				photon_e2x5[photon_count] = theph.e2x5();
+				photon_e3x3[photon_count] = theph.e3x3();
+				photon_e5x5[photon_count] = theph.e5x5();
+				photon_maxenergyxtal[photon_count] = theph.maxEnergyXtal();
+				photon_sigmaetaeta[photon_count] = theph.sigmaEtaEta();
+				photon_sigmaietaieta[photon_count] = theph.sigmaIetaIeta();
+				photon_ehcaloverecaldepth1[photon_count] = theph.hadronicDepth1OverEm();
+				photon_ehcaloverecaldepth2[photon_count] = theph.hadronicDepth2OverEm();
+				photon_ehcaltoweroverecaldepth1[photon_count] = theph.hadTowDepth1OverEm();
+				photon_ehcaltoweroverecaldepth2[photon_count] = theph.hadTowDepth2OverEm();
+				photon_isolationr3track[photon_count] = theph.trkSumPtSolidConeDR03();
+				photon_isolationr3trackhollow[photon_count] = theph.trkSumPtHollowConeDR03();
+				photon_isolationr3ecal[photon_count] = theph.ecalRecHitSumEtConeDR03();
+				photon_isolationr3hcal[photon_count] = theph.hcalTowerSumEtConeDR03();
+				photon_isolationr3ntrack[photon_count] = theph.nTrkSolidConeDR03();
+				photon_isolationr3ntrackhollow[photon_count] = theph.nTrkHollowConeDR03();
+				photon_isolationr4track[photon_count] = theph.trkSumPtSolidConeDR04();
+				photon_isolationr4trackhollow[photon_count] = theph.trkSumPtHollowConeDR04();
+				photon_isolationr4ecal[photon_count] = theph.ecalRecHitSumEtConeDR04();
+				photon_isolationr4hcal[photon_count] = theph.hcalTowerSumEtConeDR04();
+				photon_isolationr4ntrack[photon_count] = theph.nTrkSolidConeDR04();
+				photon_isolationr4ntrackhollow[photon_count] = theph.nTrkHollowConeDR04();
+				isolator.fGetIsolation(&theph, PFCandidates.product(), myprimvertex, Vertices);
+				photon_isolationpfr3charged[photon_count] = isolator.getIsolationCharged();
+				photon_isolationpfr3photon[photon_count] = isolator.getIsolationPhoton();
+				photon_isolationpfr3neutral[photon_count] = isolator.getIsolationNeutral();
+				//photon_isolationpfr3charged[photon_count] = (*(photonIsoPF[0]))[refph];
+				//photon_isolationpfr3photon[photon_count] = (*(photonIsoPF[1]))[refph];
+				//photon_isolationpfr3neutral[photon_count] = (*(photonIsoPF[2]))[refph];
+				//photon_isolationpfr3charged[photon_count] = theph.chargedHadronIso();
+				//photon_isolationpfr3photon[photon_count] = theph.photonIso();
+				//photon_isolationpfr3neutral[photon_count] = theph.neutralHadronIso();
+				photon_superclusterindex[photon_count] = getSuperClusterPh(theph.superCluster()); 
+				photon_info[photon_count] = 0;
+				photon_info[photon_count] |= theph.isPhoton() << 0;
+				photon_info[photon_count] |= theph.hasConversionTracks() << 1;
+				photon_info[photon_count] |= theph.hasPixelSeed() << 2;
+				photon_info[photon_count] |= ConversionTools::hasMatchedPromptElectron(theph.superCluster(), Electrons, Conversions, pv_position) << 3;
+				photon_gapinfo[photon_count] = 0;
+				photon_gapinfo[photon_count] |= theph.isEB() << 0;
+				photon_gapinfo[photon_count] |= theph.isEE() << 1;
+				photon_gapinfo[photon_count] |= theph.isEBGap() << 2;
+				photon_gapinfo[photon_count] |= theph.isEBEtaGap() << 3;
+				photon_gapinfo[photon_count] |= theph.isEBPhiGap() << 4;
+				photon_gapinfo[photon_count] |= theph.isEEGap() << 5;
+				photon_gapinfo[photon_count] |= theph.isEERingGap() << 6;
+				photon_gapinfo[photon_count] |= theph.isEEDeeGap() << 7;
+				photon_gapinfo[photon_count] |= theph.isEBEEGap() << 8;
+				photon_conversionbegin[photon_count] = conversion_count;
+				photon_trigger[photon_count] = GetTrigger(theph, photontriggers); 
+
+				ConversionRefVector conversions = theph.conversions();
+				for(unsigned j = 0 ; j < conversions.size() ; j++)
+				{
+					ConversionRef currconv = conversions[j];
+
+					conversion_info[conversion_count] = 0;
+					conversion_info[conversion_count] |= currconv->isConverted() << 0;
+					conversion_info[conversion_count] |= currconv->conversionVertex().isValid() << 1;
+					conversion_vx[conversion_count] = currconv->conversionVertex().x();
+					conversion_vy[conversion_count] = currconv->conversionVertex().y();
+					conversion_vz[conversion_count] = currconv->conversionVertex().z();
+					conversion_chi2[conversion_count] = currconv->conversionVertex().chi2();
+					conversion_ndof[conversion_count] = currconv->conversionVertex().ndof();
+					conversion_cov[conversion_count][0] = currconv->conversionVertex().covariance(0,0);
+					conversion_cov[conversion_count][1] = currconv->conversionVertex().covariance(0,1);
+					conversion_cov[conversion_count][2] = currconv->conversionVertex().covariance(0,2);
+					conversion_cov[conversion_count][3] = currconv->conversionVertex().covariance(1,1);
+					conversion_cov[conversion_count][4] = currconv->conversionVertex().covariance(1,2);
+					conversion_cov[conversion_count][5] = currconv->conversionVertex().covariance(2,2);
+					conversion_mvaout[conversion_count] = currconv->MVAout();
+
+					conversion_trackndof[conversion_count][0] = -1.;
+					conversion_trackndof[conversion_count][1] = -1.;
+					if(currconv->nTracks() == 2)
+					{
+						edm::RefToBase<Track> trA  = currconv->tracks()[0];
+						TransientTrack SVTTrackA = TTrackBuilder->build(*trA);
+						TrajectoryStateClosestToPoint TTrackStateA = SVTTrackA.trajectoryStateClosestToPoint(GlobalPoint(currconv->conversionVertex().x(), currconv->conversionVertex().y(), currconv->conversionVertex().z()));
+						edm::RefToBase<Track> trB  = currconv->tracks()[1];
+						TransientTrack SVTTrackB = TTrackBuilder->build(*trB);
+						TrajectoryStateClosestToPoint TTrackStateB = SVTTrackB.trajectoryStateClosestToPoint(GlobalPoint(currconv->conversionVertex().x(), currconv->conversionVertex().y(), currconv->conversionVertex().z()));
+
+						if(TTrackStateB.isValid() && TTrackStateA.isValid())
+						{
+
+							conversion_trackecalpointx[conversion_count][0] = currconv->ecalImpactPosition()[0].X();
+							conversion_trackecalpointy[conversion_count][0] = currconv->ecalImpactPosition()[0].Y();
+							conversion_trackecalpointz[conversion_count][0] = currconv->ecalImpactPosition()[0].Z();
+							conversion_trackpx[conversion_count][0] = TTrackStateA.momentum().x();
+							conversion_trackpy[conversion_count][0] = TTrackStateA.momentum().y();
+							conversion_trackpz[conversion_count][0] = TTrackStateA.momentum().z();
+							conversion_trackclosestpointx[conversion_count][0] =  TTrackStateA.position().x();
+							conversion_trackclosestpointy[conversion_count][0] =  TTrackStateA.position().y();
+							conversion_trackclosestpointz[conversion_count][0] =  TTrackStateA.position().z();
+							conversion_trackchi2[conversion_count][0] = currconv->tracks()[0]->chi2();
+							conversion_trackndof[conversion_count][0] = currconv->tracks()[0]->ndof();
+							conversion_trackdxy[conversion_count][0] = TTrackStateA.perigeeParameters().transverseImpactParameter();
+							conversion_trackdxyerr[conversion_count][0] = TTrackStateA.perigeeError().transverseImpactParameterError();
+							conversion_trackdz[conversion_count][0] = TTrackStateA.perigeeParameters().longitudinalImpactParameter();
+							conversion_trackdzerr[conversion_count][0] = TTrackStateA.perigeeError().longitudinalImpactParameterError();
+							conversion_trackcharge[conversion_count][0] = currconv->tracks()[0]->charge();
+							conversion_tracknhits[conversion_count][0] = currconv->tracks()[0]->numberOfValidHits();
+							conversion_tracknmissinghits[conversion_count][0] = currconv->tracks()[0]->numberOfLostHits();
+							conversion_tracknpixelhits[conversion_count][0] = currconv->tracks()[0]->hitPattern().numberOfValidPixelHits();
+							conversion_tracknpixellayers[conversion_count][0] = currconv->tracks()[0]->hitPattern().pixelLayersWithMeasurement();
+							conversion_tracknstriplayers[conversion_count][0] = currconv->tracks()[0]->hitPattern().stripLayersWithMeasurement();
+							conversion_trackecalpointx[conversion_count][1] = currconv->ecalImpactPosition()[1].X();
+							conversion_trackecalpointy[conversion_count][1] = currconv->ecalImpactPosition()[1].Y();
+							conversion_trackecalpointz[conversion_count][1] = currconv->ecalImpactPosition()[1].Z();
+							conversion_trackpx[conversion_count][1] = TTrackStateB.momentum().x();
+							conversion_trackpy[conversion_count][1] = TTrackStateB.momentum().y();
+							conversion_trackpz[conversion_count][1] = TTrackStateB.momentum().z();
+							conversion_trackclosestpointx[conversion_count][1] =  TTrackStateB.position().x();
+							conversion_trackclosestpointy[conversion_count][1] =  TTrackStateB.position().y();
+							conversion_trackclosestpointz[conversion_count][1] =  TTrackStateB.position().z();
+							conversion_trackchi2[conversion_count][1] = currconv->tracks()[1]->chi2();
+							conversion_trackndof[conversion_count][1] = currconv->tracks()[1]->ndof();
+							conversion_trackdxy[conversion_count][1] = TTrackStateB.perigeeParameters().transverseImpactParameter();
+							conversion_trackdxyerr[conversion_count][1] = TTrackStateB.perigeeError().transverseImpactParameterError();
+							conversion_trackdz[conversion_count][1] = TTrackStateB.perigeeParameters().longitudinalImpactParameter();
+							conversion_trackdzerr[conversion_count][1] = TTrackStateB.perigeeError().longitudinalImpactParameterError();
+							conversion_trackcharge[conversion_count][1] = currconv->tracks()[1]->charge();
+							conversion_tracknhits[conversion_count][1] = currconv->tracks()[1]->numberOfValidHits();
+							conversion_tracknmissinghits[conversion_count][1] = currconv->tracks()[1]->numberOfLostHits();
+							conversion_tracknpixelhits[conversion_count][1] = currconv->tracks()[1]->hitPattern().numberOfValidPixelHits();
+							conversion_tracknpixellayers[conversion_count][1] = currconv->tracks()[1]->hitPattern().pixelLayersWithMeasurement();
+							conversion_tracknstriplayers[conversion_count][1] = currconv->tracks()[1]->hitPattern().stripLayersWithMeasurement();
+						}
+					}
+					conversion_count++;
+					if(conversion_count == M_conversionmaxcount){cerr << "number of conversions > M_conversionmaxcount. They are missing." << endl; errors |= 1<<4; break;}
+				}
+				photon_count++;
+				if(photon_count == M_photonmaxcount || conversion_count == M_conversionmaxcount){cerr << "number of photon > M_photonmaxcount. They are missing." << endl; errors |= 1<<3; break;}
+				if(theph.pt() >= cPhotonPtMin && fabs(theph.eta()) <= cPhotonEtaMax) NumGood++;
+			}
+		}
+	}
+
+	if(NumGood >= cPhotonNum) return(true);
+	return(false);
+}
+
+bool RootMaker::AddAllConversions(const edm::Event& iEvent){
+	edm::Handle<ConversionCollection> Conversions;
+	iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+	if(Conversions.isValid()){
+		for(unsigned i = 0 ; i < Conversions->size() ; i++){
+			allconversion_info[allconversion_count] = 0;
+			allconversion_info[allconversion_count] |= (*Conversions)[i].isConverted() << 0;
+			allconversion_info[allconversion_count] |= (*Conversions)[i].conversionVertex().isValid() << 1;
+			allconversion_vx[allconversion_count] = (*Conversions)[i].conversionVertex().x();
+			allconversion_vy[allconversion_count] = (*Conversions)[i].conversionVertex().y();
+			allconversion_vz[allconversion_count] = (*Conversions)[i].conversionVertex().z();
+			allconversion_chi2[allconversion_count] = (*Conversions)[i].conversionVertex().chi2();
+			allconversion_ndof[allconversion_count] = (*Conversions)[i].conversionVertex().ndof();
+			allconversion_cov[allconversion_count][0] = (*Conversions)[i].conversionVertex().covariance(0,0);
+			allconversion_cov[allconversion_count][1] = (*Conversions)[i].conversionVertex().covariance(0,1);
+			allconversion_cov[allconversion_count][2] = (*Conversions)[i].conversionVertex().covariance(0,2);
+			allconversion_cov[allconversion_count][3] = (*Conversions)[i].conversionVertex().covariance(1,1);
+			allconversion_cov[allconversion_count][4] = (*Conversions)[i].conversionVertex().covariance(1,2);
+			allconversion_cov[allconversion_count][5] = (*Conversions)[i].conversionVertex().covariance(2,2);
+			allconversion_mvaout[allconversion_count] = (*Conversions)[i].MVAout();
+
+			allconversion_trackndof[allconversion_count][0] = -1.;
+			allconversion_trackndof[allconversion_count][1] = -1.;
+			if((*Conversions)[i].nTracks() == 2)
+			{
+				edm::RefToBase<Track> trA  = (*Conversions)[i].tracks()[0];
+				TransientTrack SVTTrackA = TTrackBuilder->build(*trA);
+				TrajectoryStateClosestToPoint 
+					TTrackStateA = SVTTrackA.trajectoryStateClosestToPoint(GlobalPoint((*Conversions)[i].conversionVertex().x(), 
+								(*Conversions)[i].conversionVertex().y(), 
+								(*Conversions)[i].conversionVertex().z()));
+				edm::RefToBase<Track> trB  = (*Conversions)[i].tracks()[1];
+				TransientTrack SVTTrackB = TTrackBuilder->build(*trB);
+				TrajectoryStateClosestToPoint 
+					TTrackStateB = SVTTrackB.trajectoryStateClosestToPoint(GlobalPoint((*Conversions)[i].conversionVertex().x(), 
+								(*Conversions)[i].conversionVertex().y(), 
+								(*Conversions)[i].conversionVertex().z()));
+				if(TTrackStateB.isValid() && TTrackStateA.isValid()){
+					allconversion_trackecalpointx[allconversion_count][0] = (*Conversions)[i].ecalImpactPosition()[0].X();
+					allconversion_trackecalpointy[allconversion_count][0] = (*Conversions)[i].ecalImpactPosition()[0].Y();
+					allconversion_trackecalpointz[allconversion_count][0] = (*Conversions)[i].ecalImpactPosition()[0].Z();
+					allconversion_trackpx[allconversion_count][0] = TTrackStateA.momentum().x();
+					allconversion_trackpy[allconversion_count][0] = TTrackStateA.momentum().y();
+					allconversion_trackpz[allconversion_count][0] = TTrackStateA.momentum().z();
+					allconversion_trackclosestpointx[allconversion_count][0] =  TTrackStateA.position().x();
+					allconversion_trackclosestpointy[allconversion_count][0] =  TTrackStateA.position().y();
+					allconversion_trackclosestpointz[allconversion_count][0] =  TTrackStateA.position().z();
+					allconversion_trackchi2[allconversion_count][0] = (*Conversions)[i].tracks()[0]->chi2();
+					allconversion_trackndof[allconversion_count][0] = (*Conversions)[i].tracks()[0]->ndof();
+					allconversion_trackdxy[allconversion_count][0] = TTrackStateA.perigeeParameters().transverseImpactParameter();
+					allconversion_trackdxyerr[allconversion_count][0] = TTrackStateA.perigeeError().transverseImpactParameterError();
+					allconversion_trackdz[allconversion_count][0] = TTrackStateA.perigeeParameters().longitudinalImpactParameter();
+					allconversion_trackdzerr[allconversion_count][0] = TTrackStateA.perigeeError().longitudinalImpactParameterError();
+					allconversion_trackcharge[allconversion_count][0] = (*Conversions)[i].tracks()[0]->charge();
+					allconversion_tracknhits[allconversion_count][0] = (*Conversions)[i].tracks()[0]->numberOfValidHits();
+					allconversion_tracknmissinghits[allconversion_count][0] = (*Conversions)[i].tracks()[0]->numberOfLostHits();
+					allconversion_tracknpixelhits[allconversion_count][0] = (*Conversions)[i].tracks()[0]->hitPattern().numberOfValidPixelHits();
+					allconversion_tracknpixellayers[allconversion_count][0] = (*Conversions)[i].tracks()[0]->hitPattern().pixelLayersWithMeasurement();
+					allconversion_tracknstriplayers[allconversion_count][0] = (*Conversions)[i].tracks()[0]->hitPattern().stripLayersWithMeasurement();
+					allconversion_trackecalpointx[allconversion_count][1] = (*Conversions)[i].ecalImpactPosition()[1].X();
+					allconversion_trackecalpointy[allconversion_count][1] = (*Conversions)[i].ecalImpactPosition()[1].Y();
+					allconversion_trackecalpointz[allconversion_count][1] = (*Conversions)[i].ecalImpactPosition()[1].Z();
+					allconversion_trackpx[allconversion_count][1] = TTrackStateB.momentum().x();
+					allconversion_trackpy[allconversion_count][1] = TTrackStateB.momentum().y();
+					allconversion_trackpz[allconversion_count][1] = TTrackStateB.momentum().z();
+					allconversion_trackclosestpointx[allconversion_count][1] =  TTrackStateB.position().x();
+					allconversion_trackclosestpointy[allconversion_count][1] =  TTrackStateB.position().y();
+					allconversion_trackclosestpointz[allconversion_count][1] =  TTrackStateB.position().z();
+					allconversion_trackchi2[allconversion_count][1] = (*Conversions)[i].tracks()[1]->chi2();
+					allconversion_trackndof[allconversion_count][1] = (*Conversions)[i].tracks()[1]->ndof();
+					allconversion_trackdxy[allconversion_count][1] = TTrackStateB.perigeeParameters().transverseImpactParameter();
+					allconversion_trackdxyerr[allconversion_count][1] = TTrackStateB.perigeeError().transverseImpactParameterError();
+					allconversion_trackdz[allconversion_count][1] = TTrackStateB.perigeeParameters().longitudinalImpactParameter();
+					allconversion_trackdzerr[allconversion_count][1] = TTrackStateB.perigeeError().longitudinalImpactParameterError();
+					allconversion_trackcharge[allconversion_count][1] = (*Conversions)[i].tracks()[1]->charge();
+					allconversion_tracknhits[allconversion_count][1] = (*Conversions)[i].tracks()[1]->numberOfValidHits();
+					allconversion_tracknmissinghits[allconversion_count][1] = (*Conversions)[i].tracks()[1]->numberOfLostHits();
+					allconversion_tracknpixelhits[allconversion_count][1] = (*Conversions)[i].tracks()[1]->hitPattern().numberOfValidPixelHits();
+					allconversion_tracknpixellayers[allconversion_count][1] = (*Conversions)[i].tracks()[1]->hitPattern().pixelLayersWithMeasurement();
+					allconversion_tracknstriplayers[allconversion_count][1] = (*Conversions)[i].tracks()[1]->hitPattern().stripLayersWithMeasurement();
+				}
+			}
+			allconversion_count++;
+			if(allconversion_count == M_conversionmaxcount){cerr << "number of conversions > M_conversionmaxcount. They are missing." << endl; errors |= 1<<4; break;}
+		}
+	}
+	return(true);
+}
+
+bool RootMaker::AddTaus(const edm::Event& iEvent)
+{
+	int NumGood = 0;
+	edm::Handle<PFTauCollection> Taus;
+	//iEvent.getByLabel(edm::InputTag("shrinkingConePFTauProducer"), Taus);
+	iEvent.getByLabel(edm::InputTag("hpsPFTauProducer"), Taus);
+	edm::Handle<pat::JetCollection> ak5pfJets;
+	iEvent.getByLabel(edm::InputTag("patJetsAK5PF"), ak5pfJets);
+	if(Taus.isValid())
+	{
+		vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
+		for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++)
+		{
+			iEvent.getByLabel(cTauDiscriminators[n].c_str(), PFTauDiscriminatiors[n]);
+		}
+		edm::Handle<PFTauDiscriminator> hpsPFTauDiscriminationByLooseIsolation;
+		iEvent.getByLabel("hpsPFTauDiscriminationByLooseIsolation", hpsPFTauDiscriminationByLooseIsolation);
+
+		for(unsigned i = 0 ; i < Taus->size() ; i++)
+		{
+			int numtrack = (*Taus)[i].signalPFChargedHadrCands().size();
+			PFTauRef tauCandidate(Taus, i);
+			if((*hpsPFTauDiscriminationByLooseIsolation)[tauCandidate] < 0.5 || !(numtrack == 3 || numtrack == 1)) continue;
+			tau_dishps[tau_count] = 0;
+			for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++)
+			{
+				if((*PFTauDiscriminatiors[n])[tauCandidate] > 0.5){tau_dishps[tau_count] |= 1<<n;}
+			}
+
+			tau_px[tau_count] = (*Taus)[i].px();
+			tau_py[tau_count] = (*Taus)[i].py();
+			tau_pz[tau_count] = (*Taus)[i].pz();
+			tau_emfraction[tau_count] = (*Taus)[i].emFraction();
+			tau_hcaltotoverplead[tau_count] = (*Taus)[i].hcalTotOverPLead();
+			tau_hcal3x3overplead[tau_count] = (*Taus)[i].hcalMaxOverPLead();
+			tau_ecalstripsumeoverplead[tau_count] = (*Taus)[i].hcal3x3OverPLead();
+			tau_bremsrecoveryeoverplead[tau_count] = (*Taus)[i].ecalStripSumEOverPLead();
+			tau_calocomp[tau_count] = (*Taus)[i].caloComp();
+			tau_segcomp[tau_count] = (*Taus)[i].segComp();
+
+			tau_charge[tau_count] = (*Taus)[i].charge();
+			tau_chargedbegin[tau_count] = tau_charged_count;
+			PFJetRef thejet = (*Taus)[i].jetRef();
+			bool jetfound = false;
+			if(ak5pfJets.isValid())
+			{
+				jetfound = true;
+				tau_ak5pfjet_e[tau_count] = thejet->energy();
+				tau_ak5pfjet_px[tau_count] = thejet->px();
+				tau_ak5pfjet_py[tau_count] = thejet->py();
+				tau_ak5pfjet_pz[tau_count] = thejet->pz();
+				tau_ak5pfjet_hadronicenergy[tau_count] = thejet->chargedHadronEnergy() + thejet->neutralHadronEnergy();
+				tau_ak5pfjet_chargedhadronicenergy[tau_count] = thejet->chargedHadronEnergy();
+				tau_ak5pfjet_emenergy[tau_count] = thejet->chargedEmEnergy() + thejet->neutralEmEnergy();
+				tau_ak5pfjet_chargedemenergy[tau_count] = thejet->chargedEmEnergy();
+				tau_ak5pfjet_chargedmulti[tau_count] = thejet->chargedMultiplicity();
+				tau_ak5pfjet_neutralmulti[tau_count] = thejet->neutralMultiplicity();
+				tau_ak5pfjet_trigger[tau_count] = GetTrigger(*thejet, jettriggers); 
+				break;
+			}
+			if(!jetfound)
+			{
+				tau_ak5pfjet_e[tau_count] = -1.;
+			}
+
+			tau_isolationchargednum[tau_count] = 0;
+			tau_isolationchargedpt[tau_count] = 0.;
+			tau_isolationneutralsnum[tau_count] = 0;
+			tau_isolationneutralspt[tau_count] = 0.;
+			tau_isolationgammanum[tau_count] = (*Taus)[i].isolationPFGammaCands().size();
+			tau_isolationgammapt[tau_count] = (*Taus)[i].isolationPFGammaCandsEtSum();
+
+			for(unsigned n = 0 ; n < (*Taus)[i].isolationPFCands().size() ; n++)
+			{
+				PFCandidateRef isocand = (*Taus)[i].isolationPFCands()[n];
+				if(isocand->charge() == 0)
+				{
+					tau_isolationneutralsnum[tau_count]++;
+					tau_isolationneutralspt[tau_count]+=isocand->pt();
+				}
+				else
+				{
+					tau_isolationchargednum[tau_count]++;
+					tau_isolationchargedpt[tau_count]+=isocand->pt();
+				}
+			}
+			tau_trigger[tau_count] = GetTrigger((*Taus)[i], tautriggers);
+			TrackRef track;
+			for(unsigned n = 0 ; n < (*Taus)[i].signalPFCands().size() ; n++)
+			{
+				PFCandidateRef cand = (*Taus)[i].signalPFCands()[n];
+				track = cand->trackRef();
+				if(!track.isNull())
+				{
+					edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
+					iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+					TransientTrack TTrack = TTrackBuilder->build(track);
+					TrajectoryStateClosestToPoint TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
+					tau_charged_px[tau_charged_count] = TTrackState.momentum().x();
+					tau_charged_py[tau_charged_count] = TTrackState.momentum().y();
+					tau_charged_pz[tau_charged_count] = TTrackState.momentum().z();
+					tau_charged_closestpointx[tau_charged_count] = TTrackState.position().x();
+					tau_charged_closestpointy[tau_charged_count] = TTrackState.position().y();
+					tau_charged_closestpointz[tau_charged_count] = TTrackState.position().z();
+					tau_charged_dxy[tau_charged_count]    = TTrackState.perigeeParameters().transverseImpactParameter();
+					tau_charged_dxyerr[tau_charged_count] = TTrackState.perigeeError().transverseImpactParameterError();
+					tau_charged_dz[tau_charged_count]     = TTrackState.perigeeParameters().longitudinalImpactParameter();
+					tau_charged_dzerr[tau_charged_count]  = TTrackState.perigeeError().longitudinalImpactParameterError();
+					tau_charged_chi2[tau_charged_count]   = track->chi2();
+					tau_charged_ndof[tau_charged_count]   = track->ndof();
+					tau_charged_charge[tau_charged_count] = track->charge();
+					tau_charged_nhits[tau_charged_count] = track->numberOfValidHits();
+					tau_charged_nmissinghits[tau_charged_count] = track->numberOfLostHits();
+					tau_charged_npixelhits[tau_charged_count] = track->hitPattern().numberOfValidPixelHits();
+					tau_charged_npixellayers[tau_charged_count] = track->hitPattern().pixelLayersWithMeasurement();
+					tau_charged_nstriplayers[tau_charged_count] = track->hitPattern().stripLayersWithMeasurement();
+					tau_charged_dedxharmonic2[tau_charged_count] = (*dEdxharmonic2)[track].dEdx();
+					math::XYZPoint ecalPos = PositionOnECalSurface(TTrack);
+					tau_charged_outerx[tau_charged_count] = ecalPos.x();
+					tau_charged_outery[tau_charged_count] = ecalPos.y();
+					tau_charged_outerz[tau_charged_count] = ecalPos.z();
+					tau_charged_count++;
+					if(tau_charged_count == M_taumaxcount*10) break;
+				}
+			}
+			tau_count++;
+
+			if(tau_count == M_taumaxcount || tau_charged_count == M_taumaxcount*10){cerr << "number of taus > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
+			if((*Taus)[i].pt() >= cTauPtMin && fabs((*Taus)[i].eta()) < cTauEtaMax) NumGood++;
+		}
+	}
+
+	if(NumGood >= cTauNum) return(true);
+	return(false);
+}
+
+bool RootMaker::AddTracks(const edm::Event& iEvent)
+{
+	int NumGood = 0;
+	edm::Handle<TrackCollection> Tracks;
+	iEvent.getByLabel(edm::InputTag("generalTracks"), Tracks);
+	edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
+	iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+	if(Tracks.isValid()){
+		for(unsigned i = 0 ; i < Tracks->size() ; i++)
+		{
+			int numvtx = getPrimVertex((*Tracks)[i]);
+			TransientTrack TTrack = TTrackBuilder->build((*Tracks)[i]);
+			TrajectoryStateClosestToPoint TTrackState;
+			if(numvtx == -1)
+			{
+				TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
+			}
+			else
+			{
+				TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(primvertex_x[numvtx], primvertex_y[numvtx], primvertex_z[numvtx]));
+			}
+			if(TTrackState.pt() >= cTrackFilterPtMin)
+			{
+				track_vtx[track_count] = numvtx;
+				track_px[track_count] = TTrackState.momentum().x();
+				track_py[track_count] = TTrackState.momentum().y();
+				track_pz[track_count] = TTrackState.momentum().z();
+				track_closestpointx[track_count] = TTrackState.position().x();
+				track_closestpointy[track_count] = TTrackState.position().y();
+				track_closestpointz[track_count] = TTrackState.position().z();
+				track_dxy[track_count]    = TTrackState.perigeeParameters().transverseImpactParameter();
+				track_dxyerr[track_count] = TTrackState.perigeeError().transverseImpactParameterError();
+				track_dz[track_count]     = TTrackState.perigeeParameters().longitudinalImpactParameter();
+				track_dzerr[track_count]  = TTrackState.perigeeError().longitudinalImpactParameterError();
+				track_chi2[track_count]   = (*Tracks)[i].chi2();
+				track_ndof[track_count]   = (*Tracks)[i].ndof();
+				track_charge[track_count] = (*Tracks)[i].charge();
+				track_nhits[track_count] = (*Tracks)[i].numberOfValidHits();
+				track_nmissinghits[track_count] = (*Tracks)[i].numberOfLostHits();
+				track_npixelhits[track_count] = (*Tracks)[i].hitPattern().numberOfValidPixelHits();
+				track_npixellayers[track_count] = (*Tracks)[i].hitPattern().pixelLayersWithMeasurement();
+				track_nstriplayers[track_count] = (*Tracks)[i].hitPattern().stripLayersWithMeasurement();
+				TrackRef tr  = TrackRef(Tracks, i);
+				track_dedxharmonic2[track_count] = (*dEdxharmonic2)[tr].dEdx();
+				math::XYZPoint ecalPos = PositionOnECalSurface(TTrack);
+				track_outerx[track_count] = ecalPos.x();
+				track_outery[track_count] = ecalPos.y();
+				track_outerz[track_count] = ecalPos.z();
+				track_count++;
+				if(track_count == M_trackmaxcount)
+				{
+					cerr << "number of tracks > M_trackmaxcount. They are missing." << endl;
+					errors |= 1<<2;
+					break;
+				}
+				if(TTrackState.pt() >= cTrackPtMin && fabs((*Tracks)[i].eta()) <= cTrackEtaMax)
+				{
+					NumGood++;
+					//double energy = sqrt(pow(track_px[i],2) + pow(track_py[i],2) + pow(track_pz[i],2));
+					//TrackVector.push_back(TLorentzVector(track_px[i], track_py[i], track_pz[i], energy));
+				}
+			}
+		}
+
+	}
+	if(NumGood >= cTrackNum) return(true);
+	return(false);
+}
+
+bool RootMaker::AddAK5CaloJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+	int NumGood = 0;
+
+	edm::Handle<pat::JetCollection> ak5caloJets;
+	iEvent.getByLabel(edm::InputTag("patJetsAK5Calo"), ak5caloJets);
+	if(ak5caloJets.isValid())
+	{
+		for(unsigned i = 0 ; i < ak5caloJets->size() ; i++)
+		{
+			if((*ak5caloJets)[i].pt() >= cAK5CaloFilterPtMin)
+			{
+				ak5calojet_e[ak5calojet_count] = (*ak5caloJets)[i].energy();
+				ak5calojet_px[ak5calojet_count] = (*ak5caloJets)[i].px();
+				ak5calojet_py[ak5calojet_count] = (*ak5caloJets)[i].py();
+				ak5calojet_pz[ak5calojet_count] = (*ak5caloJets)[i].pz();
+				ak5calojet_hadronicenergy[ak5calojet_count] = (*ak5caloJets)[i].energyFractionHadronic() * (*ak5caloJets)[i].energy();
+				ak5calojet_emenergy[ak5calojet_count] = (*ak5caloJets)[i].emEnergyFraction() * (*ak5caloJets)[i].energy();
+				if((*ak5caloJets)[i].jecSetsAvailable())
+				{
+					ak5calojet_energycorr[ak5calojet_count] = (*ak5caloJets)[i].jecFactor("Uncorrected");
+					ak5calojet_energycorrl7uds[ak5calojet_count] = -1.;//(*ak5caloJets)[i].jecFactor("L7Parton", "UDS");
+					ak5calojet_energycorrl7bottom[ak5calojet_count] = -1;//(*ak5caloJets)[i].jecFactor("L7Parton", "BOTTOM");
+				}
+				else
+				{
+					ak5calojet_energycorr[ak5calojet_count] = -1.;
+					ak5calojet_energycorrl7uds[ak5calojet_count] = -1.;
+					ak5calojet_energycorrl7bottom[ak5calojet_count] = -1.;
+				}
+				for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
+				{
+					if(bdisclabel[n] != "F"){
+						ak5calojet_btag[ak5calojet_count][n] = (*ak5caloJets)[i].bDiscriminator(bdisclabel[n]);
+					}
+					else
+					{
+						ak5calojet_btag[ak5calojet_count][n] = -1000;
+					}
+				}
+
+				ak5calojet_fhpd[ak5calojet_count] = (*ak5caloJets)[i].jetID().fHPD;
+				ak5calojet_restrictedemf[ak5calojet_count] = (*ak5caloJets)[i].jetID().restrictedEMF;
+				/*for(unsigned n = 0 ; n < min((*ak5caloJets)[i].getPairDiscri().size(), unsigned(M_btagmax)) ; n++)
+				  {
+				  cout << (*ak5caloJets)[i].getPairDiscri()[n].first << " " << (*ak5caloJets)[i].getPairDiscri()[n].second << " " << ak5calojet_btag[i][n] << endl;
+				  }*/
+				ak5calojet_n90[ak5calojet_count] = (*ak5caloJets)[i].n90();
+				ak5calojet_n60[ak5calojet_count] = (*ak5caloJets)[i].n60();
+				ak5calojet_count++;
+				if(ak5calojet_count == M_jetmaxcount){cerr << "number of ak5calojet > M_jetmaxcount. They are missing." << endl; errors |= 1<<8; break;}
+				if((*ak5caloJets)[i].pt() >= cAK5CaloPtMin && fabs((*ak5caloJets)[i].eta()) < cAK5CaloEtaMax) NumGood++;
+			}
+		}
+	}
+	if(NumGood >= cAK5CaloNum) return(true);
+	return(false);
+}
+
+bool RootMaker::AddAK5JPTJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+	int NumGood = 0;
+
+	edm::Handle<pat::JetCollection> ak5jptJets;
+	iEvent.getByLabel(edm::InputTag("patJetsAK5JPT"), ak5jptJets);
+	if(ak5jptJets.isValid())
+	{
+		for(unsigned i = 0 ; i < ak5jptJets->size() ; i++)
+		{
+			if((*ak5jptJets)[i].pt() >= cAK5JPTFilterPtMin)
+			{
+				ak5jptjet_e[ak5jptjet_count] = (*ak5jptJets)[i].energy();
+				ak5jptjet_px[ak5jptjet_count] = (*ak5jptJets)[i].px();
+				ak5jptjet_py[ak5jptjet_count] = (*ak5jptJets)[i].py();
+				ak5jptjet_pz[ak5jptjet_count] = (*ak5jptJets)[i].pz();
+				ak5jptjet_hadronicenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedHadronEnergy() + (*ak5jptJets)[i].neutralHadronEnergy();
+				ak5jptjet_chargedhadronicenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedHadronEnergy();
+				ak5jptjet_emenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedEmEnergy() + (*ak5jptJets)[i].neutralEmEnergy();
+				ak5jptjet_chargedemenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedEmEnergy();
+				ak5jptjet_chargedmulti[ak5jptjet_count] = (*ak5jptJets)[i].chargedMultiplicity();
+				if((*ak5jptJets)[i].jecSetsAvailable())
+				{
+					ak5jptjet_energycorr[ak5jptjet_count] = (*ak5jptJets)[i].jecFactor("Uncorrected");
+					ak5jptjet_energycorrl7uds[ak5jptjet_count] = -1.;//(*ak5jptJets)[i].jecFactor("L7Parton", "UDS");
+					ak5jptjet_energycorrl7bottom[ak5jptjet_count] = -1.;//(*ak5jptJets)[i].jecFactor("L7Parton", "BOTTOM");
+				}
+				else
+				{
+					ak5jptjet_energycorr[ak5jptjet_count] = -1.;
+					ak5jptjet_energycorrl7uds[ak5jptjet_count] = -1.;
+					ak5jptjet_energycorrl7bottom[ak5jptjet_count] = -1.;
+				}
+				for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
+				{
+					if(bdisclabel[n] != "F"){
+						ak5jptjet_btag[ak5jptjet_count][n] = (*ak5jptJets)[i].bDiscriminator(bdisclabel[n]);
+					}
+					else
+					{
+						ak5jptjet_btag[ak5jptjet_count][n] = -1000;
+					}
+				}
+
+				ak5jptjet_fhpd[ak5jptjet_count] = (*ak5jptJets)[i].jetID().fHPD;
+				ak5jptjet_restrictedemf[ak5jptjet_count] = (*ak5jptJets)[i].jetID().restrictedEMF;
+				ak5jptjet_n90[ak5jptjet_count] = (*ak5jptJets)[i].jetID().n90Hits;
+				ak5jptjet_count++;
+				if(ak5jptjet_count == M_jetmaxcount){cerr << "number of ak5jptjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<9; break;}
+				if((*ak5jptJets)[i].pt() >= cAK5JPTPtMin && fabs((*ak5jptJets)[i].eta()) < cAK5JPTEtaMax) NumGood++;
+			}
+		}
+	}
+
+	if(NumGood >= cAK5JPTNum) return(true);
+	return(false);
+}
+
+bool RootMaker::AddAK5PFCHSJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+	int NumGood = 0;
+
+	edm::Handle<pat::JetCollection> ak5pfJets;
+	iEvent.getByLabel(edm::InputTag("selectedPatJetsPFlow"), ak5pfJets);
+
+	edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
+	iEvent.getByLabel("AK5byValAlgo", jetMCFlHandle);
+
+	if(ak5pfJets.isValid())
+	{
+		for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
+		{
+			pat::Jet corjet((*ak5pfJets)[i]);
+			if(corjet.pt() >= cAK5PFCHSFilterPtMin)
+			{
+				ak5pfchsjet_e[ak5pfchsjet_count] = corjet.energy();
+				ak5pfchsjet_px[ak5pfchsjet_count] = corjet.px();
+				ak5pfchsjet_py[ak5pfchsjet_count] = corjet.py();
+				ak5pfchsjet_pz[ak5pfchsjet_count] = corjet.pz();
+				ak5pfchsjet_area[ak5pfchsjet_count] = corjet.jetArea();
+				ak5pfchsjet_hadronicenergy[ak5pfchsjet_count] = corjet.chargedHadronEnergy() + corjet.neutralHadronEnergy();
+				ak5pfchsjet_chargedhadronicenergy[ak5pfchsjet_count] = corjet.chargedHadronEnergy();
+				ak5pfchsjet_emenergy[ak5pfchsjet_count] = corjet.chargedEmEnergy() + corjet.neutralEmEnergy();
+				ak5pfchsjet_chargedemenergy[ak5pfchsjet_count] = corjet.chargedEmEnergy();
+				ak5pfchsjet_hfhadronicenergy[ak5pfchsjet_count] = corjet.HFHadronEnergy();
+				ak5pfchsjet_hfemenergy[ak5pfchsjet_count] = corjet.HFEMEnergy();
+				ak5pfchsjet_electronenergy[ak5pfchsjet_count] = corjet.electronEnergy();
+				ak5pfchsjet_muonenergy[ak5pfchsjet_count] = corjet.muonEnergy();
+				ak5pfchsjet_chargedmulti[ak5pfchsjet_count] = corjet.chargedMultiplicity();
+				ak5pfchsjet_neutralmulti[ak5pfchsjet_count] = corjet.neutralMultiplicity();
+				ak5pfchsjet_hfhadronicmulti[ak5pfchsjet_count] = corjet.HFHadronMultiplicity();
+				ak5pfchsjet_hfemmulti[ak5pfchsjet_count] = corjet.HFEMMultiplicity();
+				ak5pfchsjet_electronmulti[ak5pfchsjet_count] = corjet.electronMultiplicity();
+				ak5pfchsjet_muonmulti[ak5pfchsjet_count] = corjet.muonMultiplicity();
+				ak5pfchsjet_energycorr[ak5pfchsjet_count] = corjet.jecFactor("Uncorrected");
+				ak5pfchsjet_energycorrunc[ak5pfchsjet_count] = -1;
+				ak5pfchsjet_energycorrl7uds[ak5pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
+				ak5pfchsjet_energycorrl7bottom[ak5pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
+				JetShape shape = getJetShape(corjet);
+				ak5pfchsjet_chargeda[ak5pfchsjet_count] = shape.chargeda;
+				ak5pfchsjet_chargedb[ak5pfchsjet_count] = shape.chargedb;
+				ak5pfchsjet_neutrala[ak5pfchsjet_count] = shape.neutrala;
+				ak5pfchsjet_neutralb[ak5pfchsjet_count] = shape.neutralb;
+				ak5pfchsjet_alla[ak5pfchsjet_count] = shape.alla;
+				ak5pfchsjet_allb[ak5pfchsjet_count] = shape.allb;
+				ak5pfchsjet_chargedfractionmv[ak5pfchsjet_count] = shape.chargedfractionmv;
+
+				ak5pfchsjet_mcflavour[ak5pfchsjet_count] = 0;
+				if(jetMCFlHandle.isValid())
+				{
+					const JetFlavourMatchingCollection& jetMCFl = *(jetMCFlHandle.product()); 
+					double drmin = 0.5;
+					int num = -1;
+					for(size_t u = 0; u < jetMCFl.size(); u++)
+					{
+						double dr =  DR(*(jetMCFl[u].first), corjet);
+						if(dr < drmin)
+						{
+							drmin = dr;
+							num = u;
+						}
+					}
+					if(num != -1)
+					{
+						ak5pfchsjet_mcflavour[ak5pfchsjet_count] = jetMCFl[num].second.getFlavour();
+					}
+				}
+				for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
+				{
+					ak5pfchsjet_btag[ak5pfchsjet_count][n] = -1000000;
+					edm::Handle<JetTagCollection> bTagHandle;
+					iEvent.getByLabel(edm::InputTag(bdisclabel[n], "", "ROOTMAKER"), bTagHandle);
+					//iEvent.getByLabel(bdisclabel[n], bTagHandle);
+					if(bTagHandle.isValid())
+					{
+						const JetTagCollection& bTags = *(bTagHandle.product());
+						double drmin = 0.5;
+						int num = -1;
+						for(size_t u = 0; u < bTags.size(); u++)
+						{
+							double dr =  DR(*(bTags[u].first), corjet);
+							if(dr < drmin)
+							{
+								drmin = dr;
+								num = u;
+							}
+						}
+						if(num != -1)
+						{
+							ak5pfchsjet_btag[ak5pfchsjet_count][n] = bTags[num].second;
+						}
+					}
+				}
+				ak5pfchsjet_trigger[ak5pfchsjet_count] = GetTrigger(corjet, jettriggers); 
+				ak5pfchsjet_count++;
+				if(ak5pfchsjet_count == M_jetmaxcount){cerr << "number of ak5pfchsjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<25; break;}
+				if(corjet.pt() >= cAK5PFCHSPtMin && fabs(corjet.eta()) < cAK5PFCHSEtaMax) NumGood++;
+			}
+		}
+	}
+	if(NumGood >= cAK5PFCHSNum) return(true);
+	return(false);
+}
+
+bool RootMaker::AddAK5PFJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+	int NumGood = 0;
+
+	edm::Handle<PFJetCollection> ak5pfJets;
+	iEvent.getByLabel(edm::InputTag("ak5PFJets"), ak5pfJets);
+	const JetCorrector* corrector = JetCorrector::getJetCorrector((string("ak5PF")+cJetCorrection).c_str(), iSetup);
+
+	edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+	iSetup.get<JetCorrectionsRecord>().get("AK5PF",JetCorParColl); 
+	JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+	JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
+
+	edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
+	iEvent.getByLabel("AK5byValAlgo", jetMCFlHandle);
+
+	if(ak5pfJets.isValid())
+	{
+		for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
+		{
+			PFJet corjet((*ak5pfJets)[i]);
+			double jec = corrector->correction(corjet, iEvent, iSetup);
+			corjet.scaleEnergy(jec);
+			if(corjet.pt() >= cAK5PFFilterPtMin)
+			{
+				ak5pfjet_e[ak5pfjet_count] = corjet.energy();
+				ak5pfjet_px[ak5pfjet_count] = corjet.px();
+				ak5pfjet_py[ak5pfjet_count] = corjet.py();
+				ak5pfjet_pz[ak5pfjet_count] = corjet.pz();
+				ak5pfjet_area[ak5pfjet_count] = corjet.jetArea();
+				ak5pfjet_hadronicenergy[ak5pfjet_count] = corjet.chargedHadronEnergy() + corjet.neutralHadronEnergy();
+				ak5pfjet_chargedhadronicenergy[ak5pfjet_count] = corjet.chargedHadronEnergy();
+				ak5pfjet_emenergy[ak5pfjet_count] = corjet.chargedEmEnergy() + corjet.neutralEmEnergy();
+				ak5pfjet_chargedemenergy[ak5pfjet_count] = corjet.chargedEmEnergy();
+				ak5pfjet_hfhadronicenergy[ak5pfjet_count] = corjet.HFHadronEnergy();
+				ak5pfjet_hfemenergy[ak5pfjet_count] = corjet.HFEMEnergy();
+				ak5pfjet_electronenergy[ak5pfjet_count] = corjet.electronEnergy();
+				ak5pfjet_muonenergy[ak5pfjet_count] = corjet.muonEnergy();
+				ak5pfjet_chargedmulti[ak5pfjet_count] = corjet.chargedMultiplicity();
+				ak5pfjet_neutralmulti[ak5pfjet_count] = corjet.neutralMultiplicity();
+				ak5pfjet_hfhadronicmulti[ak5pfjet_count] = corjet.HFHadronMultiplicity();
+				ak5pfjet_hfemmulti[ak5pfjet_count] = corjet.HFEMMultiplicity();
+				ak5pfjet_electronmulti[ak5pfjet_count] = corjet.electronMultiplicity();
+				ak5pfjet_muonmulti[ak5pfjet_count] = corjet.muonMultiplicity();
+				ak5pfjet_energycorr[ak5pfjet_count] = 1./jec;
+				jecUnc->setJetEta(corjet.eta());
+				jecUnc->setJetPt(corjet.pt());
+				ak5pfjet_energycorrunc[ak5pfjet_count] = jecUnc->getUncertainty(true);
+				//cout << ak5pfjet_energycorr[ak5pfjet_count] << endl;
+				ak5pfjet_energycorrl7uds[ak5pfjet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
+				ak5pfjet_energycorrl7bottom[ak5pfjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
+				JetShape shape = getJetShape(corjet);
+				ak5pfjet_chargeda[ak5pfjet_count] = shape.chargeda;
+				ak5pfjet_chargedb[ak5pfjet_count] = shape.chargedb;
+				ak5pfjet_neutrala[ak5pfjet_count] = shape.neutrala;
+				ak5pfjet_neutralb[ak5pfjet_count] = shape.neutralb;
+				ak5pfjet_alla[ak5pfjet_count] = shape.alla;
+				ak5pfjet_allb[ak5pfjet_count] = shape.allb;
+				ak5pfjet_chargedfractionmv[ak5pfjet_count] = shape.chargedfractionmv;
+				ak5pfjet_mcflavour[ak5pfjet_count] = 0;
+				if(jetMCFlHandle.isValid())
+				{
+					const JetFlavourMatchingCollection& jetMCFl = *(jetMCFlHandle.product()); 
+					double drmin = 0.5;
+					int num = -1;
+					for(size_t u = 0; u < jetMCFl.size(); u++)
+					{
+						double dr =  DR(*(jetMCFl[u].first), corjet);
+						if(dr < drmin)
+						{
+							drmin = dr;
+							num = u;
+						}
+					}
+					if(num != -1)
+					{
+						ak5pfjet_mcflavour[ak5pfjet_count] = jetMCFl[num].second.getFlavour();
+					}
+				}
+				for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
+				{
+					ak5pfjet_btag[ak5pfjet_count][n] = -1000000;
+					edm::Handle<JetTagCollection> bTagHandle;
+					iEvent.getByLabel(edm::InputTag(bdisclabel[n], "", "ROOTMAKER"), bTagHandle);
+					if(bTagHandle.isValid())
+					{
+						const JetTagCollection& bTags = *(bTagHandle.product());
+						double drmin = 0.5;
+						int num = -1;
+						for(size_t u = 0; u < bTags.size(); u++)
+						{
+							double dr =  DR(*(bTags[u].first), corjet);
+							if(dr < drmin)
+							{
+								drmin = dr;
+								num = u;
+							}
+						}
+						if(num != -1)
+						{
+							ak5pfjet_btag[ak5pfjet_count][n] = bTags[num].second;
+						}
+					}
+				}
+
+				ak5pfjet_trigger[ak5pfjet_count] = GetTrigger(corjet, jettriggers); 
+				ak5pfjet_count++;
+				if(ak5pfjet_count == M_jetmaxcount){cerr << "number of ak5pfjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
+				if(corjet.pt() >= cAK5PFPtMin && fabs(corjet.eta()) < cAK5PFEtaMax) NumGood++;
+			}
+		}
+	}
+	delete jecUnc;
+	if(NumGood >= cAK5PFNum) return(true);
+	return(false);
+}
+
+RootMaker::JetShape RootMaker::getJetShape(const pat::Jet& jet)
+{
+	using namespace TMath;
+	RootMaker::JetShape res;
+	float chargedetaeta = 0.;
+	float chargedetaphi = 0.;
+	float chargedphiphi = 0.;
+	float chargedptsum = 0.;
+	float chargedptsummv = 0.;
+	float neutraletaeta = 0.;
+	float neutraletaphi = 0.;
+	float neutralphiphi = 0.;
+	float neutralptsum = 0.;
+	float alletaeta = 0.;
+	float alletaphi = 0.;
+	float allphiphi = 0.;
+	float allptsum = 0.;
+	vector<PFCandidatePtr> constituents(jet.getPFConstituents());
+	for(size_t i = 0 ; i < constituents.size() ; ++i)
+	{
+		const PFCandidate& con = *(constituents[i]);
+		if(con.trackRef().isNonnull())
+		{
+			chargedptsum += con.pt();
+			chargedetaeta += Power(jet.eta() - con.eta(), 2)*con.pt();
+			chargedetaphi += (jet.eta() - con.eta())*(jet.phi() - con.phi())*con.pt();
+			chargedphiphi += Power(jet.phi() - con.phi(), 2)*con.pt();
+			int vertex = getPrimVertex(*(con.trackRef()));
+			if(vertex == 0 || vertex == -1)
+			{
+				chargedptsummv += con.pt();
+			}
+		}
+		else
+		{
+			neutralptsum += con.pt();
+			neutraletaeta += Power(jet.eta() - con.eta(), 2)*con.pt();
+			neutraletaphi += (jet.eta() - con.eta())*(jet.phi() - con.phi())*con.pt();
+			neutralphiphi += Power(jet.phi() - con.phi(), 2)*con.pt();
+		}
+		allptsum += con.pt();
+		alletaeta += Power(jet.eta() - con.eta(), 2)*con.pt();
+		alletaphi += (jet.eta() - con.eta())*(jet.phi() - con.phi())*con.pt();
+		allphiphi += Power(jet.phi() - con.phi(), 2)*con.pt();
+	}
+	if(chargedptsum != 0)
+	{
+		chargedetaeta/=chargedptsum;
+		chargedetaphi/=chargedptsum;
+		chargedphiphi/=chargedptsum;
+	}
+	else
+	{
+		chargedetaeta = 0.;
+		chargedetaphi = 0.;
+		chargedphiphi = 0.;
+	}
+	if(neutralptsum != 0)
+	{
+	neutraletaeta/=neutralptsum;
+	neutraletaphi/=neutralptsum;
+	neutralphiphi/=neutralptsum;
+	}
+	else
+	{
+	neutraletaeta = 0.;
+	neutraletaphi = 0.;
+	neutralphiphi = 0.;
+	}
+	if(allptsum != 0)
+	{
+	alletaeta/=allptsum;
+	alletaphi/=allptsum;
+	allphiphi/=allptsum;
+	}
+	else
+	{
+	alletaeta = 0.;
+	alletaphi = 0.;
+	allphiphi = 0.;
+	}
+	res.chargeda = 0.5*(chargedetaeta+chargedphiphi) + Sqrt(Power(0.5*(chargedetaeta+chargedphiphi),2) + chargedetaphi*chargedetaphi); 
+	res.chargedb = 0.5*(chargedetaeta+chargedphiphi) - Sqrt(Power(0.5*(chargedetaeta+chargedphiphi),2) + chargedetaphi*chargedetaphi); 
+	res.neutrala = 0.5*(neutraletaeta+neutralphiphi) + Sqrt(Power(0.5*(neutraletaeta+neutralphiphi),2) + neutraletaphi*neutraletaphi); 
+	res.neutralb = 0.5*(neutraletaeta+neutralphiphi) - Sqrt(Power(0.5*(neutraletaeta+neutralphiphi),2) + neutraletaphi*neutraletaphi); 
+	res.alla = 0.5*(alletaeta+allphiphi) + Sqrt(Power(0.5*(alletaeta+allphiphi),2) + alletaphi*alletaphi); 
+	res.allb = 0.5*(alletaeta+allphiphi) - Sqrt(Power(0.5*(alletaeta+allphiphi),2) + alletaphi*alletaphi); 
+	res.chargedfractionmv = chargedptsummv/chargedptsum;
+	return(res);
+}
+
+RootMaker::JetShape RootMaker::getJetShape(const PFJet& jet)
+{
+	using namespace TMath;
+	RootMaker::JetShape res;
+	float chargedetaeta = 0.;
+	float chargedetaphi = 0.;
+	float chargedphiphi = 0.;
+	float chargedptsum = 0.;
+	float chargedptsummv = 0.;
+	float neutraletaeta = 0.;
+	float neutraletaphi = 0.;
+	float neutralphiphi = 0.;
+	float neutralptsum = 0.;
+	float alletaeta = 0.;
+	float alletaphi = 0.;
+	float allphiphi = 0.;
+	float allptsum = 0.;
+	vector<PFCandidatePtr> constituents(jet.getPFConstituents());
+	for(size_t i = 0 ; i < constituents.size() ; ++i)
+	{
+		const PFCandidate& con = *(constituents[i]);
+		if(con.trackRef().isNonnull())
+		{
+			chargedptsum += con.pt();
+			chargedetaeta += Power(jet.eta() - con.eta(), 2)*con.pt();
+			chargedetaphi += (jet.eta() - con.eta())*(jet.phi() - con.phi())*con.pt();
+			chargedphiphi += Power(jet.phi() - con.phi(), 2)*con.pt();
+			int vertex = getPrimVertex(*(con.trackRef()));
+			if(vertex == 0 || vertex == -1)
+			{
+				chargedptsummv += con.pt();
+			}
+		}
+		else
+		{
+			neutralptsum += con.pt();
+			neutraletaeta += Power(jet.eta() - con.eta(), 2)*con.pt();
+			neutraletaphi += (jet.eta() - con.eta())*(jet.phi() - con.phi())*con.pt();
+			neutralphiphi += Power(jet.phi() - con.phi(), 2)*con.pt();
+		}
+		allptsum += con.pt();
+		alletaeta += Power(jet.eta() - con.eta(), 2)*con.pt();
+		alletaphi += (jet.eta() - con.eta())*(jet.phi() - con.phi())*con.pt();
+		allphiphi += Power(jet.phi() - con.phi(), 2)*con.pt();
+	}
+	if(chargedptsum != 0)
+	{
+		chargedetaeta/=chargedptsum;
+		chargedetaphi/=chargedptsum;
+		chargedphiphi/=chargedptsum;
+	}
+	else
+	{
+		chargedetaeta = 0.;
+		chargedetaphi = 0.;
+		chargedphiphi = 0.;
+	}
+	if(neutralptsum != 0)
+	{
+	neutraletaeta/=neutralptsum;
+	neutraletaphi/=neutralptsum;
+	neutralphiphi/=neutralptsum;
+	}
+	else
+	{
+	neutraletaeta = 0.;
+	neutraletaphi = 0.;
+	neutralphiphi = 0.;
+	}
+	if(allptsum != 0)
+	{
+	alletaeta/=allptsum;
+	alletaphi/=allptsum;
+	allphiphi/=allptsum;
+	}
+	else
+	{
+	alletaeta = 0.;
+	alletaphi = 0.;
+	allphiphi = 0.;
+	}
+	res.chargeda = 0.5*(chargedetaeta+chargedphiphi) + Sqrt(Power(0.5*(chargedetaeta+chargedphiphi),2) + chargedetaphi*chargedetaphi); 
+	res.chargedb = 0.5*(chargedetaeta+chargedphiphi) - Sqrt(Power(0.5*(chargedetaeta+chargedphiphi),2) + chargedetaphi*chargedetaphi); 
+	res.neutrala = 0.5*(neutraletaeta+neutralphiphi) + Sqrt(Power(0.5*(neutraletaeta+neutralphiphi),2) + neutraletaphi*neutraletaphi); 
+	res.neutralb = 0.5*(neutraletaeta+neutralphiphi) - Sqrt(Power(0.5*(neutraletaeta+neutralphiphi),2) + neutraletaphi*neutraletaphi); 
+	res.alla = 0.5*(alletaeta+allphiphi) + Sqrt(Power(0.5*(alletaeta+allphiphi),2) + alletaphi*alletaphi); 
+	res.allb = 0.5*(alletaeta+allphiphi) - Sqrt(Power(0.5*(alletaeta+allphiphi),2) + alletaphi*alletaphi); 
+	res.chargedfractionmv = chargedptsummv/chargedptsum;
+	return(res);
+}
+/*bool RootMaker::AddAK5PFJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+  {
+  int NumGood = 0;
+  edm::Handle<PFJetCollection> ak5pfJets;
+  iEvent.getByLabel(edm::InputTag("ak5PFJets"), ak5pfJets);
+  if(ak5pfJets.isValid())
+  {
+  vector<edm::Handle<JetFloatAssociation::Container> > btag(bdisclabel.size());
+  for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
+  {
+  iEvent.getByLabel(edm::InputTag(bdisclabel[n].c_str()), btag[n]);
+  }
+
+  const JetCorrector* corrector;
+  if(cdata)
+  {
+  corrector = JetCorrector::getJetCorrector("ak5PFL1L2L3Residual", iSetup);
+  }
+  else
+  {
+  corrector = JetCorrector::getJetCorrector("ak5PFL1L2L3", iSetup);
+  }
+
+  for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
+  {
+  if((*ak5pfJets)[i].pt() >= cAK5PFFilterPtMin)
+  {
+  ak5pfjet_e[ak5pfjet_count] = (*ak5pfJets)[i].energy();
+  ak5pfjet_px[ak5pfjet_count] = (*ak5pfJets)[i].px();
+  ak5pfjet_py[ak5pfjet_count] = (*ak5pfJets)[i].py();
+  ak5pfjet_pz[ak5pfjet_count] = (*ak5pfJets)[i].pz();
+  ak5pfjet_hadronicenergy[ak5pfjet_count] = (*ak5pfJets)[i].chargedHadronEnergy() + (*ak5pfJets)[i].neutralHadronEnergy();
+  ak5pfjet_chargedhadronicenergy[ak5pfjet_count] = (*ak5pfJets)[i].chargedHadronEnergy();
+  ak5pfjet_emenergy[ak5pfjet_count] = (*ak5pfJets)[i].chargedEmEnergy() + (*ak5pfJets)[i].neutralEmEnergy();
+  ak5pfjet_chargedemenergy[ak5pfjet_count] = (*ak5pfJets)[i].chargedEmEnergy();
+  ak5pfjet_chargedmulti[ak5pfjet_count] = (*ak5pfJets)[i].chargedMultiplicity();
+  ak5pfjet_neutralmulti[ak5pfjet_count] = (*ak5pfJets)[i].neutralMultiplicity();
+  JetBaseRef jetRef(edm::Ref<PFJetCollection>(ak5pfJets, i));
+  ak5pfjet_energycorr[ak5pfjet_count] = corrector->correction((*ak5pfJets)[i], jetRef, iEvent, iSetup);
+  ak5pfjet_energycorrl7uds[ak5pfjet_count] = -1.;
+  ak5pfjet_energycorrl7bottom[ak5pfjet_count] = -1.;
+
+  for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
+  {
+  if(btag[n].isValid())
+  {
+//ak5pfjet_btag[ak5pfjet_count][n] = (*(btag[n]))[jetRef];
+//ak5pfjet_btag[ak5pfjet_count][n] = JetFloatAssociation::getValue(*(btag[n]), (*ak5pfJets)[i]);
+cout << "btag1: " << n << " " << ak5pfjet_btag[ak5pfjet_count][n] << endl;
+}
+else
+{
+ak5pfjet_btag[ak5pfjet_count][n] = -1000;
+}
+}
+
+if(crecjettrigger)
+{
+ak5pfjet_trigger[i] = GetTrigger((*ak5pfJets)[i], jettriggers); 
+}
+else
+{
+ak5pfjet_trigger[i] = 0;
+}
+ak5pfjet_count++;
+if(ak5pfjet_count == M_jetmaxcount){cerr << "number of ak5pfjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
+if((*ak5pfJets)[i].pt() >= cAK5PFPtMin && fabs((*ak5pfJets)[i].eta()) < cAK5PFEtaMax) NumGood++;
+}
+}
+}
+
+if(NumGood >= cAK5PFNum) return(true);
+return(false);
+}*/
+
+bool RootMaker::AddElectrons(const edm::Event& iEvent)
+{
+	int NumGood = 0;
+	/*if(crecelectrontrigger)
+	  {
+	  iEvent.getByLabel(edm::InputTag("l1extraParticles", "NonIsolated"), L1Electrons);
+	  iEvent.getByLabel(edm::InputTag("l1extraParticles", "Isolated"), L1ElectronsIso);
+	  }*/
+	edm::Handle<GsfElectronCollection> Electrons;
+	iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
+	edm::Handle<ConversionCollection> Conversions;
+	iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+	vector< edm::Handle< edm::ValueMap<double> > > electronIsoPF(3);
+	iEvent.getByLabel(edm::InputTag("elPFIsoValueCharged03PFIdPFIso"), electronIsoPF[0]);
+	iEvent.getByLabel(edm::InputTag("elPFIsoValueGamma03PFIdPFIso"), electronIsoPF[1]);
+	iEvent.getByLabel(edm::InputTag("elPFIsoValueNeutral03PFIdPFIso"), electronIsoPF[2]);
+
+	edm::Handle<edm::ValueMap<float> > eIDValueMapHyperTight1;
+	iEvent.getByLabel("eidHyperTight1MC", eIDValueMapHyperTight1);
+	const edm::ValueMap<float> & eIDHyperTight1map = * eIDValueMapHyperTight1;
+
+	edm::Handle<edm::ValueMap<float> > eIDValueMapLoose;
+	iEvent.getByLabel("eidLooseMC", eIDValueMapLoose);
+	const edm::ValueMap<float> & eIDLoosemap = * eIDValueMapLoose;
+
+	if(Electrons.isValid())
+	{
+		//for(GsfElectronCollection::const_iterator itel = Electrons->begin() ; itel != Electrons->end() ; ++itel)
+		for(size_t n = 0 ; n < Electrons->size() ; n++)
+		{
+			//const GsfElectron& theel = *itel;
+			const GsfElectron& theel = (*Electrons)[n];
+			GsfElectronRef refel(Electrons, n);
+			if(theel.pt() > cElFilterPtMin && TMath::Abs(theel.eta()) < cElFilterEtaMax)
+			{
+				electron_px[electron_count] = theel.px();
+				electron_py[electron_count] = theel.py();
+				electron_pz[electron_count] = theel.pz();
+				electron_correctedecalenergy[electron_count] = theel.ecalEnergy();
+				electron_charge[electron_count] = theel.charge();
+				electron_esuperclusterovertrack[electron_count] = theel.eSuperClusterOverP();
+				electron_eseedclusterovertrack[electron_count] = theel.eSeedClusterOverP();
+				electron_deltaetasuperclustertrack[electron_count] = theel.deltaEtaSuperClusterTrackAtVtx();
+				electron_deltaphisuperclustertrack[electron_count] = theel.deltaPhiSuperClusterTrackAtVtx();
+				electron_e1x5[electron_count] = theel.e1x5();
+				electron_e2x5[electron_count] = theel.e2x5Max();
+				electron_e5x5[electron_count] = theel.e5x5();
+				electron_sigmaetaeta[electron_count] = theel.sigmaEtaEta();
+				electron_sigmaietaieta[electron_count] = theel.sigmaIetaIeta();
+				electron_ehcaloverecaldepth1[electron_count] = theel.hcalDepth1OverEcal();
+				electron_ehcaloverecaldepth2[electron_count] = theel.hcalDepth2OverEcal();
+				electron_ehcaltoweroverecaldepth1[electron_count] = theel.hcalDepth1OverEcalBc();
+				electron_ehcaltoweroverecaldepth2[electron_count] = theel.hcalDepth2OverEcalBc();
+				electron_isolationr3track[electron_count] = theel.dr03TkSumPt();
+				electron_isolationr3ecal[electron_count] = theel.dr03EcalRecHitSumEt();
+				electron_isolationr3hcal[electron_count] = theel.dr03HcalTowerSumEt();
+				electron_isolationr4track[electron_count] = theel.dr04TkSumPt();
+				electron_isolationr4ecal[electron_count] = theel.dr04EcalRecHitSumEt();
+				electron_isolationr4hcal[electron_count] = theel.dr04HcalTowerSumEt();
+				electron_isolationpfr3charged[electron_count] = (*(electronIsoPF[0]))[refel];
+				electron_isolationpfr3photon[electron_count] = (*(electronIsoPF[1]))[refel];
+				electron_isolationpfr3neutral[electron_count] = (*(electronIsoPF[2]))[refel];
+				//electron_isolationpfr3charged[electron_count] = theel.pfIsolationVariables().chargedHadronIso;
+				//electron_isolationpfr3photon[electron_count] = theel.pfIsolationVariables().photonIso;
+				//electron_isolationpfr3neutral[electron_count] = theel.pfIsolationVariables().neutralHadronIso;
+				//cout << (*(electronIsoPF[0]))[refel] << " " << (*(electronIsoPF[1]))[refel] <<endl;
+				//cout << theel.pfIsolationVariables().chargedHadronIso << " " << theel.pfIsolationVariables().neutralHadronIso << " " << theel.pfIsolationVariables().photonIso << endl;
+				electron_info[electron_count] = 0;
+				electron_info[electron_count] |= theel.isElectron() << 0; 
+				electron_info[electron_count] |= ConversionTools::hasMatchedConversion(theel, Conversions, pv_position) << 1; 
+				electron_info[electron_count] |= theel.ecalDrivenSeed() << 2; 
+				electron_info[electron_count] |= theel.trackerDrivenSeed() << 3; 
+
+				electron_gapinfo[electron_count] = 0;
+				electron_gapinfo[electron_count] |= theel.isEB() << 0;
+				electron_gapinfo[electron_count] |= theel.isEE() << 1;
+				electron_gapinfo[electron_count] |= theel.isEBGap() << 2;
+				electron_gapinfo[electron_count] |= theel.isEBEtaGap() << 3;
+				electron_gapinfo[electron_count] |= theel.isEBPhiGap() << 4;
+				electron_gapinfo[electron_count] |= theel.isEEGap() << 5;
+				electron_gapinfo[electron_count] |= theel.isEERingGap() << 6;
+				electron_gapinfo[electron_count] |= theel.isEEDeeGap() << 7;
+				electron_gapinfo[electron_count] |= theel.isEBEEGap() << 8;
+
+				edm::Handle<reco::TrackCollection> ctfTracks;
+				iEvent.getByLabel("generalTracks", ctfTracks);
+				ConversionFinder convFinder;
+				ConversionInfo convInfo = convFinder.getConversionInfo(theel, ctfTracks, magneticField->inTesla(GlobalPoint(0.,0.,0.)).z());
+
+				electron_convdist[electron_count] = convInfo.dist();
+				electron_convdcot[electron_count] = convInfo.dcot();
+				electron_convradius[electron_count] = convInfo.radiusOfConversion();
+				electron_fbrems[electron_count] = theel.fbrem();
+				electron_numbrems[electron_count] = theel.numberOfBrems();
+
+				GsfTrackRef gsfTr_e = theel.gsfTrack();
+				TransientTrack TTrack = TTrackBuilder->build(gsfTr_e);
+				math::XYZPoint ecalPos = PositionOnECalSurface(TTrack);
+				electron_outerx[electron_count] = ecalPos.x();
+				electron_outery[electron_count] = ecalPos.y();
+				electron_outerz[electron_count] = ecalPos.z();
+				//TrajectoryStateClosestToPoint TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
+
+				electron_vtx[electron_count] = getPrimVertex(*gsfTr_e);
+				electron_trackchi2[electron_count] = gsfTr_e->chi2();
+				electron_trackndof[electron_count] = gsfTr_e->ndof();
+				electron_closestpointx[electron_count] = gsfTr_e->vx();
+				electron_closestpointy[electron_count] = gsfTr_e->vy();
+				electron_closestpointz[electron_count] = gsfTr_e->vz();
+
+				electron_nhits[electron_count]        = gsfTr_e->numberOfValidHits();
+				electron_nmissinghits[electron_count] = gsfTr_e->numberOfLostHits();
+				electron_npixelhits[electron_count]   = (gsfTr_e->hitPattern()).numberOfValidPixelHits();
+				electron_npixellayers[electron_count]   = (gsfTr_e->hitPattern()).pixelLayersWithMeasurement();
+				electron_nstriplayers[electron_count]   = (gsfTr_e->hitPattern()).stripLayersWithMeasurement();
+				electron_nhitsexpected[electron_count] = gsfTr_e->trackerExpectedHitsInner().numberOfHits(); 
+
+				electron_dxy[electron_count]          = gsfTr_e->dxy(pv_position);
+				electron_dxyerr[electron_count]       = gsfTr_e->dxyError();
+				electron_dz[electron_count]           = gsfTr_e->dz(pv_position);
+				electron_dzerr[electron_count]        = gsfTr_e->dzError();
+
+
+				electron_superclusterindex[electron_count] = getSuperClusterEl(theel.superCluster()); 
+
+				electron_trigger[electron_count] = GetTrigger(theel, electrontriggers); 
+
+				edm::Ref<reco::GsfElectronCollection> electronRef(Electrons,n);
+				electron_eID[electron_count]=0;
+				electron_eID[electron_count] |= (Byte_t)eIDHyperTight1map[electronRef];
+				electron_eID[electron_count] |= ((Byte_t)eIDLoosemap[electronRef]<<4);
+
+				electron_count++;
+				if(electron_count == M_electronmaxcount)
+				{
+					cerr << "number of electron > M_electronmaxcount. They are missing." << endl;
+					errors |= 1<<1;
+					break;
+				}
+				if(theel.pt() >= cElPtMin && fabs(theel.eta()) <= cElEtaMax && theel.dr03TkSumPt()/theel.pt() <= cElTrackIso){NumGood++;}
+			}
+		}
+	}
+
+	if(NumGood >= cElNum) return(true);
+	return(false);
+}
+
+Int_t RootMaker::getSuperClusterEl(const SuperClusterRef& A)
+{
+	TVector3 testa(A->x(), A->y(), A->z());
+	for(UInt_t i = 0 ; i < supercluster_count ; i++)
+	{
+		TVector3 testb(supercluster_x[i], supercluster_y[i], supercluster_z[i]);
+		//cout << "CLUSTER " << i << " " <<  testb.DeltaR(testa) << " " << supercluster_rawe[i] << " " << A->rawEnergy() << " " << A->eta() <<endl;
+		if(testb.DeltaR(testa) < 0.1)
+		{
+			return(i);
+		}
+	}
+	return(-1);
+}
+
+Int_t RootMaker::getSuperClusterPh(const SuperClusterRef& A)
+{
+	for(UInt_t i = 0 ; i < supercluster_count ; i++)
+	{
+		if(supercluster_rawe[i] == Float_t(A->rawEnergy()))
+		{
+			return(i);
+		}
+	}
+	return(-1);
+}
+
+Int_t RootMaker::getPrimVertex(const Track& trk)
+{
+	if(Vertices.isValid())
+	{
+		for(unsigned i = 0 ; i < Vertices->size(); i++)
+		{
+			if((*Vertices)[i].isValid() && !(*Vertices)[i].isFake())
+			{
+				for(Vertex::trackRef_iterator it = (*Vertices)[i].tracks_begin() ; it != (*Vertices)[i].tracks_end() ; ++it)
+				{
+					if(trk.px() - (*it)->px() < 0.01 && trk.py() - (*it)->py() < 0.01 && trk.pz() - (*it)->pz() < 0.01)  return(i);
+				}
+			}
+		}
+	}
+	return(-1);
+}
+
+bool RootMaker::AddVertices(const edm::Event& iEvent)
+{
+	double mpi = 0.13957018;
+	double mp = 0.93827203;
+	edm::Handle<TrackCollection> Tracks;
+	iEvent.getByLabel(edm::InputTag("generalTracks"), Tracks);
+	edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
+	iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+	if(Tracks.isValid() && primvertex_count > 0)
+	{
+		KalmanVertexFitter fitter(true);
+
+		for(unsigned a = 0 ; a < Tracks->size() ; a++)
+		{
+			if(!((*Tracks)[a].normalizedChi2() < cVertexTRKChi2 && (*Tracks)[a].numberOfValidHits() >= cVertexTRKHitsMin)){ continue;}
+			for(unsigned b = 0 ; b < a ; b++)
+			{
+				if(!((*Tracks)[a].charge() != (*Tracks)[b].charge() && (*Tracks)[b].normalizedChi2() < cVertexTRKChi2 && (*Tracks)[b].numberOfValidHits() >= cVertexTRKHitsMin)){ continue;}
+				vector<TransientTrack> testvec;
+				testvec.resize(2);
+				testvec[0] = TTrackBuilder->build((*Tracks)[a]);
+				testvec[1] = TTrackBuilder->build((*Tracks)[b]);
+
+				TransientVertex testvertex = fitter.vertex(testvec);
+				if(testvertex.isValid() && testvertex.normalisedChiSquared() < cVertexChi2)
+				{
+					const Vertex& secvertex = (Vertex)testvertex;
+					SMatrixSym3D covmatrix = primvertex.covariance() + secvertex.covariance();
+					SVector3 dist(primvertex.x() - secvertex.x(), primvertex.y() - secvertex.y(), 0.);
+					double vertexsig2d =  ROOT::Math::Mag2(dist) / sqrt(ROOT::Math::Similarity(covmatrix, dist));
+
+					if(vertexsig2d > cVertexSig2D)
+					{
+						using namespace TMath;
+						TLorentzVector A((*Tracks)[a].px(), (*Tracks)[a].py(), (*Tracks)[a].pz(), Sqrt(Power((*Tracks)[a].px(), 2) + Power((*Tracks)[a].py(),2) + Power((*Tracks)[a].pz(), 2) + mpi*mpi));
+						TLorentzVector B((*Tracks)[b].px(), (*Tracks)[b].py(), (*Tracks)[b].pz(), Sqrt(Power((*Tracks)[b].px(), 2) + Power((*Tracks)[b].py(),2) + Power((*Tracks)[b].pz(), 2) + mpi*mpi));
+						double mkaon = (A+B).M();
+						A.SetE(Sqrt(A.E()*A.E() - mpi*mpi + mp*mp));
+						double mlambdaa = (A+B).M();
+						A.SetE(Sqrt(A.E()*A.E() + mpi*mpi - mp*mp));
+						B.SetE(Sqrt(B.E()*B.E() - mpi*mpi + mp*mp));
+						double mlambdab = (A+B).M();
+						if(Abs(mkaon - 0.49765) < cKaonMassWindow || Abs(mlambdaa - 1.115683) < cLambdaMassWindow || Abs(mlambdab - 1.115683) < cLambdaMassWindow)
+						{
+
+							secvertices_vx[secvertices_count] = secvertex.x();
+							secvertices_vy[secvertices_count] = secvertex.y();
+							secvertices_vz[secvertices_count] = secvertex.z();
+							secvertices_chi2[secvertices_count] = secvertex.chi2();
+							secvertices_ndof[secvertices_count] = secvertex.ndof();
+							secvertices_cov[secvertices_count][0] = secvertex.covariance(0,0);
+							secvertices_cov[secvertices_count][1] = secvertex.covariance(0,1);
+							secvertices_cov[secvertices_count][2] = secvertex.covariance(0,2);
+							secvertices_cov[secvertices_count][3] = secvertex.covariance(1,1);
+							secvertices_cov[secvertices_count][4] = secvertex.covariance(1,2);
+							secvertices_cov[secvertices_count][5] = secvertex.covariance(2,2);
+							for(Int_t j = 0 ; j < 2 ; j++)
+							{
+								TrajectoryStateClosestToPoint TTrackState = testvec[j].trajectoryStateClosestToPoint(GlobalPoint(secvertex.x(), secvertex.y(), secvertex.z()));									
+								TrackRef tr;
+								if(j==0) tr = TrackRef(Tracks, a);
+								if(j==1) tr = TrackRef(Tracks, b);
+								secvertices_track_px[secvertices_count][j] = TTrackState.momentum().x();
+								secvertices_track_py[secvertices_count][j] = TTrackState.momentum().y();
+								secvertices_track_pz[secvertices_count][j] = TTrackState.momentum().z();
+								secvertices_track_closestpointx[secvertices_count][j] = TTrackState.position().x();
+								secvertices_track_closestpointy[secvertices_count][j] = TTrackState.position().y();
+								secvertices_track_closestpointz[secvertices_count][j] = TTrackState.position().z();
+								secvertices_track_chi2[secvertices_count][j]   = tr->chi2();
+								secvertices_track_ndof[secvertices_count][j]   = tr->ndof();
+								secvertices_track_dxy[secvertices_count][j]    = TTrackState.perigeeParameters().transverseImpactParameter();
+								secvertices_track_dxyerr[secvertices_count][j] = TTrackState.perigeeError().transverseImpactParameterError();
+								secvertices_track_dz[secvertices_count][j]     = TTrackState.perigeeParameters().longitudinalImpactParameter();
+								secvertices_track_dzerr[secvertices_count][j]  = TTrackState.perigeeError().longitudinalImpactParameterError();
+								secvertices_track_dedxharmonic2[secvertices_count][j] = (*dEdxharmonic2)[tr].dEdx();
+								secvertices_track_charge[secvertices_count][j] = tr->charge();
+								secvertices_track_nhits[secvertices_count][j] = tr->numberOfValidHits();
+								secvertices_track_nmissinghits[secvertices_count][j] = tr->numberOfLostHits();
+								secvertices_track_npixelhits[secvertices_count][j] = tr->hitPattern().numberOfValidPixelHits();
+								secvertices_track_npixellayers[secvertices_count][j] = tr->hitPattern().pixelLayersWithMeasurement();
+								secvertices_track_nstriplayers[secvertices_count][j] = tr->hitPattern().stripLayersWithMeasurement();
+							}
+							secvertices_count++;
+							if(secvertices_count == M_secverticesmaxcount){cerr << "number of secvertices > M_secverticesmaxcount. They are missing." << endl; break;}
+						}
+
+					}
+				}
+			}
+		}
+	}
+	return(true);
+}
+
+bool RootMaker::AddMuVertices(const edm::Event& iEvent)
+{
+	edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
+	iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+	edm::Handle<MuonCollection> Muons;
+	iEvent.getByLabel(edm::InputTag("muons"), Muons);
+	int count = 0;
+	if(Muons.isValid() && primvertex_count > 0)
+	{
+		vector<TransientTrack> testvec(2);
+		KalmanVertexFitter fitter(true);
+		// 1st loop over muons
+		for(unsigned int i = 0; i < Muons->size(); ++i)
+		{
+			if(!((*Muons)[i].isGlobalMuon() && (*Muons)[i].isTrackerMuon() && (*Muons)[i].innerTrack().isNonnull())) continue;
+			TrackRef trA = (*Muons)[i].innerTrack();
+			// 2nd loop over muons
+			for(unsigned int j = i+1; j < Muons->size(); ++j)
+			{
+				if(!((*Muons)[j].isGlobalMuon() && (*Muons)[j].isTrackerMuon() && (*Muons)[j].innerTrack().isNonnull())) continue;
+				if(!((*Muons)[i].charge()*(*Muons)[j].charge() < 0)) continue;
+				TrackRef trB = (*Muons)[j].innerTrack();
+				testvec[0] = TTrackBuilder->build(trA);
+				testvec[1] = TTrackBuilder->build(trB);
+
+				TransientVertex testvertex = fitter.vertex(testvec);
+				if( testvertex.isValid())
+				{
+					const Vertex& secvertex = (Vertex)testvertex;
+					using namespace TMath;
+					TLorentzVector A(trA->px(), trA->py(), trA->pz(), Sqrt(Power(trA->px(), 2) + Power(trA->py(), 2) + Power(trA->pz(), 2)));
+					TLorentzVector B(trB->px(), trB->py(), trB->pz(), Sqrt(Power(trB->px(), 2) + Power(trB->py(), 2) + Power(trB->pz(), 2)));
+					double mass = (A+B).M();
+					if(Abs(mass - 3.097) < 1.5 || Abs(mass - 9.46) < 1.5) //J/Psi and Y
+					{
+						count++;
+						musecvertices_vx[musecvertices_count] = secvertex.x();
+						musecvertices_vy[musecvertices_count] = secvertex.y();
+						musecvertices_vz[musecvertices_count] = secvertex.z();
+						musecvertices_chi2[musecvertices_count] = secvertex.chi2();
+						musecvertices_ndof[musecvertices_count] = secvertex.ndof();
+						musecvertices_cov[musecvertices_count][0] = secvertex.covariance(0,0);
+						musecvertices_cov[musecvertices_count][1] = secvertex.covariance(0,1);
+						musecvertices_cov[musecvertices_count][2] = secvertex.covariance(0,2);
+						musecvertices_cov[musecvertices_count][3] = secvertex.covariance(1,1);
+						musecvertices_cov[musecvertices_count][4] = secvertex.covariance(1,2);
+						musecvertices_cov[musecvertices_count][5] = secvertex.covariance(2,2);
+
+						for( int j = 0; j < 2; ++j)
+						{
+							TrajectoryStateClosestToPoint TTrackState = testvec[j].trajectoryStateClosestToPoint(GlobalPoint(secvertex.x(), secvertex.y(), secvertex.z()));
+							TrackRef tr;
+							if(j==0) tr = (*Muons)[i].innerTrack();
+							if(j==1) tr = (*Muons)[j].innerTrack();
+
+							musecvertices_track_px[musecvertices_count][j]            = TTrackState.momentum().x();
+							musecvertices_track_py[musecvertices_count][j]            = TTrackState.momentum().y();
+							musecvertices_track_pz[musecvertices_count][j]            = TTrackState.momentum().z();
+							musecvertices_track_closestpointx[musecvertices_count][j] = TTrackState.position().x();
+							musecvertices_track_closestpointy[musecvertices_count][j] = TTrackState.position().y();
+							musecvertices_track_closestpointz[musecvertices_count][j] = TTrackState.position().z();
+							musecvertices_track_chi2[musecvertices_count][j]          = tr->chi2();
+							musecvertices_track_ndof[musecvertices_count][j]          = tr->ndof();
+							musecvertices_track_dxy[musecvertices_count][j]           = TTrackState.perigeeParameters().transverseImpactParameter();
+							musecvertices_track_dxyerr[musecvertices_count][j]        = TTrackState.perigeeError().transverseImpactParameterError();
+							musecvertices_track_dz[musecvertices_count][j]            = TTrackState.perigeeParameters().longitudinalImpactParameter();
+							musecvertices_track_dzerr[musecvertices_count][j]         = TTrackState.perigeeError().longitudinalImpactParameterError();
+							musecvertices_track_dedxharmonic2[musecvertices_count][j] = (*dEdxharmonic2)[tr].dEdx();
+							musecvertices_track_charge[musecvertices_count][j]        = tr->charge();
+							musecvertices_track_nhits[musecvertices_count][j]         = tr->numberOfValidHits();
+							musecvertices_track_nmissinghits[musecvertices_count][j]  = tr->numberOfLostHits();
+							musecvertices_track_npixelhits[musecvertices_count][j]    = tr->hitPattern().numberOfValidPixelHits();
+							musecvertices_track_npixellayers[musecvertices_count][j]  = tr->hitPattern().pixelLayersWithMeasurement();
+							musecvertices_track_nstriplayers[musecvertices_count][j]  = tr->hitPattern().stripLayersWithMeasurement();
+						}
+						musecvertices_count++;
+						if(musecvertices_count == M_musecverticesmaxcount)
+						{
+							cerr << "number of secvertices > M_musecverticesmaxcount. They are missing." << endl; 
+							break;
+						}
+					}
+				}
+			}// end of 2nd loop over muons
+		}// end of 1st loop over muons
+	}
+
+	if(crecsecvertices && count > 0)
+	{
+		AddVertices(iEvent);
+	}
+	return(true);
+}
+
+double RootMaker::DR(const Candidate& A, const Candidate& B)
+{
+	//using namespace TMath;
+	TLorentzVector TA(A.px(), A.py(), A.pz(), A.energy());
+	TLorentzVector TB(B.px(), B.py(), B.pz(), B.energy());
+	return(TA.DeltaR(TB));
+}
+
+void RootMaker::TriggerIndexSelection(vector<string> configstring, vector<pair<unsigned, int> >& triggers, string& allnames)
+{
+	triggers.clear();
+	allnames.clear();
+	boost::cmatch what;
+	vector<pair<boost::regex, bool> > regexes;
+	for(unsigned i = 0 ; i < configstring.size() ; i++)
+	{
+		vector<string> strs;
+		boost::split(strs, configstring[i], boost::is_any_of(":"));
+		bool dofilter = false;
+		if(strs.size() == 2 && strs[1] == "FilterTrue") dofilter = true;
+		regexes.push_back(pair<boost::regex, bool>(boost::regex(strs[0].c_str()), dofilter));
+	}
+
+	for(unsigned i = 0 ; i < HLTConfiguration.size() ; i++)
+	{
+		unsigned TriggerIndex = HLTConfiguration.triggerIndex(HLTConfiguration.triggerName(i));
+		const vector<string>& ModuleLabels(HLTConfiguration.moduleLabels(TriggerIndex));
+		for(unsigned j = 0 ; j < regexes.size() ; j++)
+		{
+			if(boost::regex_match(HLTConfiguration.triggerName(i).c_str(), what, regexes[j].first) && triggers.size() < 32)
+			{
+				for(int u = ModuleLabels.size()-1 ; u >= 0 ; u--)
+				{
+					if(HLTConfiguration.saveTags(ModuleLabels[u])) 
+					{
+						allnames += HLTConfiguration.triggerName(i) + string(":") + ModuleLabels[u] + string(" ");
+						triggers.push_back(pair<unsigned, int>(TriggerIndex, u));
+						cout << triggers.size() << ": " << HLTConfiguration.triggerName(i) << " " << TriggerIndex << " " << ModuleLabels[u] << " " << u << endl;
+						if("hltL1sL1DoubleMu10MuOpen" == ModuleLabels[u])
+						{
+							allnames += HLTConfiguration.triggerName(i) + string(":") + ModuleLabels[u] + string("gt10 ");
+							triggers.push_back(pair<unsigned, int>(TriggerIndex, -1*u));
+						}
+						if(regexes[j].second == false)
+						{
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	if(triggers.size() == 32) {cout << "ERROR: more than 32 triggers to match" << endl;}
+}
+
