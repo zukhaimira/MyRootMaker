@@ -19,7 +19,7 @@ RootMaker::RootMaker(const edm::ParameterSet& iConfig) :
 	crecsuperclustermember(iConfig.getUntrackedParameter<bool>("RecSuperClusterBasicCluster", false)),
 	crecsuperclusterhit(iConfig.getUntrackedParameter<bool>("RecSuperClusterHit", false)),
 	crecmuon(iConfig.getUntrackedParameter<bool>("RecMuon", false)),
-	crectau(iConfig.getUntrackedParameter<bool>("RecTau", false)),
+	//crectau(iConfig.getUntrackedParameter<bool>("RecTau", false)),
 	crecelectron(iConfig.getUntrackedParameter<bool>("RecElectron", false)),
 	crecphoton(iConfig.getUntrackedParameter<bool>("RecPhoton", false)),
 	crecallconversion(iConfig.getUntrackedParameter<bool>("RecAllConversion", false)),
@@ -44,11 +44,11 @@ RootMaker::RootMaker(const edm::ParameterSet& iConfig) :
 	cElNum(iConfig.getUntrackedParameter<int>("RecElectronNum", 0)),
 	cElFilterPtMin(iConfig.getUntrackedParameter<double>("RecElectronFilterPtMin", 0.)),
 	cElFilterEtaMax(iConfig.getUntrackedParameter<double>("RecElectronFilterEtaMax", 1000000.)),
-	cTauPtMin(iConfig.getUntrackedParameter<double>("RecTauPtMin", 0.)),
-	cTauEtaMax(iConfig.getUntrackedParameter<double>("RecTauEtaMax", 1000000.)),
-	cTauHLTriggerMatching(iConfig.getUntrackedParameter<vector<string> >("RecTauHLTriggerMatching")),
-	cTauDiscriminators(iConfig.getUntrackedParameter<vector<string> >("RecTauDiscriminators")),
-	cTauNum(iConfig.getUntrackedParameter<int>("RecTauNum", 0)),
+	//cTauPtMin(iConfig.getUntrackedParameter<double>("RecTauPtMin", 0.)),
+	//cTauEtaMax(iConfig.getUntrackedParameter<double>("RecTauEtaMax", 1000000.)),
+	//cTauHLTriggerMatching(iConfig.getUntrackedParameter<vector<string> >("RecTauHLTriggerMatching")),
+	//cTauDiscriminators(iConfig.getUntrackedParameter<vector<string> >("RecTauDiscriminators")),
+	//cTauNum(iConfig.getUntrackedParameter<int>("RecTauNum", 0)),
 	cTrackFilterPtMin(iConfig.getUntrackedParameter<double>("RecTrackFilterPtMin", 0.)),
 	cTrackPtMin(iConfig.getUntrackedParameter<double>("RecTrackPtMin", 0.)),
 	cTrackEtaMax(iConfig.getUntrackedParameter<double>("RecTrackEtaMax", 1000000.)),
@@ -578,62 +578,62 @@ void RootMaker::beginJob(){
 	tree->Branch("allconversion_tracknpixellayers", allconversion_tracknpixellayers, "allconversion_tracknpixellayers[allconversion_count][2]/b");
 	tree->Branch("allconversion_tracknstriplayers", allconversion_tracknstriplayers, "allconversion_tracknstriplayers[allconversion_count][2]/b");
 
-	tree->Branch("tau_count", &tau_count, "tau_count/i");
-	tree->Branch("tau_px", tau_px, "tau_px[tau_count]/F");
-	tree->Branch("tau_py", tau_py, "tau_py[tau_count]/F");
-	tree->Branch("tau_pz", tau_pz, "tau_pz[tau_count]/F");
-	tree->Branch("tau_isolationneutralspt", tau_isolationneutralspt, "tau_isolationneutralspt[tau_count]/F");
-	tree->Branch("tau_isolationneutralsnum", tau_isolationneutralsnum, "tau_isolationneutralsnum[tau_count]/i");
-	tree->Branch("tau_isolationchargedpt", tau_isolationchargedpt, "tau_isolationchargedpt[tau_count]/F");
-	tree->Branch("tau_isolationchargednum", tau_isolationchargednum, "tau_isolationchargednum[tau_count]/i");
-	tree->Branch("tau_isolationgammapt", tau_isolationgammapt, "tau_isolationgammapt[tau_count]/F");
-	tree->Branch("tau_isolationgammanum", tau_isolationgammanum, "tau_isolationgammanum[tau_count]/i");
-	tree->Branch("tau_charge", tau_charge, "tau_charge[tau_count]/I");
-	tree->Branch("tau_emfraction", tau_emfraction, "tau_emfraction[tau_count]/F");
-	tree->Branch("tau_hcaltotoverplead", tau_hcaltotoverplead, "tau_hcaltotoverplead[tau_count]/F");
-	tree->Branch("tau_hcal3x3overplead", tau_hcal3x3overplead, "tau_hcal3x3overplead[tau_count]/F");
-	tree->Branch("tau_ecalstripsumeoverplead", tau_ecalstripsumeoverplead, "tau_ecalstripsumeoverplead[tau_count]/F");
-	tree->Branch("tau_bremsrecoveryeoverplead", tau_bremsrecoveryeoverplead, "tau_bremsrecoveryeoverplead[tau_count]/F");
-	tree->Branch("tau_calocomp", tau_calocomp, "tau_calocomp[tau_count]/F");
-	tree->Branch("tau_segcomp", tau_segcomp, "tau_segcomp[tau_count]/F");
-	tree->Branch("tau_dishps", tau_dishps, "tau_dishps[tau_count]/i");
-	tree->Branch("tau_trigger", tau_trigger, "tau_trigger[tau_count]/i");
-
-	tree->Branch("tau_ak5pfjet_e", tau_ak5pfjet_e, "tau_ak5pfjet_e[tau_count]/F");
-	tree->Branch("tau_ak5pfjet_px", tau_ak5pfjet_px, "tau_ak5pfjet_px[tau_count]/F");
-	tree->Branch("tau_ak5pfjet_py", tau_ak5pfjet_py, "tau_ak5pfjet_py[tau_count]/F");
-	tree->Branch("tau_ak5pfjet_pz", tau_ak5pfjet_pz, "tau_ak5pfjet_pz[tau_count]/F");
-	tree->Branch("tau_ak5pfjet_hadronicenergy", tau_ak5pfjet_hadronicenergy, "tau_ak5pfjet_hadronicenergy[tau_count]/F");
-	tree->Branch("tau_ak5pfjet_chargedhadronicenergy", tau_ak5pfjet_chargedhadronicenergy, "tau_ak5pfjet_chargedhadronicenergy[tau_count]/F");
-	tree->Branch("tau_ak5pfjet_emenergy", tau_ak5pfjet_emenergy, "tau_ak5pfjet_emenergy[tau_count]/F");
-	tree->Branch("tau_ak5pfjet_chargedemenergy", tau_ak5pfjet_chargedemenergy, "tau_ak5pfjet_chargedemenergy[tau_count]/F");
-	tree->Branch("tau_ak5pfjet_chargedmulti", tau_ak5pfjet_chargedmulti, "tau_ak5pfjet_chargedmulti[tau_count]/i");	
-	tree->Branch("tau_ak5pfjet_neutralmulti", tau_ak5pfjet_neutralmulti, "tau_ak5pfjet_neutralmulti[tau_count]/i");	
-	tree->Branch("tau_ak5pfjet_trigger", tau_ak5pfjet_trigger, "tau_ak5pfjet_trigger[tau_count]/i");
-	tree->Branch("tau_chargedbegin", tau_chargedbegin, "tau_chargedbegin[tau_count]/i");
-	tree->Branch("tau_charged_count", &tau_charged_count, "tau_charged_count/i");
-	tree->Branch("tau_charged_px", tau_charged_px, "tau_charged_px[tau_charged_count]/F");
-	tree->Branch("tau_charged_py", tau_charged_py, "tau_charged_py[tau_charged_count]/F");
-	tree->Branch("tau_charged_pz", tau_charged_pz, "tau_charged_pz[tau_charged_count]/F");
-	tree->Branch("tau_charged_outerx", tau_charged_outerx, "tau_charged_outerx[tau_charged_count]/F");
-	tree->Branch("tau_charged_outery", tau_charged_outery, "tau_charged_outery[tau_charged_count]/F");
-	tree->Branch("tau_charged_outerz", tau_charged_outerz, "tau_charged_outerz[tau_charged_count]/F");
-	tree->Branch("tau_charged_closestpointx", tau_charged_closestpointx, "tau_charged_closestpointx[tau_charged_count]/F");
-	tree->Branch("tau_charged_closestpointy", tau_charged_closestpointy, "tau_charged_closestpointy[tau_charged_count]/F");
-	tree->Branch("tau_charged_closestpointz", tau_charged_closestpointz, "tau_charged_closestpointz[tau_charged_count]/F");
-	tree->Branch("tau_charged_chi2", tau_charged_chi2, "tau_charged_chi2[tau_charged_count]/F");
-	tree->Branch("tau_charged_ndof", tau_charged_ndof, "tau_charged_ndof[tau_charged_count]/F");
-	tree->Branch("tau_charged_dxy", tau_charged_dxy, "tau_charged_dxy[tau_charged_count]/F");
-	tree->Branch("tau_charged_dxyerr", tau_charged_dxyerr, "tau_charged_dxyerr[tau_charged_count]/F");
-	tree->Branch("tau_charged_dz", tau_charged_dz, "tau_charged_dz[tau_charged_count]/F");
-	tree->Branch("tau_charged_dzerr", tau_charged_dzerr, "tau_charged_dzerr[tau_charged_count]/F");
-	tree->Branch("tau_charged_dedxharmonic2", tau_charged_dedxharmonic2, "tau_charged_dedxharmonic2[tau_charged_count]/F");
-	tree->Branch("tau_charged_charge", tau_charged_charge, "tau_charged_charge[tau_charged_count]/I");
-	tree->Branch("tau_charged_nhits", tau_charged_nhits, "tau_charged_nhits[tau_charged_count]/b");
-	tree->Branch("tau_charged_nmissinghits", tau_charged_nmissinghits, "tau_charged_nmissinghits[tau_charged_count]/b");
-	tree->Branch("tau_charged_npixelhits", tau_charged_npixelhits, "tau_charged_npixelhits[tau_charged_count]/b");
-	tree->Branch("tau_charged_npixellayers", tau_charged_npixellayers, "tau_charged_npixellayers[tau_charged_count]/b");
-	tree->Branch("tau_charged_nstriplayers", tau_charged_nstriplayers, "tau_charged_nstriplayers[tau_charged_count]/b");
+//	tree->Branch("tau_count", &tau_count, "tau_count/i");
+//	tree->Branch("tau_px", tau_px, "tau_px[tau_count]/F");
+//	tree->Branch("tau_py", tau_py, "tau_py[tau_count]/F");
+//	tree->Branch("tau_pz", tau_pz, "tau_pz[tau_count]/F");
+//	tree->Branch("tau_isolationneutralspt", tau_isolationneutralspt, "tau_isolationneutralspt[tau_count]/F");
+//	tree->Branch("tau_isolationneutralsnum", tau_isolationneutralsnum, "tau_isolationneutralsnum[tau_count]/i");
+//	tree->Branch("tau_isolationchargedpt", tau_isolationchargedpt, "tau_isolationchargedpt[tau_count]/F");
+//	tree->Branch("tau_isolationchargednum", tau_isolationchargednum, "tau_isolationchargednum[tau_count]/i");
+//	tree->Branch("tau_isolationgammapt", tau_isolationgammapt, "tau_isolationgammapt[tau_count]/F");
+//	tree->Branch("tau_isolationgammanum", tau_isolationgammanum, "tau_isolationgammanum[tau_count]/i");
+//	tree->Branch("tau_charge", tau_charge, "tau_charge[tau_count]/I");
+//	tree->Branch("tau_emfraction", tau_emfraction, "tau_emfraction[tau_count]/F");
+//	tree->Branch("tau_hcaltotoverplead", tau_hcaltotoverplead, "tau_hcaltotoverplead[tau_count]/F");
+//	tree->Branch("tau_hcal3x3overplead", tau_hcal3x3overplead, "tau_hcal3x3overplead[tau_count]/F");
+//	tree->Branch("tau_ecalstripsumeoverplead", tau_ecalstripsumeoverplead, "tau_ecalstripsumeoverplead[tau_count]/F");
+//	tree->Branch("tau_bremsrecoveryeoverplead", tau_bremsrecoveryeoverplead, "tau_bremsrecoveryeoverplead[tau_count]/F");
+//	tree->Branch("tau_calocomp", tau_calocomp, "tau_calocomp[tau_count]/F");
+//	tree->Branch("tau_segcomp", tau_segcomp, "tau_segcomp[tau_count]/F");
+//	tree->Branch("tau_dishps", tau_dishps, "tau_dishps[tau_count]/i");
+//	tree->Branch("tau_trigger", tau_trigger, "tau_trigger[tau_count]/i");
+//
+//	tree->Branch("tau_ak5pfjet_e", tau_ak5pfjet_e, "tau_ak5pfjet_e[tau_count]/F");
+//	tree->Branch("tau_ak5pfjet_px", tau_ak5pfjet_px, "tau_ak5pfjet_px[tau_count]/F");
+//	tree->Branch("tau_ak5pfjet_py", tau_ak5pfjet_py, "tau_ak5pfjet_py[tau_count]/F");
+//	tree->Branch("tau_ak5pfjet_pz", tau_ak5pfjet_pz, "tau_ak5pfjet_pz[tau_count]/F");
+//	tree->Branch("tau_ak5pfjet_hadronicenergy", tau_ak5pfjet_hadronicenergy, "tau_ak5pfjet_hadronicenergy[tau_count]/F");
+//	tree->Branch("tau_ak5pfjet_chargedhadronicenergy", tau_ak5pfjet_chargedhadronicenergy, "tau_ak5pfjet_chargedhadronicenergy[tau_count]/F");
+//	tree->Branch("tau_ak5pfjet_emenergy", tau_ak5pfjet_emenergy, "tau_ak5pfjet_emenergy[tau_count]/F");
+//	tree->Branch("tau_ak5pfjet_chargedemenergy", tau_ak5pfjet_chargedemenergy, "tau_ak5pfjet_chargedemenergy[tau_count]/F");
+//	tree->Branch("tau_ak5pfjet_chargedmulti", tau_ak5pfjet_chargedmulti, "tau_ak5pfjet_chargedmulti[tau_count]/i");	
+//	tree->Branch("tau_ak5pfjet_neutralmulti", tau_ak5pfjet_neutralmulti, "tau_ak5pfjet_neutralmulti[tau_count]/i");	
+//	tree->Branch("tau_ak5pfjet_trigger", tau_ak5pfjet_trigger, "tau_ak5pfjet_trigger[tau_count]/i");
+//	tree->Branch("tau_chargedbegin", tau_chargedbegin, "tau_chargedbegin[tau_count]/i");
+//	tree->Branch("tau_charged_count", &tau_charged_count, "tau_charged_count/i");
+//	tree->Branch("tau_charged_px", tau_charged_px, "tau_charged_px[tau_charged_count]/F");
+//	tree->Branch("tau_charged_py", tau_charged_py, "tau_charged_py[tau_charged_count]/F");
+//	tree->Branch("tau_charged_pz", tau_charged_pz, "tau_charged_pz[tau_charged_count]/F");
+//	tree->Branch("tau_charged_outerx", tau_charged_outerx, "tau_charged_outerx[tau_charged_count]/F");
+//	tree->Branch("tau_charged_outery", tau_charged_outery, "tau_charged_outery[tau_charged_count]/F");
+//	tree->Branch("tau_charged_outerz", tau_charged_outerz, "tau_charged_outerz[tau_charged_count]/F");
+//	tree->Branch("tau_charged_closestpointx", tau_charged_closestpointx, "tau_charged_closestpointx[tau_charged_count]/F");
+//	tree->Branch("tau_charged_closestpointy", tau_charged_closestpointy, "tau_charged_closestpointy[tau_charged_count]/F");
+//	tree->Branch("tau_charged_closestpointz", tau_charged_closestpointz, "tau_charged_closestpointz[tau_charged_count]/F");
+//	tree->Branch("tau_charged_chi2", tau_charged_chi2, "tau_charged_chi2[tau_charged_count]/F");
+//	tree->Branch("tau_charged_ndof", tau_charged_ndof, "tau_charged_ndof[tau_charged_count]/F");
+//	tree->Branch("tau_charged_dxy", tau_charged_dxy, "tau_charged_dxy[tau_charged_count]/F");
+//	tree->Branch("tau_charged_dxyerr", tau_charged_dxyerr, "tau_charged_dxyerr[tau_charged_count]/F");
+//	tree->Branch("tau_charged_dz", tau_charged_dz, "tau_charged_dz[tau_charged_count]/F");
+//	tree->Branch("tau_charged_dzerr", tau_charged_dzerr, "tau_charged_dzerr[tau_charged_count]/F");
+//	tree->Branch("tau_charged_dedxharmonic2", tau_charged_dedxharmonic2, "tau_charged_dedxharmonic2[tau_charged_count]/F");
+//	tree->Branch("tau_charged_charge", tau_charged_charge, "tau_charged_charge[tau_charged_count]/I");
+//	tree->Branch("tau_charged_nhits", tau_charged_nhits, "tau_charged_nhits[tau_charged_count]/b");
+//	tree->Branch("tau_charged_nmissinghits", tau_charged_nmissinghits, "tau_charged_nmissinghits[tau_charged_count]/b");
+//	tree->Branch("tau_charged_npixelhits", tau_charged_npixelhits, "tau_charged_npixelhits[tau_charged_count]/b");
+//	tree->Branch("tau_charged_npixellayers", tau_charged_npixellayers, "tau_charged_npixellayers[tau_charged_count]/b");
+//	tree->Branch("tau_charged_nstriplayers", tau_charged_nstriplayers, "tau_charged_nstriplayers[tau_charged_count]/b");
 
 	tree->Branch("ak5pfjet_rho", &ak5pfjet_rho, "ak5pfjet_rho/F");
 	tree->Branch("ak5pfjet_sigma", &ak5pfjet_sigma, "ak5pfjet_sigma/F");
@@ -879,7 +879,7 @@ void RootMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 	TriggerIndexSelection(cMuHLTriggerMatching, muontriggers, allmuonnames);
 	TriggerIndexSelection(cElHLTriggerMatching, electrontriggers, allelectronnames);
-	TriggerIndexSelection(cTauHLTriggerMatching, tautriggers, alltaunames);
+	//TriggerIndexSelection(cTauHLTriggerMatching, tautriggers, alltaunames);
 	TriggerIndexSelection(cPhotonHLTriggerMatching, photontriggers, allphotonnames);
 	TriggerIndexSelection(cJetHLTriggerMatching, jettriggers, alljetnames);
 
@@ -894,12 +894,12 @@ void RootMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	strcpy(run_hltphotonnames, allphotonnames.c_str());
 	strcpy(run_hltjetnames, alljetnames.c_str());
 
-	string alltaudiscriminators;
-	for(unsigned i = 0 ; i < cTauDiscriminators.size() ; i++)
-	{
-		alltaudiscriminators += cTauDiscriminators[i] + string(" ");
-	}
-	strcpy(run_taudiscriminators, alltaudiscriminators.c_str());
+//	string alltaudiscriminators;
+//	for(unsigned i = 0 ; i < cTauDiscriminators.size() ; i++)
+//	{
+//		alltaudiscriminators += cTauDiscriminators[i] + string(" ");
+//	}
+//	strcpy(run_taudiscriminators, alltaudiscriminators.c_str());
 
 
 	L1GtUtils l1info;
@@ -1315,10 +1315,10 @@ void RootMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	{
 		takeevent = AddPhotons(iEvent, iSetup) || takeevent;
 	}
-	if(crectau)
-	{
-		takeevent = AddTaus(iEvent) || takeevent;
-	}
+	//if(crectau)
+	//{
+	//	takeevent = AddTaus(iEvent) || takeevent;
+	//}
 	if(crecak5calojet)
 	{
 		takeevent = AddAK5CaloJets(iEvent, iSetup) || takeevent;
@@ -1343,6 +1343,7 @@ void RootMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	{
 		AddAllConversions(iEvent);
 	}
+
 	if(!takeevent) return;
 
 	edm::Handle<double> rho;
@@ -1604,11 +1605,11 @@ void RootMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 					pair<Int_t, Int_t> motherinfo = HasAnyMother(&(*GenParticles)[i], testids);
 					genparticles_info[genparticles_count] = motherinfo.first;
 					genparticles_indirectmother[genparticles_count] = motherinfo.second;
-					//cout << (*GenParticles)[i].pdgId() << " " <<oct <<  genparticles_info[genparticles_count] << " " << dec << genparticles_indirectmother[genparticles_count] << endl;
+					cout << (*GenParticles)[i].pdgId() << " " <<oct <<  genparticles_info[genparticles_count] << " " << dec << genparticles_indirectmother[genparticles_count] << endl;
 					genparticles_count++;
 				}
 			}
-			//cout << "Total: " << genparticles_count << endl;
+			cout << "Total: " << genparticles_count << endl;
 		}
 	}
 
@@ -2035,9 +2036,9 @@ UInt_t RootMaker::GetTrigger(const LeafCandidate& particle, vector<pair<unsigned
 	}
 	return(result);
 }
-
 bool RootMaker::AddPhotons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
 	int NumGood = 0;
 	edm::Handle<PhotonCollection> Photons;
 	iEvent.getByLabel(edm::InputTag("photons"), Photons);
@@ -2051,7 +2052,7 @@ bool RootMaker::AddPhotons(const edm::Event& iEvent, const edm::EventSetup& iSet
 	if(Photons.isValid() && Photons->size() > 0)
 	{
 		edm::Handle<GsfElectronCollection> Electrons;
-		iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
+//		iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
 		edm::Handle<ConversionCollection> Conversions;
 		iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
 		PFIsolationEstimator isolator;
@@ -2131,7 +2132,7 @@ bool RootMaker::AddPhotons(const edm::Event& iEvent, const edm::EventSetup& iSet
 				photon_info[photon_count] |= theph.isPhoton() << 0;
 				photon_info[photon_count] |= theph.hasConversionTracks() << 1;
 				photon_info[photon_count] |= theph.hasPixelSeed() << 2;
-				photon_info[photon_count] |= ConversionTools::hasMatchedPromptElectron(theph.superCluster(), Electrons, Conversions, bs_position) << 3;
+//				photon_info[photon_count] |= ConversionTools::hasMatchedPromptElectron(theph.superCluster(), Electrons, Conversions, bs_position) << 3;
 				photon_info[photon_count] |= theph.isPFlowPhoton() << 4;
 				photon_gapinfo[photon_count] = 0;
 				photon_gapinfo[photon_count] |= theph.isEB() << 0;
@@ -2236,10 +2237,11 @@ bool RootMaker::AddPhotons(const edm::Event& iEvent, const edm::EventSetup& iSet
 	}
 
 	if(NumGood >= cPhotonNum) return(true);
+
 	return(false);
 }
-
-bool RootMaker::AddAllConversions(const edm::Event& iEvent){
+bool RootMaker::AddAllConversions(const edm::Event& iEvent)
+{
 	edm::Handle<ConversionCollection> Conversions;
 	iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
 	if(Conversions.isValid()){
@@ -2327,153 +2329,153 @@ bool RootMaker::AddAllConversions(const edm::Event& iEvent){
 	}
 	return(true);
 }
-
-bool RootMaker::AddTaus(const edm::Event& iEvent)
-{
-	int NumGood = 0;
-	edm::Handle<PFTauCollection> Taus;
-	//iEvent.getByLabel(edm::InputTag("shrinkingConePFTauProducer"), Taus);
-	iEvent.getByLabel(edm::InputTag("hpsPFTauProducer"), Taus);
-	edm::Handle<pat::JetCollection> ak5pfJets;
-	iEvent.getByLabel(edm::InputTag("patJetsAK5PF"), ak5pfJets);
-	if(Taus.isValid())
-	{
-		vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
-		for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++)
-		{
-			iEvent.getByLabel(cTauDiscriminators[n].c_str(), PFTauDiscriminatiors[n]);
-		}
-		edm::Handle<PFTauDiscriminator> hpsPFTauDiscriminationByLooseIsolation;
-		iEvent.getByLabel("hpsPFTauDiscriminationByLooseIsolation", hpsPFTauDiscriminationByLooseIsolation);
-
-		for(unsigned i = 0 ; i < Taus->size() ; i++)
-		{
-			int numtrack = (*Taus)[i].signalPFChargedHadrCands().size();
-			PFTauRef tauCandidate(Taus, i);
-			if((*hpsPFTauDiscriminationByLooseIsolation)[tauCandidate] < 0.5 || !(numtrack == 3 || numtrack == 1)) continue;
-			tau_dishps[tau_count] = 0;
-			for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++)
-			{
-				if((*PFTauDiscriminatiors[n])[tauCandidate] > 0.5){tau_dishps[tau_count] |= 1<<n;}
-			}
-
-			tau_px[tau_count] = (*Taus)[i].px();
-			tau_py[tau_count] = (*Taus)[i].py();
-			tau_pz[tau_count] = (*Taus)[i].pz();
-			tau_emfraction[tau_count] = (*Taus)[i].emFraction();
-			tau_hcaltotoverplead[tau_count] = (*Taus)[i].hcalTotOverPLead();
-			tau_hcal3x3overplead[tau_count] = (*Taus)[i].hcalMaxOverPLead();
-			tau_ecalstripsumeoverplead[tau_count] = (*Taus)[i].hcal3x3OverPLead();
-			tau_bremsrecoveryeoverplead[tau_count] = (*Taus)[i].ecalStripSumEOverPLead();
-			tau_calocomp[tau_count] = (*Taus)[i].caloComp();
-			tau_segcomp[tau_count] = (*Taus)[i].segComp();
-
-			tau_charge[tau_count] = (*Taus)[i].charge();
-			tau_chargedbegin[tau_count] = tau_charged_count;
-			PFJetRef thejet = (*Taus)[i].jetRef();
-			bool jetfound = false;
-			if(ak5pfJets.isValid())
-			{
-				jetfound = true;
-				tau_ak5pfjet_e[tau_count] = thejet->energy();
-				tau_ak5pfjet_px[tau_count] = thejet->px();
-				tau_ak5pfjet_py[tau_count] = thejet->py();
-				tau_ak5pfjet_pz[tau_count] = thejet->pz();
-				tau_ak5pfjet_hadronicenergy[tau_count] = thejet->chargedHadronEnergy() + thejet->neutralHadronEnergy();
-				tau_ak5pfjet_chargedhadronicenergy[tau_count] = thejet->chargedHadronEnergy();
-				tau_ak5pfjet_emenergy[tau_count] = thejet->chargedEmEnergy() + thejet->neutralEmEnergy();
-				tau_ak5pfjet_chargedemenergy[tau_count] = thejet->chargedEmEnergy();
-				tau_ak5pfjet_chargedmulti[tau_count] = thejet->chargedMultiplicity();
-				tau_ak5pfjet_neutralmulti[tau_count] = thejet->neutralMultiplicity();
-				tau_ak5pfjet_trigger[tau_count] = GetTrigger(*thejet, jettriggers); 
-				break;
-			}
-			if(!jetfound)
-			{
-				tau_ak5pfjet_e[tau_count] = -1.;
-			}
-
-			tau_isolationchargednum[tau_count] = 0;
-			tau_isolationchargedpt[tau_count] = 0.;
-			tau_isolationneutralsnum[tau_count] = 0;
-			tau_isolationneutralspt[tau_count] = 0.;
-			tau_isolationgammanum[tau_count] = (*Taus)[i].isolationPFGammaCands().size();
-			tau_isolationgammapt[tau_count] = (*Taus)[i].isolationPFGammaCandsEtSum();
 /*
-			for(unsigned n = 0 ; n < (*Taus)[i].isolationPFCands().size() ; n++)
-			{
-				PFCandidateRef isocand = (*Taus)[i].isolationPFCands()[n];
-				if(isocand->charge() == 0)
-				{
-					tau_isolationneutralsnum[tau_count]++;
-					tau_isolationneutralspt[tau_count]+=isocand->pt();
-				}
-				else
-				{
-					tau_isolationchargednum[tau_count]++;
-					tau_isolationchargedpt[tau_count]+=isocand->pt();
-				}
-			}
+//bool RootMaker::AddTaus(const edm::Event& iEvent)
+//{
+//	int NumGood = 0;
+//	edm::Handle<PFTauCollection> Taus;
+//	//iEvent.getByLabel(edm::InputTag("shrinkingConePFTauProducer"), Taus);
+//	iEvent.getByLabel(edm::InputTag("hpsPFTauProducer"), Taus);
+//	edm::Handle<pat::JetCollection> ak5pfJets;
+//	iEvent.getByLabel(edm::InputTag("patJetsAK5PF"), ak5pfJets);
+//	if(Taus.isValid())
+//	{
+//		vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
+//		for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++)
+//		{
+//			iEvent.getByLabel(cTauDiscriminators[n].c_str(), PFTauDiscriminatiors[n]);
+//		}
+//		edm::Handle<PFTauDiscriminator> hpsPFTauDiscriminationByLooseIsolation;
+//		iEvent.getByLabel("hpsPFTauDiscriminationByLooseIsolation", hpsPFTauDiscriminationByLooseIsolation);
+//
+//		for(unsigned i = 0 ; i < Taus->size() ; i++)
+//		{
+//			int numtrack = (*Taus)[i].signalPFChargedHadrCands().size();
+//			PFTauRef tauCandidate(Taus, i);
+//			if((*hpsPFTauDiscriminationByLooseIsolation)[tauCandidate] < 0.5 || !(numtrack == 3 || numtrack == 1)) continue;
+//			tau_dishps[tau_count] = 0;
+//			for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++)
+//			{
+//				if((*PFTauDiscriminatiors[n])[tauCandidate] > 0.5){tau_dishps[tau_count] |= 1<<n;}
+//			}
+//
+//			tau_px[tau_count] = (*Taus)[i].px();
+//			tau_py[tau_count] = (*Taus)[i].py();
+//			tau_pz[tau_count] = (*Taus)[i].pz();
+//			tau_emfraction[tau_count] = (*Taus)[i].emFraction();
+//			tau_hcaltotoverplead[tau_count] = (*Taus)[i].hcalTotOverPLead();
+//			tau_hcal3x3overplead[tau_count] = (*Taus)[i].hcalMaxOverPLead();
+//			tau_ecalstripsumeoverplead[tau_count] = (*Taus)[i].hcal3x3OverPLead();
+//			tau_bremsrecoveryeoverplead[tau_count] = (*Taus)[i].ecalStripSumEOverPLead();
+//			tau_calocomp[tau_count] = (*Taus)[i].caloComp();
+//			tau_segcomp[tau_count] = (*Taus)[i].segComp();
+//
+//			tau_charge[tau_count] = (*Taus)[i].charge();
+//			tau_chargedbegin[tau_count] = tau_charged_count;
+//			PFJetRef thejet = (*Taus)[i].jetRef();
+//			bool jetfound = false;
+//			if(ak5pfJets.isValid())
+//			{
+//				jetfound = true;
+//				tau_ak5pfjet_e[tau_count] = thejet->energy();
+//				tau_ak5pfjet_px[tau_count] = thejet->px();
+//				tau_ak5pfjet_py[tau_count] = thejet->py();
+//				tau_ak5pfjet_pz[tau_count] = thejet->pz();
+//				tau_ak5pfjet_hadronicenergy[tau_count] = thejet->chargedHadronEnergy() + thejet->neutralHadronEnergy();
+//				tau_ak5pfjet_chargedhadronicenergy[tau_count] = thejet->chargedHadronEnergy();
+//				tau_ak5pfjet_emenergy[tau_count] = thejet->chargedEmEnergy() + thejet->neutralEmEnergy();
+//				tau_ak5pfjet_chargedemenergy[tau_count] = thejet->chargedEmEnergy();
+//				tau_ak5pfjet_chargedmulti[tau_count] = thejet->chargedMultiplicity();
+//				tau_ak5pfjet_neutralmulti[tau_count] = thejet->neutralMultiplicity();
+//				tau_ak5pfjet_trigger[tau_count] = GetTrigger(*thejet, jettriggers); 
+//				break;
+//			}
+//			if(!jetfound)
+//			{
+//				tau_ak5pfjet_e[tau_count] = -1.;
+//			}
+//
+//			tau_isolationchargednum[tau_count] = 0;
+//			tau_isolationchargedpt[tau_count] = 0.;
+//			tau_isolationneutralsnum[tau_count] = 0;
+//			tau_isolationneutralspt[tau_count] = 0.;
+//			tau_isolationgammanum[tau_count] = (*Taus)[i].isolationPFGammaCands().size();
+//			tau_isolationgammapt[tau_count] = (*Taus)[i].isolationPFGammaCandsEtSum();
+//
+//			for(unsigned n = 0 ; n < (*Taus)[i].isolationPFCands().size() ; n++)
+//			{
+//				PFCandidateRef isocand = (*Taus)[i].isolationPFCands()[n];
+//				if(isocand->charge() == 0)
+//				{
+//					tau_isolationneutralsnum[tau_count]++;
+//					tau_isolationneutralspt[tau_count]+=isocand->pt();
+//				}
+//				else
+//				{
+//					tau_isolationchargednum[tau_count]++;
+//					tau_isolationchargedpt[tau_count]+=isocand->pt();
+//				}
+//			}
+//
+//			tau_trigger[tau_count] = GetTrigger((*Taus)[i], tautriggers);
+//			TrackRef track;
+//
+//			for(unsigned n = 0 ; n < (*Taus)[i].signalPFCands().size() ; n++)
+//			{
+//				PFCandidateRef cand = (*Taus)[i].signalPFCands()[n];
+//				track = cand->trackRef();
+//				if(!track.isNull())
+//				{
+//					edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
+//					iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+//					TransientTrack TTrack = TTrackBuilder->build(track);
+//					TrajectoryStateClosestToPoint TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
+//					tau_charged_px[tau_charged_count] = TTrackState.momentum().x();
+//					tau_charged_py[tau_charged_count] = TTrackState.momentum().y();
+//					tau_charged_pz[tau_charged_count] = TTrackState.momentum().z();
+//					tau_charged_closestpointx[tau_charged_count] = TTrackState.position().x();
+//					tau_charged_closestpointy[tau_charged_count] = TTrackState.position().y();
+//					tau_charged_closestpointz[tau_charged_count] = TTrackState.position().z();
+//					tau_charged_dxy[tau_charged_count]    = TTrackState.perigeeParameters().transverseImpactParameter();
+//					tau_charged_dxyerr[tau_charged_count] = TTrackState.perigeeError().transverseImpactParameterError();
+//					tau_charged_dz[tau_charged_count]     = TTrackState.perigeeParameters().longitudinalImpactParameter();
+//					tau_charged_dzerr[tau_charged_count]  = TTrackState.perigeeError().longitudinalImpactParameterError();
+//					tau_charged_chi2[tau_charged_count]   = track->chi2();
+//					tau_charged_ndof[tau_charged_count]   = track->ndof();
+//					tau_charged_charge[tau_charged_count] = track->charge();
+//					tau_charged_nhits[tau_charged_count] = track->numberOfValidHits();
+//					tau_charged_nmissinghits[tau_charged_count] = track->numberOfLostHits();
+//					tau_charged_npixelhits[tau_charged_count] = track->hitPattern().numberOfValidPixelHits();
+//					tau_charged_npixellayers[tau_charged_count] = track->hitPattern().pixelLayersWithMeasurement();
+//					tau_charged_nstriplayers[tau_charged_count] = track->hitPattern().stripLayersWithMeasurement();
+//					if(dEdxharmonic2.isValid())
+//					{
+//						tau_charged_dedxharmonic2[tau_charged_count] = (*dEdxharmonic2)[track].dEdx();
+//					}
+//					else
+//					{
+//						tau_charged_dedxharmonic2[tau_charged_count] = -1.;
+//					}
+//					math::XYZPoint ecalPos = PositionOnECalSurface(TTrack);
+//					tau_charged_outerx[tau_charged_count] = ecalPos.x();
+//					tau_charged_outery[tau_charged_count] = ecalPos.y();
+//					tau_charged_outerz[tau_charged_count] = ecalPos.z();
+//					tau_charged_count++;
+//					if(tau_charged_count == M_taumaxcount*10) break;
+//				}
+//			}
+//
+//			tau_count++;
+//
+//			if(tau_count == M_taumaxcount || tau_charged_count == M_taumaxcount*10){cerr << "number of taus > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
+//			if((*Taus)[i].pt() >= cTauPtMin && fabs((*Taus)[i].eta()) < cTauEtaMax) NumGood++;
+//		}
+//	}
+//
+//	if(NumGood >= cTauNum) return(true);
+//	return(false);
+//}
 */
-			tau_trigger[tau_count] = GetTrigger((*Taus)[i], tautriggers);
-			TrackRef track;
-/*
-			for(unsigned n = 0 ; n < (*Taus)[i].signalPFCands().size() ; n++)
-			{
-				PFCandidateRef cand = (*Taus)[i].signalPFCands()[n];
-				track = cand->trackRef();
-				if(!track.isNull())
-				{
-					edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
-					iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
-					TransientTrack TTrack = TTrackBuilder->build(track);
-					TrajectoryStateClosestToPoint TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
-					tau_charged_px[tau_charged_count] = TTrackState.momentum().x();
-					tau_charged_py[tau_charged_count] = TTrackState.momentum().y();
-					tau_charged_pz[tau_charged_count] = TTrackState.momentum().z();
-					tau_charged_closestpointx[tau_charged_count] = TTrackState.position().x();
-					tau_charged_closestpointy[tau_charged_count] = TTrackState.position().y();
-					tau_charged_closestpointz[tau_charged_count] = TTrackState.position().z();
-					tau_charged_dxy[tau_charged_count]    = TTrackState.perigeeParameters().transverseImpactParameter();
-					tau_charged_dxyerr[tau_charged_count] = TTrackState.perigeeError().transverseImpactParameterError();
-					tau_charged_dz[tau_charged_count]     = TTrackState.perigeeParameters().longitudinalImpactParameter();
-					tau_charged_dzerr[tau_charged_count]  = TTrackState.perigeeError().longitudinalImpactParameterError();
-					tau_charged_chi2[tau_charged_count]   = track->chi2();
-					tau_charged_ndof[tau_charged_count]   = track->ndof();
-					tau_charged_charge[tau_charged_count] = track->charge();
-					tau_charged_nhits[tau_charged_count] = track->numberOfValidHits();
-					tau_charged_nmissinghits[tau_charged_count] = track->numberOfLostHits();
-					tau_charged_npixelhits[tau_charged_count] = track->hitPattern().numberOfValidPixelHits();
-					tau_charged_npixellayers[tau_charged_count] = track->hitPattern().pixelLayersWithMeasurement();
-					tau_charged_nstriplayers[tau_charged_count] = track->hitPattern().stripLayersWithMeasurement();
-					if(dEdxharmonic2.isValid())
-					{
-						tau_charged_dedxharmonic2[tau_charged_count] = (*dEdxharmonic2)[track].dEdx();
-					}
-					else
-					{
-						tau_charged_dedxharmonic2[tau_charged_count] = -1.;
-					}
-					math::XYZPoint ecalPos = PositionOnECalSurface(TTrack);
-					tau_charged_outerx[tau_charged_count] = ecalPos.x();
-					tau_charged_outery[tau_charged_count] = ecalPos.y();
-					tau_charged_outerz[tau_charged_count] = ecalPos.z();
-					tau_charged_count++;
-					if(tau_charged_count == M_taumaxcount*10) break;
-				}
-			}
-*/
-			tau_count++;
-
-			if(tau_count == M_taumaxcount || tau_charged_count == M_taumaxcount*10){cerr << "number of taus > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
-			if((*Taus)[i].pt() >= cTauPtMin && fabs((*Taus)[i].eta()) < cTauEtaMax) NumGood++;
-		}
-	}
-
-	if(NumGood >= cTauNum) return(true);
-	return(false);
-}
-
 bool RootMaker::AddTracks(const edm::Event& iEvent)
 {
 	int NumGood = 0;
@@ -2556,6 +2558,7 @@ bool RootMaker::AddAK5CaloJets(const edm::Event& iEvent, const edm::EventSetup& 
 
 	edm::Handle<pat::JetCollection> ak5caloJets;
 	iEvent.getByLabel(edm::InputTag("patJetsAK5Calo"), ak5caloJets);
+        cout<<"ak5caloJets.isValid() = "<<ak5caloJets.isValid()<<endl;
 	if(ak5caloJets.isValid())
 	{
 		for(unsigned i = 0 ; i < ak5caloJets->size() ; i++)
@@ -2593,10 +2596,10 @@ bool RootMaker::AddAK5CaloJets(const edm::Event& iEvent, const edm::EventSetup& 
 
 				ak5calojet_fhpd[ak5calojet_count] = (*ak5caloJets)[i].jetID().fHPD;
 				ak5calojet_restrictedemf[ak5calojet_count] = (*ak5caloJets)[i].jetID().restrictedEMF;
-				/*for(unsigned n = 0 ; n < min((*ak5caloJets)[i].getPairDiscri().size(), unsigned(M_btagmax)) ; n++)
-				  {
-				  cout << (*ak5caloJets)[i].getPairDiscri()[n].first << " " << (*ak5caloJets)[i].getPairDiscri()[n].second << " " << ak5calojet_btag[i][n] << endl;
-				  }*/
+				//for(unsigned n = 0 ; n < min((*ak5caloJets)[i].getPairDiscri().size(), unsigned(M_btagmax)) ; n++)
+				  //{
+				  //cout << (*ak5caloJets)[i].getPairDiscri()[n].first << " " << (*ak5caloJets)[i].getPairDiscri()[n].second << " " << ak5calojet_btag[i][n] << endl;
+				  //}
 				ak5calojet_n90[ak5calojet_count] = (*ak5caloJets)[i].n90();
 				ak5calojet_n60[ak5calojet_count] = (*ak5caloJets)[i].n60();
 				ak5calojet_count++;
@@ -2615,6 +2618,7 @@ bool RootMaker::AddAK5JPTJets(const edm::Event& iEvent, const edm::EventSetup& i
 
 	edm::Handle<pat::JetCollection> ak5jptJets;
 	iEvent.getByLabel(edm::InputTag("patJetsAK5JPT"), ak5jptJets);
+        cout<<"ak5jptJets.isValid() = "<<ak5jptJets.isValid()<<endl;
 	if(ak5jptJets.isValid())
 	{
 		for(unsigned i = 0 ; i < ak5jptJets->size() ; i++)
@@ -2676,7 +2680,8 @@ bool RootMaker::AddAK5PFCHSJets(const edm::Event& iEvent, const edm::EventSetup&
 
 	edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
 	iEvent.getByLabel("AK5byValAlgo", jetMCFlHandle);
-
+        cout<<"in AddAK5PFCHSJets:"<<endl;
+        cout<<"ak5pfJets.isValid() = "<<ak5pfJets.isValid()<<endl;
 	if(ak5pfJets.isValid())
 	{
 		for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
@@ -2795,7 +2800,8 @@ bool RootMaker::AddAK5PFJets(const edm::Event& iEvent, const edm::EventSetup& iS
 	iEvent.getByLabel(edm::InputTag("recoPuJetMva", "simpleDiscriminant", "ROOTMAKER"), puidsimpleHandle);
 	edm::Handle<ValueMap<float> > puidcutbasedHandle;
 	iEvent.getByLabel(edm::InputTag("recoPuJetMva", "cutbasedDiscriminant", "ROOTMAKER"), puidcutbasedHandle);
-
+        cout<<"in AddAK5PFJets"<<endl;
+        cout<<"ak5pfJets.isValid() = "<<ak5pfJets.isValid()<<endl;
 	if(ak5pfJets.isValid())
 	{
 		for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
@@ -3193,8 +3199,9 @@ RootMaker::JetShape RootMaker::getJetShape(const PFJet& jet)
 	return(res);
 
 }
-/*bool RootMaker::AddAK5PFJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-  {
+/* duplicate of above funtion
+bool RootMaker::AddAK5PFJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
   int NumGood = 0;
   edm::Handle<PFJetCollection> ak5pfJets;
   iEvent.getByLabel(edm::InputTag("ak5PFJets"), ak5pfJets);
@@ -3266,16 +3273,18 @@ if((*ak5pfJets)[i].pt() >= cAK5PFPtMin && fabs((*ak5pfJets)[i].eta()) < cAK5PFEt
 
 if(NumGood >= cAK5PFNum) return(true);
 return(false);
-}*/
+}
+*/
 
 bool RootMaker::AddElectrons(const edm::Event& iEvent)
 {
+/*
 	int NumGood = 0;
-	/*if(crecelectrontrigger)
-	  {
-	  iEvent.getByLabel(edm::InputTag("l1extraParticles", "NonIsolated"), L1Electrons);
-	  iEvent.getByLabel(edm::InputTag("l1extraParticles", "Isolated"), L1ElectronsIso);
-	  }*/
+	//if(crecelectrontrigger)
+	  //{
+	  //iEvent.getByLabel(edm::InputTag("l1extraParticles", "NonIsolated"), L1Electrons);
+	  //iEvent.getByLabel(edm::InputTag("l1extraParticles", "Isolated"), L1ElectronsIso);
+	  //}
 	edm::Handle<GsfElectronCollection> Electrons;
 	iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
 	edm::Handle<ConversionCollection> Conversions;
@@ -3438,9 +3447,9 @@ bool RootMaker::AddElectrons(const edm::Event& iEvent)
 	}
 
 	if(NumGood >= cElNum) return(true);
+*/
 	return(false);
 }
-
 Int_t RootMaker::getSuperClusterEl(const SuperClusterRef& A)
 {
 	TVector3 testa(A->x(), A->y(), A->z());
