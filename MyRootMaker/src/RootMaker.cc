@@ -2109,10 +2109,17 @@ bool RootMaker::AddPhotons(const edm::Event& iEvent, const edm::EventSetup& iSet
 				photon_isolationpfr4charged[photon_count] = isolator.getIsolationCharged();
 				photon_isolationpfr4photon[photon_count] = isolator.getIsolationPhoton();
 				photon_isolationpfr4neutral[photon_count] = isolator.getIsolationNeutral();
+
 				//Iso R4 with SC footprint removal https://twiki.cern.ch/twiki/bin/viewauth/CMS/SuperClusterFootprintRemoval
 				//photon_isolationpfr4noscfootprintcharged[photon_count] = remover.PFIsolation("charged", theph.superCluster(), 0);
 				//photon_isolationpfr4noscfootprintphoton[photon_count] = remover.PFIsolation("photon", theph.superCluster());
 				//photon_isolationpfr4noscfootprintneutral[photon_count] = remover.PFIsolation("neutral", theph.superCluster());
+
+                                PFIsolation_struct tempPFIso_photon = remover.PFIsolation(theph.superCluster(), edm::Ptr<reco::Vertex>(Vertices, 0));
+                                photon_isolationpfr4noscfootprintcharged[photon_count] = tempPFIso_photon.chargediso_primvtx;
+                                photon_isolationpfr4noscfootprintphoton[photon_count]  = tempPFIso_photon.photoniso;
+                                photon_isolationpfr4noscfootprintneutral[photon_count] = tempPFIso_photon.neutraliso;
+
 			//	photon_isolationpfr3charged[photon_count] = (*(photonIsoPF[0]))[refph];
 			//	photon_isolationpfr3photon[photon_count] = (*(photonIsoPF[1]))[refph];
 			//	photon_isolationpfr3neutral[photon_count] = (*(photonIsoPF[2]))[refph];
@@ -2558,7 +2565,6 @@ bool RootMaker::AddAK5CaloJets(const edm::Event& iEvent, const edm::EventSetup& 
 
 	edm::Handle<pat::JetCollection> ak5caloJets;
 	iEvent.getByLabel(edm::InputTag("patJetsAK5Calo"), ak5caloJets);
-        cout<<"ak5caloJets.isValid() = "<<ak5caloJets.isValid()<<endl;
 	if(ak5caloJets.isValid())
 	{
 		for(unsigned i = 0 ; i < ak5caloJets->size() ; i++)
@@ -2618,7 +2624,6 @@ bool RootMaker::AddAK5JPTJets(const edm::Event& iEvent, const edm::EventSetup& i
 
 	edm::Handle<pat::JetCollection> ak5jptJets;
 	iEvent.getByLabel(edm::InputTag("patJetsAK5JPT"), ak5jptJets);
-        cout<<"ak5jptJets.isValid() = "<<ak5jptJets.isValid()<<endl;
 	if(ak5jptJets.isValid())
 	{
 		for(unsigned i = 0 ; i < ak5jptJets->size() ; i++)
@@ -2680,8 +2685,6 @@ bool RootMaker::AddAK5PFCHSJets(const edm::Event& iEvent, const edm::EventSetup&
 
 	edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
 	iEvent.getByLabel("AK5byValAlgo", jetMCFlHandle);
-        cout<<"in AddAK5PFCHSJets:"<<endl;
-        cout<<"ak5pfJets.isValid() = "<<ak5pfJets.isValid()<<endl;
 	if(ak5pfJets.isValid())
 	{
 		for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
@@ -2800,8 +2803,6 @@ bool RootMaker::AddAK5PFJets(const edm::Event& iEvent, const edm::EventSetup& iS
 	iEvent.getByLabel(edm::InputTag("recoPuJetMva", "simpleDiscriminant", "ROOTMAKER"), puidsimpleHandle);
 	edm::Handle<ValueMap<float> > puidcutbasedHandle;
 	iEvent.getByLabel(edm::InputTag("recoPuJetMva", "cutbasedDiscriminant", "ROOTMAKER"), puidcutbasedHandle);
-        cout<<"in AddAK5PFJets"<<endl;
-        cout<<"ak5pfJets.isValid() = "<<ak5pfJets.isValid()<<endl;
 	if(ak5pfJets.isValid())
 	{
 		for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
