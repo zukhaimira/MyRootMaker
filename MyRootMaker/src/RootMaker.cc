@@ -2063,7 +2063,7 @@ bool RootMaker::AddPhotons(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 		EcalClusterLazyTools lazyTools(iEvent, iSetup, edm::InputTag("reducedEcalRecHitsEB"), edm::InputTag("reducedEcalRecHitsEE"), edm::InputTag("reducedEcalRecHitsES"));
 
-		//SuperClusterFootprintRemoval remover(iEvent, iSetup);
+		SuperClusterFootprintRemoval remover(iEvent, iSetup);
 
 		for(size_t n = 0 ; n < Photons->size() ; n++)
 		{
@@ -2116,9 +2116,9 @@ bool RootMaker::AddPhotons(const edm::Event& iEvent, const edm::EventSetup& iSet
 			//	photon_isolationpfr3charged[photon_count] = (*(photonIsoPF[0]))[refph];
 			//	photon_isolationpfr3photon[photon_count] = (*(photonIsoPF[1]))[refph];
 			//	photon_isolationpfr3neutral[photon_count] = (*(photonIsoPF[2]))[refph];
-				//photon_isolationpfr3charged[photon_count] = theph.chargedHadronIso();
-				//photon_isolationpfr3photon[photon_count] = theph.photonIso();
-				//photon_isolationpfr3neutral[photon_count] = theph.neutralHadronIso();
+				photon_isolationpfr3charged[photon_count] = theph.chargedHadronIso();
+				photon_isolationpfr3photon[photon_count] = theph.photonIso();
+				photon_isolationpfr3neutral[photon_count] = theph.neutralHadronIso();
 				photon_supercluster_e[photon_count] = theph.superCluster()->energy();
 				photon_supercluster_x[photon_count] = theph.superCluster()->x();
 				photon_supercluster_y[photon_count] = theph.superCluster()->y();
