@@ -117,9 +117,7 @@ process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 process.load("JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi")
 process.load('JetMETCorrections.Type1MET.pfMETCorrections_cff')
-#process.pfJetMETcorr.jetCorrLabel = cms.string("ak5PFL1FastL2L3") #MC
-process.pfJetMETcorr.jetCorrLabel = cms.string("ak5PFL1FastL2L3Residual") #DATA
-
+process.pfJetMETcorr.jetCorrLabel = cms.string("ak5PFL1FastL2L3Residual")
 from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1CorrectedMet
 process.pfType0Type1CorrectedMet = pfType1CorrectedMet.clone(
 applyType0Corrections = cms.bool(False),

@@ -1,6 +1,3 @@
-<use name="PFIsolation/SuperClusterFootprintRemoval"/>
-<use name="DataFormats/ParticleFlowCandidate"/>
-<use name="CommonTools/ParticleFlow"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/Math"/>
@@ -24,8 +21,8 @@
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="Geometry/CaloGeometry"/>
-<use   name="EgammaAnalysis/ElectronTools"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="RecoVertex/VertexPrimitives"/>
+<use   name="PFIsolation/SuperClusterFootprintRemoval"/>
 <use   name="clhep"/>
 <flags   EDM_PLUGIN="1"/>

@@ -15,23 +15,38 @@ process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 	
 process.MessageLogger.cerr.threshold = 'INFO'
 #process.MessageLogger.categories.append('PATSummaryTables')
-process.GlobalTag.globaltag = cms.string('START70_V7::All')
+#process.GlobalTag.globaltag = cms.string('GR_P_V16::All')
+#process.GlobalTag.globaltag = cms.string('GR_R_311_V2::All')
+#process.GlobalTag.globaltag = cms.string('START44_V12::All')
+#process.GlobalTag.globaltag = cms.string('FT_R_44_V11::All')
+#process.GlobalTag.globaltag = cms.string('FT_R_52_V8D::All')
+process.GlobalTag.globaltag = cms.string('START53_V7A::All')
 
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-#'/store/mc/Summer12_DR53X/T_t-channel_TuneZ2star_8TeV-powheg-tauola/AODSIM/PU_S10_START53_V7A-v3/00000/90B3B34B-B00F-E211-B13A-003048678E24.root'
-'/store/mc/Spring14dr/GluGluToHToMuMu_M-125_13TeV-powheg-pythia6/AODSIM/PU_S14_POSTLS170_V6-v1/00000/1E93B8DB-7CFD-E311-BFC7-7845C4FC346A.root'
+#		 'file:/disk1/JetEvent.root'
+#'/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6_START42_V14B-v1/0000/08555451-3AF4-E011-A687-001D0967D6AC.root'
+#'/store/data/Run2012A/DoubleMu/AOD/PromptReco-v1/000/191/859/66D9EE0B-EC8C-E111-9346-001D09F2AD84.root'
+#'/store/user/hindrich/SherpaMC/hindrich/8TeV_MuMuG_ISR_GPt10_Sherpa_SIM/MuMuG_ISR_GPt10_8TeV_Sherpa_AOD53/ad4656216797e68efe10b9f4185f0480/RECO_211_1_Urk.root'
+'/store/mc/Summer12_DR53X/T_t-channel_TuneZ2star_8TeV-powheg-tauola/AODSIM/PU_S10_START53_V7A-v3/00000/90B3B34B-B00F-E211-B13A-003048678E24.root'
+#'/store/data/Run2012D/DoubleMu/AOD/PromptReco-v1/000/203/909/A2FDE842-520D-E211-8097-00215AEDFD98.root'
+#'/store/data/Run2011A/DoubleMu/AOD/08Nov2011-v1/0000/562B8C49-321B-E111-88E8-00261894389F.root'
+#'/store/data/Run2011B/DoubleMu/AOD/19Nov2011-v1/0000/FE51345B-121C-E111-BB6E-002618943870.root'
+#'/store/mc/Fall11/QCD_Pt-30to80_EMEnriched_TuneZ2_7TeV-pythia/AODSIM/PU_S6-START44_V5-v1/0003/0484210A-C805-E111-AEF3-001BFCDBD1BC.root'
+#'/store/user/aperiean/DATA/7TEV/EventDisplay/TESTEE/try_1/selected_1_1_OUM.root',
+#'/store/user/aperiean/DATA/7TEV/EventDisplay/TESTEE/try_1/selected_2_1_aXc.root',
+#'/store/user/aperiean/DATA/7TEV/EventDisplay/TESTEE/try_1/selected_3_1_IiH.root'
 )
 #     noEventSort = cms.untracked.bool(True),
 #     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 
-#process.maxEvents = cms.untracked.PSet(
-#    input = cms.untracked.int32(-1) 
-#)
-# The Good vertices collection _____________________________________________||
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1) 
+)
+## The Good vertices collection _____________________________________________||
 process.goodVertices = cms.EDFilter(
                 "VertexSelector",
                 filter = cms.bool(False),
@@ -47,6 +62,8 @@ process.primaryVertexFilter = cms.EDFilter(
                 cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
                 filter = cms.bool(True)
                 )
+
+
 ## The beam scraping filter __________________________________________________||
 process.noscraping = cms.EDFilter(
                 "FilterOutScraping",
@@ -55,20 +72,28 @@ process.noscraping = cms.EDFilter(
                 numtrack = cms.untracked.uint32(10),
                 thresh = cms.untracked.double(0.25)
                 )
+
 ## The iso-based HBHE noise filter ___________________________________________||
 process.load('CommonTools.RecoAlgos.HBHENoiseFilter_cfi')
+
 ## The CSC beam halo tight filter ____________________________________________||
-process.load('RecoMET.METFilters.CSCTightHaloFilter_cfi')
+process.load('RecoMET.METAnalyzers.CSCHaloFilter_cfi')
+
 ## The HCAL laser filter _____________________________________________________||
 process.load("RecoMET.METFilters.hcalLaserEventFilter_cfi")
+
 ## The ECAL dead cell trigger primitive filter _______________________________||
 process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
+
 ## The EE bad SuperCrystal filter ____________________________________________||
 process.load('RecoMET.METFilters.eeBadScFilter_cfi')
+
 ## The ECAL laser correction filter
 process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
+
 ## The tracking failure filter _______________________________________________||
 process.load('RecoMET.METFilters.trackingFailureFilter_cfi')
+
 
 process.filters_step = cms.Path(
                 process.primaryVertexFilter *
@@ -82,7 +107,7 @@ process.filters_step = cms.Path(
                 process.ecalLaserCorrFilter
                 )
 
-####### Jet MET corrections
+###### Jet MET corrections
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJets.doRhoFastjet = True
 process.kt6PFJets.doAreaFastjet = True
@@ -92,8 +117,7 @@ process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 process.load("JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi")
 process.load('JetMETCorrections.Type1MET.pfMETCorrections_cff')
-process.pfJetMETcorr.jetCorrLabel = cms.string("ak5PFL1FastL2L3") #MC
-
+process.pfJetMETcorr.jetCorrLabel = cms.string("ak5PFL1FastL2L3")
 from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1CorrectedMet
 process.pfType0Type1CorrectedMet = pfType1CorrectedMet.clone(
 applyType0Corrections = cms.bool(False),
@@ -107,21 +131,10 @@ process.jet_step = cms.Path(process.kt6PFJets*process.metAnalysisSequence)
 
 ######PF ISO calculation for Electrons
 from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
-#from CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff import *
-
-# NEW STUFF ##################
-process.stdElectronSequencePFIso = setupPFElectronIso(process, 'gedGsfElectrons')#'gsfElectrons')
-process.stdPhotonSequencePFIso = setupPFPhotonIso(process, 'photons')
-process.pfiso_step = cms.Path( process.pfParticleSelectionSequence +
-                               process.stdElectronSequencePFIso +
-                               process.stdPhotonSequencePFIso)
-##############################
-
-# OLD STUFF #########################
-#process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
+process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
 #process.phoIsoSequence = setupPFPhotonIso(process, 'photons')
 #process.pfiso_step = cms.Path( process.pfParticleSelectionSequence + process.eleIsoSequence + process.phoIsoSequence)
-#####################################
+process.pfiso_step = cms.Path( process.pfParticleSelectionSequence + process.eleIsoSequence)
 
 ######Electron ID
 process.load("RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06_cfi")
@@ -149,16 +162,14 @@ from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
 postfix = "PFlow"
 usePF2PAT(process,runPF2PAT=True,
 		jetAlgo='AK5', runOnMC=False, postfix=postfix,
-		#jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),
-                jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'],'Type-1'),
-
+		jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),
 		pvCollection=cms.InputTag('offlinePrimaryVertices')
 	 )
 process.pfPileUpPFlow.checkClosestZVertex = False
-#getattr(process, "patPF2PATSequence"+postfix).remove(getattr(process, "cleanPatCandidates"+postfix))
-#getattr(process, "patPF2PATSequence"+postfix).remove(getattr(process, "countPatCandidates"+postfix))
-#process.patseq = cms.Sequence(getattr(process,"patPF2PATSequence"+postfix))
-#process.pat_step = cms.Path(process.patseq)
+getattr(process, "patPF2PATSequence"+postfix).remove(getattr(process, "cleanPatCandidates"+postfix))
+getattr(process, "patPF2PATSequence"+postfix).remove(getattr(process, "countPatCandidates"+postfix))
+process.patseq = cms.Sequence(getattr(process,"patPF2PATSequence"+postfix))
+process.pat_step = cms.Path(process.patseq)
 
 ######Pileup Jet ID (Hendrik)
 #https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID#Running_the_algorithm_on_reco_je
@@ -309,7 +320,7 @@ RecLambdaMasswin = cms.untracked.double(0.02)
 #)
 
 process.TFileService = cms.Service("TFileService",
-	fileName = cms.string('AC1B_test.root')
+	fileName = cms.string('AC1B.root')
 )
 
 process.roottree_step = cms.EndPath(process.makeroottree)
