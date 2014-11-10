@@ -2,7 +2,9 @@ from MyRootMaker.MyRootMaker.RootMakerTemplateMC_cfg import *
 
 # uses this set for a test run
 process.source.fileNames = cms.untracked.vstring(
-'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/GluGluToHToMuMu_M-125_13TeV-powheg-pythia6/AODSIM/PU_S14_POSTLS170_V6-v1/00000/1E93B8DB-7CFD-E311-BFC7-7845C4FC346A.root'
+#'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/DYJetsToLL_M-50_13TeV-madgraph-pythia8-tauola_v2/AODSIM/PU_S14_POSTLS170_V6-v1/00000/003D54CC-5403-E411-9029-02163E00E85A.root'
+'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/DYJetsToEEMuMu_M-800To1400_13TeV-madgraph/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/2C43CC16-E708-E411-8DE5-848F69FD4FB5.root'
+#'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/GluGluToHToMuMu_M-125_13TeV-powheg-pythia6/AODSIM/PU_S14_POSTLS170_V6-v1/00000/1E93B8DB-7CFD-E311-BFC7-7845C4FC346A.root'
 )
 
 process.maxEvents = cms.untracked.PSet(

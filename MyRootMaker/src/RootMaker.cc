@@ -1,5 +1,7 @@
 #include "MyRootMaker/MyRootMaker/interface/RootMaker.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include <vector>
+#include <boost/foreach.hpp>
 
 using namespace reco;
 typedef ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3> > SMatrixSym3D;
@@ -127,6 +129,20 @@ RootMaker::~RootMaker(){
 	if(propagatorWithMaterial != 0){ delete propagatorWithMaterial;}
 }
 
+const PFCandidate& RootMaker::removeRef(const PFCandidatePtr& pfRef) {
+  return *pfRef;
+}
+template<typename Collection, typename Function>
+std::vector<double> RootMaker::extract(const Collection& cands, Function func) {
+  // #define CALL_MEMBER_FN(object,ptrToMember) ((object).*(ptrToMember))
+  std::vector<double> output;
+  output.reserve(cands.size());
+  for(typename Collection::const_iterator cand = cands.begin();
+      cand != cands.end(); ++cand) {
+    output.push_back(func(removeRef(*cand)));
+  }
+  return output;
+}
 void RootMaker::beginJob(){
 	edm::Service<TFileService> FS;
 	tree = FS->make<TTree>("AC1B", "AC1B", 1);
@@ -1755,9 +1771,13 @@ UInt_t RootMaker::FindGenParticle(const Candidate* particle)
 {
 	for(unsigned i = 0 ; i < genallparticles_count ; i++)
 	{
-		if(particle->pdgId() == genallparticles_pdgid[i] && particle->status() == genallparticles_status[i] && float(particle->energy()) == genallparticles_e[i] && float(particle->px()) == genallparticles_px[i] && float(particle->py()) == genallparticles_py[i] && float(particle->pz()) == genallparticles_pz[i])
-		{
-			return(i);
+		if(particle->pdgId() == genallparticles_pdgid[i] && 
+                  particle->status() == genallparticles_status[i] && 
+                  float(particle->energy()) == genallparticles_e[i] && 
+                  float(particle->px()) == genallparticles_px[i] && 
+                  float(particle->py()) == genallparticles_py[i] && 
+                  float(particle->pz()) == genallparticles_pz[i]) {
+                  return(i);
 		}
 	}
 	return(genallparticles_count);
@@ -1818,7 +1838,7 @@ bool RootMaker::AddMuons(const edm::Event& iEvent)
 			muon_isolationr3ntrack[muon_count] = themu.isolationR03().nTracks;
 			muon_isolationr3ecal[muon_count]   = themu.isolationR03().emEt;
 			muon_isolationr3hcal[muon_count]   = themu.isolationR03().hadEt;
-/*
+
 			if(themu.isPFIsolationValid()){
 
 				const reco::MuonPFIsolation pfisor03 = themu.pfIsolationR03();
@@ -1841,7 +1861,7 @@ bool RootMaker::AddMuons(const edm::Event& iEvent)
 				muon_pfisolationr4_sumpupt[muon_count] = pfisor04.sumPUPt;
 
 			}
-*/
+
 			muon_ecalenergy[muon_count] = themu.calEnergy().em;
 			muon_hcalenergy[muon_count] = themu.calEnergy().had;
 			muon_charge[muon_count] = themu.charge();
@@ -2041,7 +2061,8 @@ bool RootMaker::AddPhotons(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 	int NumGood = 0;
 	edm::Handle<PhotonCollection> Photons;
-	iEvent.getByLabel(edm::InputTag("photons"), Photons);
+	//iEvent.getByLabel(edm::InputTag("photons"), Photons);
+        iEvent.getByLabel(edm::InputTag("gedPhotons"), Photons);
 
 	//vector< edm::Handle< edm::ValueMap<double> > > photonIsoPF(3);
 	//iEvent.getByLabel(edm::InputTag("phPFIsoValueCharged03PFIdPFIso"), photonIsoPF[0]);
@@ -2052,7 +2073,8 @@ bool RootMaker::AddPhotons(const edm::Event& iEvent, const edm::EventSetup& iSet
 	if(Photons.isValid() && Photons->size() > 0)
 	{
 		edm::Handle<GsfElectronCollection> Electrons;
-//		iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
+                //iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
+                iEvent.getByLabel(edm::InputTag("gedGsfElectrons"), Electrons);
 		edm::Handle<ConversionCollection> Conversions;
 		iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
 		PFIsolationEstimator isolator;
@@ -3279,7 +3301,6 @@ return(false);
 
 bool RootMaker::AddElectrons(const edm::Event& iEvent)
 {
-/*
 	int NumGood = 0;
 	//if(crecelectrontrigger)
 	  //{
@@ -3287,7 +3308,8 @@ bool RootMaker::AddElectrons(const edm::Event& iEvent)
 	  //iEvent.getByLabel(edm::InputTag("l1extraParticles", "Isolated"), L1ElectronsIso);
 	  //}
 	edm::Handle<GsfElectronCollection> Electrons;
-	iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
+	//iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
+        iEvent.getByLabel(edm::InputTag("gedGsfElectrons"), Electrons);
 	edm::Handle<ConversionCollection> Conversions;
 	iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
 	vector< edm::Handle< edm::ValueMap<double> > > electronIsoPF(3);
@@ -3448,7 +3470,7 @@ bool RootMaker::AddElectrons(const edm::Event& iEvent)
 	}
 
 	if(NumGood >= cElNum) return(true);
-*/
+
 	return(false);
 }
 Int_t RootMaker::getSuperClusterEl(const SuperClusterRef& A)

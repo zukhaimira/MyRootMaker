@@ -93,10 +93,10 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-//#include "DataFormats/PatCandidates/interface/Muon.h"
-//#include "DataFormats/PatCandidates/interface/Electron.h"
-//#include "DataFormats/PatCandidates/interface/Photon.h"
-//#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
@@ -150,7 +150,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
 
 #include "EgammaAnalysis/ElectronTools/src/PFIsolationEstimator.cc"
-//#include "EgammaAnalysis/ElectronTools/src/SuperClusterHelper.cc"
+#include "EgammaAnalysis/ElectronTools/src/SuperClusterHelper.cc"
 #include "PFIsolation/SuperClusterFootprintRemoval/interface/SuperClusterFootprintRemoval.h"
 
 #include "TGeoPara.h"
@@ -185,6 +185,11 @@ class RootMaker : public edm::EDAnalyzer{
 	private:
 		virtual void beginJob();
 		virtual void endJob();
+
+                const PFCandidate& removeRef(const PFCandidatePtr& pfRef);
+                template<typename Collection, typename Function>
+                std::vector<double> extract(const Collection& cands, Function func);
+
 		virtual void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
 		void TriggerIndexSelection(vector<string> configstring, vector<pair<unsigned, int> >& triggers, string& allnames);
 		virtual void beginLuminosityBlock(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup);
