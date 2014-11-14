@@ -28,9 +28,9 @@ process.source = cms.Source("PoolSource",
 #     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 
-#process.maxEvents = cms.untracked.PSet(
-#    input = cms.untracked.int32(-1) 
-#)
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1) 
+)
 # The Good vertices collection _____________________________________________||
 process.goodVertices = cms.EDFilter(
                 "VertexSelector",

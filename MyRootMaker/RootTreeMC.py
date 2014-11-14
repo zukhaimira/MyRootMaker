@@ -1,18 +1,24 @@
 from MyRootMaker.MyRootMaker.RootMakerTemplateMC_cfg import *
 
-# uses this set for a test run
+# if using crab, doesn't matter what this is, input is set in crab.cfg
+# if using cmsRun, this is used for input
 process.source.fileNames = cms.untracked.vstring(
-#'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/DYJetsToLL_M-50_13TeV-madgraph-pythia8-tauola_v2/AODSIM/PU_S14_POSTLS170_V6-v1/00000/003D54CC-5403-E411-9029-02163E00E85A.root'
-'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/DYJetsToEEMuMu_M-800To1400_13TeV-madgraph/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/2C43CC16-E708-E411-8DE5-848F69FD4FB5.root'
-#'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/GluGluToHToMuMu_M-125_13TeV-powheg-pythia6/AODSIM/PU_S14_POSTLS170_V6-v1/00000/1E93B8DB-7CFD-E311-BFC7-7845C4FC346A.root'
+#'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/DYJetsToEEMuMu_M-800To1400_13TeV-madgraph/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/2C43CC16-E708-E411-8DE5-848F69FD4FB5.root'
+##'/ZZTo4L_Tune4C_13TeV-powheg-pythia8/Spring14dr-PU_S14_POSTLS170_V6-v1/AODSIM'
+#'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/ZZTo4L_Tune4C_13TeV-powheg-pythia8/AODSIM/PU_S14_POSTLS170_V6-v1/00000/00DC4159-705F-E411-B478-848F69FD2973.root'
+#'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/ZZTo4L_Tune4C_13TeV-powheg-pythia8/AODSIM/PU_S14_POSTLS170_V6-v1/00000/04377A66-FD5F-E411-9347-3417EBE2F493.root'
+'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/ZprimeToTauTau_M-5000_Tune4C_13TeV-pythia8/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/02551B35-D4E4-E311-A19C-002481E0D5E2.root'
 )
 
+# also overridden by crab.cfg
 process.maxEvents = cms.untracked.PSet(
 #    input = cms.untracked.int32(-1)
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(500)
 )
 
-process.GlobalTag.globaltag = cms.string('START70_V7::All')
+#process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
+#process.GlobalTag.globaltag = cms.string('START70_V7::All')
+process.GlobalTag.globaltag = cms.string('POSTLS170_V7::All')
 
 #process.GlobalTag.toGet = cms.VPSet(
 #		cms.PSet(record = cms.string("BTagTrackProbability2DRcd"),
@@ -46,3 +52,5 @@ process.pfiso_step,
 process.roottree_step)
 
 process.options.allowUnscheduled = cms.untracked.bool( True )
+
+
