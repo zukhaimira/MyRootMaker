@@ -20,7 +20,8 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'root://cms-xrd-global.cern.ch//store/mc/Spring14miniaod/ZZTo4L_Tune4C_13TeV-powheg-pythia8/MINIAODSIM/141029_PU40bx50_PLS170_V6AN2-v1/00000/1629872F-EB6A-E411-972D-00259094F2E8.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/ZZTo4L_Tune4C_13TeV-powheg-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/241933C6-E269-E411-B532-7845C4FC3A19.root'
+        #'root://cms-xrd-global.cern.ch//store/mc/Spring14miniaod/ZZTo4L_Tune4C_13TeV-powheg-pythia8/MINIAODSIM/141029_PU40bx50_PLS170_V6AN2-v1/00000/1629872F-EB6A-E411-972D-00259094F2E8.root'
         #'/store/cmst3/user/gpetrucc/miniAOD/v1/TT_Tune4C_13TeV-pythia8-tauola_PU_S14_PAT.root'
     )
 )
