@@ -96,10 +96,10 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-//#include "DataFormats/PatCandidates/interface/Muon.h"
-//#include "DataFormats/PatCandidates/interface/Electron.h"
-//#include "DataFormats/PatCandidates/interface/Photon.h"
-//#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
@@ -249,10 +249,11 @@ private:
     edm::EDGetTokenT<pat::MuonCollection> muonToken_;
     edm::EDGetTokenT<pat::ElectronCollection> electronToken_;
     //edm::EDGetTokenT<pat::TauCollection> tauToken_;
-    //edm::EDGetTokenT<pat::PhotonCollection> photonToken_;
+    edm::EDGetTokenT<pat::PhotonCollection> photonToken_;
     //edm::EDGetTokenT<pat::JetCollection> jetToken_;
     //edm::EDGetTokenT<pat::JetCollection> fatjetToken_;
     //edm::EDGetTokenT<pat::METCollection> metToken_;
+    edm::EDGetTokenT<vector<reco::Conversion> > conversionsToken_;
 
     //Configuration
     //  11     lumi_Token(consumes<LumiSummary,edm::InLumi>(iConfig.getParameter(edm::InputTag("lumiProducer"))),

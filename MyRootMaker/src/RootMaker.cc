@@ -13,14 +13,16 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
     electronToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
     //tauToken_(consumes<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
-    //photonToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
+    photonToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
     //jetToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
     //fatjetToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("fatjets"))),
     //metToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
+    conversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("conversions"))),
 
     triggerBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"))),
     triggerObjects_(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("objects"))),
     triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),
+
     cgen(iConfig.getUntrackedParameter<bool> ("GenSomeParticles", false)),
     cgenallparticles(iConfig.getUntrackedParameter<bool> ("GenAllParticles", false)),
     cgenak4jets(iConfig.getUntrackedParameter<bool> ("GenAK4Jets", false)),
@@ -100,6 +102,7 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     cVertexSig2D(iConfig.getUntrackedParameter<double> ("RecVertexSig2D", 15.)),
     cKaonMassWindow(iConfig.getUntrackedParameter<double> ("RecVertexKaonMassWin", 0.05)),
     cLambdaMassWindow(iConfig.getUntrackedParameter<double> ("RecVertexLambdaMassWin", 0.02)),
+
     propagatorWithMaterial(0) {
     testids.push_back(24);  //0
     testids.push_back(-24);  //1
@@ -1954,23 +1957,24 @@ UInt_t RootMaker::GetTrigger(const LeafCandidate &particle, vector<pair<unsigned
     return (result);
 }
 bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-    /*
-        int NumGood = 0;
-        edm::Handle<PhotonCollection> Photons;
-        //iEvent.getByLabel(edm::InputTag("photons"), Photons);
-        iEvent.getByLabel(edm::InputTag("slimmedPhotons"), Photons);
 
+//    int NumGood = 0;
+    edm::Handle<pat::PhotonCollection> Photons;
+    iEvent.getByToken(photonToken_, Photons);
         //vector< edm::Handle< edm::ValueMap<double> > > photonIsoPF(3);
         //iEvent.getByLabel(edm::InputTag("phPFIsoValueCharged03PFIdPFIso"), photonIsoPF[0]);
         //iEvent.getByLabel(edm::InputTag("phPFIsoValueGamma03PFIdPFIso"), photonIsoPF[1]);
         //iEvent.getByLabel(edm::InputTag("phPFIsoValueNeutral03PFIdPFIso"), photonIsoPF[2]);
         //cout << "PH " << photonIsoPF[0].isValid() << endl;
 
-        if(Photons.isValid() && Photons->size() > 0) {
-            edm::Handle<GsfElectronCollection> Electrons;
-            //iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
-            iEvent.getByLabel(edm::InputTag("slimmedElectrons"), Electrons);
-            edm::Handle<ConversionCollection> Conversions;
+    if(Photons.isValid() && Photons->size() > 0) {
+        edm::Handle<pat::ElectronCollection> Electrons;
+        iEvent.getByToken(electronToken_, Electrons);
+
+        edm::Handle<vector<reco::Conversion> > Conversions;
+        iEvent.getByToken(conversionsToken_, Conversions);
+}
+/*
             iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
             PFIsolationEstimator isolator;
             VertexRef myprimvertex(Vertices, 0);
@@ -1995,8 +1999,8 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
             SuperClusterFootprintRemoval remover(iEvent, iSetup);
 
             for(size_t n = 0 ; n < Photons->size() ; n++) {
-                const Photon &theph = (*Photons)[n];
-                PhotonRef refph(Photons, n);
+                const pat::Photon &theph = (*Photons)[n];
+                pat::PhotonRef refph(Photons, n);
                 if(theph.pt() > cPhotonFilterPtMin && TMath::Abs(theph.eta()) < cPhotonFilterEtaMax) {
                     photon_px[photon_count] = theph.px();
                     photon_py[photon_count] = theph.py();
@@ -3052,11 +3056,9 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     edm::Handle<pat::ElectronCollection> Electrons;
     iEvent.getByToken(electronToken_, Electrons);
 
-    //edm::Handle<GsfElectronCollection> Electrons;
-    //iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
-    //iEvent.getByLabel(edm::InputTag("slimmedElectrons"), Electrons);
-    edm::Handle<ConversionCollection> Conversions;
+    edm::Handle<reco::ConversionCollection> Conversions;
     iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+
     vector< edm::Handle< edm::ValueMap<double> > > electronIsoPF(3);
     iEvent.getByLabel(edm::InputTag("elPFIsoValueCharged03PFIdPFIso"), electronIsoPF[0]);
     iEvent.getByLabel(edm::InputTag("elPFIsoValueGamma03PFIdPFIso"), electronIsoPF[1]);
@@ -3071,11 +3073,9 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     const edm::ValueMap<float> &eIDLoosemap = * eIDValueMapLoose;
 
     if(Electrons.isValid()) {
-        //for(GsfElectronCollection::const_iterator itel = Electrons->begin() ; itel != Electrons->end() ; ++itel)
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
-            //const GsfElectron& theel = *itel;
-            const GsfElectron &theel = (*Electrons)[n];
-            GsfElectronRef refel(Electrons, n);
+            const pat::Electron &theel = (*Electrons)[n];
+            pat::ElectronRef refel(Electrons, n);
             if(theel.pt() > cElFilterPtMin && TMath::Abs(theel.eta()) < cElFilterEtaMax) {
                 electron_px[electron_count] = theel.px();
                 electron_py[electron_count] = theel.py();
@@ -3182,7 +3182,8 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
 
                 electron_trigger[electron_count] = GetTrigger(theel, electrontriggers);
 
-                edm::Ref<reco::GsfElectronCollection> electronRef(Electrons,n);
+                //edm::Ref<reco::GsfElectronCollection> electronRef(Electrons,n);
+                edm::Ref<pat::ElectronCollection> electronRef(Electrons,n);
                 electron_eID[electron_count]=0;
                 electron_eID[electron_count] |= (Byte_t)eIDHyperTight1map[electronRef];
                 electron_eID[electron_count] |= ((Byte_t)eIDLoosemap[electronRef]<<4);
