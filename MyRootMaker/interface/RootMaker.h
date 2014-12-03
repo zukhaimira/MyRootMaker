@@ -1,7 +1,7 @@
 #ifndef RootMaker_h
 #define RootMaker_h
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -10,12 +10,9 @@
 #include <vector>
 #include <cstdlib>
 #include <algorithm>
-#include <memory>
-#include <cmath>
+
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
-#include <tbb/tbb.h>
-#include <tbb/concurrent_unordered_map.h>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,10 +26,10 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-
-
+//#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+//#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+//#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+//#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 //#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
@@ -52,6 +49,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
@@ -153,7 +152,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
 
 #include "EgammaAnalysis/ElectronTools/src/PFIsolationEstimator.cc"
-//#include "EgammaAnalysis/ElectronTools/src/SuperClusterHelper.cc"
+#include "EgammaAnalysis/ElectronTools/src/SuperClusterHelper.cc"
 #include "PFIsolation/SuperClusterFootprintRemoval/interface/SuperClusterFootprintRemoval.h"
 
 #include "TGeoPara.h"
@@ -189,9 +188,9 @@ private:
     virtual void beginJob();
     virtual void endJob();
 
-    const PFCandidate& removeRef(const PFCandidatePtr& pfRef);
+    const PFCandidate &removeRef(const PFCandidatePtr &pfRef);
     template<typename Collection, typename Function>
-    std::vector<double> extract(const Collection& cands, Function func);
+    std::vector<double> extract(const Collection &cands, Function func);
 
     virtual void beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup);
     void TriggerIndexSelection(vector<string> configstring, vector<pair<unsigned, int> > &triggers, string &allnames);
@@ -199,6 +198,15 @@ private:
     virtual void endLuminosityBlock(const edm::LuminosityBlock &iLumiBlock, const edm::EventSetup &iSetup);
     virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
 
+
+    edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebRecHitsToken_;
+    edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeRecHitsToken_;
+    edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > esRecHitsToken_;
+
+
+    edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebRecHits;
+    edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeRecHits;
+    edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > esRecHits;
     edm::Handle<VertexCollection> Vertices;
 
     bool AddTracks(const edm::Event &iEvent);
@@ -207,10 +215,10 @@ private:
     bool AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     bool AddAllConversions(const edm::Event &iEvent);
     bool AddTaus(const edm::Event &iEvent);
-    bool AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-    bool AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-    bool AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-    bool AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+    bool AddAK5CaloJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+    bool AddAK5JPTJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+    bool AddAK5PFJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+    bool AddAK5PFCHSJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     bool AddVertices(const edm::Event &iEvent);
     bool AddMuVertices(const edm::Event &iEvent);
     bool AddConvPhotons(const edm::Event &iEvent);
@@ -243,29 +251,11 @@ private:
     TTree *lumitree;
     TTree *runtree;
     TH1D *drhist;
-
-    // member data
-    //edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-    edm::EDGetTokenT<pat::MuonCollection> muonToken_;
-    edm::EDGetTokenT<pat::ElectronCollection> electronToken_;
-    //edm::EDGetTokenT<pat::TauCollection> tauToken_;
-    edm::EDGetTokenT<pat::PhotonCollection> photonToken_;
-    //edm::EDGetTokenT<pat::JetCollection> jetToken_;
-    //edm::EDGetTokenT<pat::JetCollection> fatjetToken_;
-    //edm::EDGetTokenT<pat::METCollection> metToken_;
-    edm::EDGetTokenT<vector<reco::Conversion> > conversionsToken_;
-
     //Configuration
-    //  11     lumi_Token(consumes<LumiSummary,edm::InLumi>(iConfig.getParameter(edm::InputTag("lumiProducer"))),
-    //    12     triggerBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"))),
-    //edm::EDGetToken<LumiSummary,edm::InLumi> lumi_Token;
-    edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
-    edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
-    edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
-
+    bool isMiniAOD;
     bool cgen;
     bool cgenallparticles;
-    bool cgenak4jets;
+    bool cgenak5jets;
     bool ctrigger;
     bool cbeamspot;
     bool crectrack;
@@ -280,10 +270,10 @@ private:
     bool crecelectron;
     bool crecphoton;
     bool crecallconversion;
-    bool crecak4calojet;
-    bool crecak4jptjet;
-    bool crecak4pfjet;
-    bool crecak4pfchsjet;
+    bool crecak5calojet;
+    bool crecak5jptjet;
+    bool crecak5pfjet;
+    bool crecak5pfchsjet;
     bool crecjettrigger;
     bool crecpfmet;
     bool crecsecvertices;
@@ -318,22 +308,22 @@ private:
     int cPhotonNum;
     double cPhotonFilterPtMin;
     double cPhotonFilterEtaMax;
-    double cAK4CaloFilterPtMin;
-    double cAK4CaloPtMin;
-    double cAK4CaloEtaMax;
-    int cAK4CaloNum;
-    double cAK4JPTFilterPtMin;
-    double cAK4JPTPtMin;
-    double cAK4JPTEtaMax;
-    int cAK4JPTNum;
-    double cAK4PFCHSFilterPtMin;
-    double cAK4PFCHSPtMin;
-    double cAK4PFCHSEtaMax;
-    int cAK4PFCHSNum;
-    double cAK4PFFilterPtMin;
-    double cAK4PFPtMin;
-    double cAK4PFEtaMax;
-    int cAK4PFNum;
+    double cAK5CaloFilterPtMin;
+    double cAK5CaloPtMin;
+    double cAK5CaloEtaMax;
+    int cAK5CaloNum;
+    double cAK5JPTFilterPtMin;
+    double cAK5JPTPtMin;
+    double cAK5JPTEtaMax;
+    int cAK5JPTNum;
+    double cAK5PFCHSFilterPtMin;
+    double cAK5PFCHSPtMin;
+    double cAK5PFCHSEtaMax;
+    int cAK5PFCHSNum;
+    double cAK5PFFilterPtMin;
+    double cAK5PFPtMin;
+    double cAK5PFEtaMax;
+    int cAK5PFNum;
     string cJetCorrection;
     vector<string> cJetHLTriggerMatching;
 
@@ -541,112 +531,112 @@ private:
     UInt_t muon_trigger[M_muonmaxcount];
     UInt_t muon_trackermuonquality[M_muonmaxcount];
 
-    UInt_t ak4calojet_count;
-    Float_t ak4calojet_e[M_jetmaxcount];
-    Float_t ak4calojet_px[M_jetmaxcount];
-    Float_t ak4calojet_py[M_jetmaxcount];
-    Float_t ak4calojet_pz[M_jetmaxcount];
-    Float_t ak4calojet_hadronicenergy[M_jetmaxcount];
-    Float_t ak4calojet_emenergy[M_jetmaxcount];
-    Float_t ak4calojet_energycorr[M_jetmaxcount];
-    Float_t ak4calojet_energycorrl7uds[M_jetmaxcount];
-    Float_t ak4calojet_energycorrl7bottom[M_jetmaxcount];
-    Float_t ak4calojet_fhpd[M_jetmaxcount];
-    Float_t ak4calojet_restrictedemf[M_jetmaxcount];
-    Float_t ak4calojet_btag[M_jetmaxcount][M_btagmax];
-    UInt_t ak4calojet_n90[M_jetmaxcount];
-    UInt_t ak4calojet_n60[M_jetmaxcount];
+    UInt_t ak5calojet_count;
+    Float_t ak5calojet_e[M_jetmaxcount];
+    Float_t ak5calojet_px[M_jetmaxcount];
+    Float_t ak5calojet_py[M_jetmaxcount];
+    Float_t ak5calojet_pz[M_jetmaxcount];
+    Float_t ak5calojet_hadronicenergy[M_jetmaxcount];
+    Float_t ak5calojet_emenergy[M_jetmaxcount];
+    Float_t ak5calojet_energycorr[M_jetmaxcount];
+    Float_t ak5calojet_energycorrl7uds[M_jetmaxcount];
+    Float_t ak5calojet_energycorrl7bottom[M_jetmaxcount];
+    Float_t ak5calojet_fhpd[M_jetmaxcount];
+    Float_t ak5calojet_restrictedemf[M_jetmaxcount];
+    Float_t ak5calojet_btag[M_jetmaxcount][M_btagmax];
+    UInt_t ak5calojet_n90[M_jetmaxcount];
+    UInt_t ak5calojet_n60[M_jetmaxcount];
 
-    UInt_t ak4jptjet_count;
-    Float_t ak4jptjet_e[M_jetmaxcount];
-    Float_t ak4jptjet_px[M_jetmaxcount];
-    Float_t ak4jptjet_py[M_jetmaxcount];
-    Float_t ak4jptjet_pz[M_jetmaxcount];
-    Float_t ak4jptjet_hadronicenergy[M_jetmaxcount];
-    Float_t ak4jptjet_chargedhadronicenergy[M_jetmaxcount];
-    Float_t ak4jptjet_emenergy[M_jetmaxcount];
-    Float_t ak4jptjet_chargedemenergy[M_jetmaxcount];
-    UInt_t ak4jptjet_chargedmulti[M_jetmaxcount];
-    Float_t ak4jptjet_energycorr[M_jetmaxcount];
-    Float_t ak4jptjet_energycorrl7uds[M_jetmaxcount];
-    Float_t ak4jptjet_energycorrl7bottom[M_jetmaxcount];
-    Float_t ak4jptjet_fhpd[M_jetmaxcount];
-    Float_t ak4jptjet_restrictedemf[M_jetmaxcount];
-    Float_t ak4jptjet_btag[M_jetmaxcount][M_btagmax];
-    UInt_t ak4jptjet_n90[M_jetmaxcount];
+    UInt_t ak5jptjet_count;
+    Float_t ak5jptjet_e[M_jetmaxcount];
+    Float_t ak5jptjet_px[M_jetmaxcount];
+    Float_t ak5jptjet_py[M_jetmaxcount];
+    Float_t ak5jptjet_pz[M_jetmaxcount];
+    Float_t ak5jptjet_hadronicenergy[M_jetmaxcount];
+    Float_t ak5jptjet_chargedhadronicenergy[M_jetmaxcount];
+    Float_t ak5jptjet_emenergy[M_jetmaxcount];
+    Float_t ak5jptjet_chargedemenergy[M_jetmaxcount];
+    UInt_t ak5jptjet_chargedmulti[M_jetmaxcount];
+    Float_t ak5jptjet_energycorr[M_jetmaxcount];
+    Float_t ak5jptjet_energycorrl7uds[M_jetmaxcount];
+    Float_t ak5jptjet_energycorrl7bottom[M_jetmaxcount];
+    Float_t ak5jptjet_fhpd[M_jetmaxcount];
+    Float_t ak5jptjet_restrictedemf[M_jetmaxcount];
+    Float_t ak5jptjet_btag[M_jetmaxcount][M_btagmax];
+    UInt_t ak5jptjet_n90[M_jetmaxcount];
 
-    UInt_t ak4pfjet_count;
-    Float_t ak4pfjet_e[M_jetmaxcount];
-    Float_t ak4pfjet_px[M_jetmaxcount];
-    Float_t ak4pfjet_py[M_jetmaxcount];
-    Float_t ak4pfjet_pz[M_jetmaxcount];
-    Float_t ak4pfjet_area[M_jetmaxcount];
-    Float_t ak4pfjet_hadronicenergy[M_jetmaxcount];
-    Float_t ak4pfjet_chargedhadronicenergy[M_jetmaxcount];
-    Float_t ak4pfjet_emenergy[M_jetmaxcount];
-    Float_t ak4pfjet_chargedemenergy[M_jetmaxcount];
-    Float_t ak4pfjet_hfemenergy[M_jetmaxcount];
-    Float_t ak4pfjet_hfhadronicenergy[M_jetmaxcount];
-    Float_t ak4pfjet_electronenergy[M_jetmaxcount];
-    Float_t ak4pfjet_muonenergy[M_jetmaxcount];
-    UInt_t ak4pfjet_chargedmulti[M_jetmaxcount];
-    UInt_t ak4pfjet_neutralmulti[M_jetmaxcount];
-    UInt_t ak4pfjet_hfhadronicmulti[M_jetmaxcount];
-    UInt_t ak4pfjet_hfemmulti[M_jetmaxcount];
-    UInt_t ak4pfjet_electronmulti[M_jetmaxcount];
-    UInt_t ak4pfjet_muonmulti[M_jetmaxcount];
-    Float_t ak4pfjet_chargeda[M_jetmaxcount];
-    Float_t ak4pfjet_chargedb[M_jetmaxcount];
-    Float_t ak4pfjet_neutrala[M_jetmaxcount];
-    Float_t ak4pfjet_neutralb[M_jetmaxcount];
-    Float_t ak4pfjet_alla[M_jetmaxcount];
-    Float_t ak4pfjet_allb[M_jetmaxcount];
-    Float_t ak4pfjet_chargedfractionmv[M_jetmaxcount];
-    Float_t ak4pfjet_energycorr[M_jetmaxcount];
-    Float_t ak4pfjet_energycorrunc[M_jetmaxcount];
-    Float_t ak4pfjet_energycorrl7uds[M_jetmaxcount];
-    Float_t ak4pfjet_energycorrl7bottom[M_jetmaxcount];
-    Float_t ak4pfjet_puidfull[M_jetmaxcount];
-    Float_t ak4pfjet_puidsimple[M_jetmaxcount];
-    Float_t ak4pfjet_puidcutbased[M_jetmaxcount];
-    Float_t ak4pfjet_btag[M_jetmaxcount][M_btagmax];
-    UInt_t ak4pfjet_trigger[M_jetmaxcount];
-    Int_t ak4pfjet_mcflavour[M_jetmaxcount];
+    UInt_t ak5pfjet_count;
+    Float_t ak5pfjet_e[M_jetmaxcount];
+    Float_t ak5pfjet_px[M_jetmaxcount];
+    Float_t ak5pfjet_py[M_jetmaxcount];
+    Float_t ak5pfjet_pz[M_jetmaxcount];
+    Float_t ak5pfjet_area[M_jetmaxcount];
+    Float_t ak5pfjet_hadronicenergy[M_jetmaxcount];
+    Float_t ak5pfjet_chargedhadronicenergy[M_jetmaxcount];
+    Float_t ak5pfjet_emenergy[M_jetmaxcount];
+    Float_t ak5pfjet_chargedemenergy[M_jetmaxcount];
+    Float_t ak5pfjet_hfemenergy[M_jetmaxcount];
+    Float_t ak5pfjet_hfhadronicenergy[M_jetmaxcount];
+    Float_t ak5pfjet_electronenergy[M_jetmaxcount];
+    Float_t ak5pfjet_muonenergy[M_jetmaxcount];
+    UInt_t ak5pfjet_chargedmulti[M_jetmaxcount];
+    UInt_t ak5pfjet_neutralmulti[M_jetmaxcount];
+    UInt_t ak5pfjet_hfhadronicmulti[M_jetmaxcount];
+    UInt_t ak5pfjet_hfemmulti[M_jetmaxcount];
+    UInt_t ak5pfjet_electronmulti[M_jetmaxcount];
+    UInt_t ak5pfjet_muonmulti[M_jetmaxcount];
+    Float_t ak5pfjet_chargeda[M_jetmaxcount];
+    Float_t ak5pfjet_chargedb[M_jetmaxcount];
+    Float_t ak5pfjet_neutrala[M_jetmaxcount];
+    Float_t ak5pfjet_neutralb[M_jetmaxcount];
+    Float_t ak5pfjet_alla[M_jetmaxcount];
+    Float_t ak5pfjet_allb[M_jetmaxcount];
+    Float_t ak5pfjet_chargedfractionmv[M_jetmaxcount];
+    Float_t ak5pfjet_energycorr[M_jetmaxcount];
+    Float_t ak5pfjet_energycorrunc[M_jetmaxcount];
+    Float_t ak5pfjet_energycorrl7uds[M_jetmaxcount];
+    Float_t ak5pfjet_energycorrl7bottom[M_jetmaxcount];
+    Float_t ak5pfjet_puidfull[M_jetmaxcount];
+    Float_t ak5pfjet_puidsimple[M_jetmaxcount];
+    Float_t ak5pfjet_puidcutbased[M_jetmaxcount];
+    Float_t ak5pfjet_btag[M_jetmaxcount][M_btagmax];
+    UInt_t ak5pfjet_trigger[M_jetmaxcount];
+    Int_t ak5pfjet_mcflavour[M_jetmaxcount];
 
-    UInt_t ak4pfchsjet_count;
-    Float_t ak4pfchsjet_e[M_jetmaxcount];
-    Float_t ak4pfchsjet_px[M_jetmaxcount];
-    Float_t ak4pfchsjet_py[M_jetmaxcount];
-    Float_t ak4pfchsjet_pz[M_jetmaxcount];
-    Float_t ak4pfchsjet_area[M_jetmaxcount];
-    Float_t ak4pfchsjet_hadronicenergy[M_jetmaxcount];
-    Float_t ak4pfchsjet_chargedhadronicenergy[M_jetmaxcount];
-    Float_t ak4pfchsjet_emenergy[M_jetmaxcount];
-    Float_t ak4pfchsjet_chargedemenergy[M_jetmaxcount];
-    Float_t ak4pfchsjet_hfemenergy[M_jetmaxcount];
-    Float_t ak4pfchsjet_hfhadronicenergy[M_jetmaxcount];
-    Float_t ak4pfchsjet_electronenergy[M_jetmaxcount];
-    Float_t ak4pfchsjet_muonenergy[M_jetmaxcount];
-    UInt_t ak4pfchsjet_chargedmulti[M_jetmaxcount];
-    UInt_t ak4pfchsjet_neutralmulti[M_jetmaxcount];
-    UInt_t ak4pfchsjet_hfhadronicmulti[M_jetmaxcount];
-    UInt_t ak4pfchsjet_hfemmulti[M_jetmaxcount];
-    UInt_t ak4pfchsjet_electronmulti[M_jetmaxcount];
-    UInt_t ak4pfchsjet_muonmulti[M_jetmaxcount];
-    Float_t ak4pfchsjet_chargeda[M_jetmaxcount];
-    Float_t ak4pfchsjet_chargedb[M_jetmaxcount];
-    Float_t ak4pfchsjet_neutrala[M_jetmaxcount];
-    Float_t ak4pfchsjet_neutralb[M_jetmaxcount];
-    Float_t ak4pfchsjet_alla[M_jetmaxcount];
-    Float_t ak4pfchsjet_allb[M_jetmaxcount];
-    Float_t ak4pfchsjet_chargedfractionmv[M_jetmaxcount];
-    Float_t ak4pfchsjet_energycorr[M_jetmaxcount];
-    Float_t ak4pfchsjet_energycorrunc[M_jetmaxcount];
-    Float_t ak4pfchsjet_energycorrl7uds[M_jetmaxcount];
-    Float_t ak4pfchsjet_energycorrl7bottom[M_jetmaxcount];
-    Float_t ak4pfchsjet_btag[M_jetmaxcount][M_btagmax];
-    UInt_t ak4pfchsjet_trigger[M_jetmaxcount];
-    Int_t ak4pfchsjet_mcflavour[M_jetmaxcount];
+    UInt_t ak5pfchsjet_count;
+    Float_t ak5pfchsjet_e[M_jetmaxcount];
+    Float_t ak5pfchsjet_px[M_jetmaxcount];
+    Float_t ak5pfchsjet_py[M_jetmaxcount];
+    Float_t ak5pfchsjet_pz[M_jetmaxcount];
+    Float_t ak5pfchsjet_area[M_jetmaxcount];
+    Float_t ak5pfchsjet_hadronicenergy[M_jetmaxcount];
+    Float_t ak5pfchsjet_chargedhadronicenergy[M_jetmaxcount];
+    Float_t ak5pfchsjet_emenergy[M_jetmaxcount];
+    Float_t ak5pfchsjet_chargedemenergy[M_jetmaxcount];
+    Float_t ak5pfchsjet_hfemenergy[M_jetmaxcount];
+    Float_t ak5pfchsjet_hfhadronicenergy[M_jetmaxcount];
+    Float_t ak5pfchsjet_electronenergy[M_jetmaxcount];
+    Float_t ak5pfchsjet_muonenergy[M_jetmaxcount];
+    UInt_t ak5pfchsjet_chargedmulti[M_jetmaxcount];
+    UInt_t ak5pfchsjet_neutralmulti[M_jetmaxcount];
+    UInt_t ak5pfchsjet_hfhadronicmulti[M_jetmaxcount];
+    UInt_t ak5pfchsjet_hfemmulti[M_jetmaxcount];
+    UInt_t ak5pfchsjet_electronmulti[M_jetmaxcount];
+    UInt_t ak5pfchsjet_muonmulti[M_jetmaxcount];
+    Float_t ak5pfchsjet_chargeda[M_jetmaxcount];
+    Float_t ak5pfchsjet_chargedb[M_jetmaxcount];
+    Float_t ak5pfchsjet_neutrala[M_jetmaxcount];
+    Float_t ak5pfchsjet_neutralb[M_jetmaxcount];
+    Float_t ak5pfchsjet_alla[M_jetmaxcount];
+    Float_t ak5pfchsjet_allb[M_jetmaxcount];
+    Float_t ak5pfchsjet_chargedfractionmv[M_jetmaxcount];
+    Float_t ak5pfchsjet_energycorr[M_jetmaxcount];
+    Float_t ak5pfchsjet_energycorrunc[M_jetmaxcount];
+    Float_t ak5pfchsjet_energycorrl7uds[M_jetmaxcount];
+    Float_t ak5pfchsjet_energycorrl7bottom[M_jetmaxcount];
+    Float_t ak5pfchsjet_btag[M_jetmaxcount][M_btagmax];
+    UInt_t ak5pfchsjet_trigger[M_jetmaxcount];
+    Int_t ak5pfchsjet_mcflavour[M_jetmaxcount];
 
     UInt_t electron_count;
     Int_t electron_vtx[M_electronmaxcount];
@@ -692,7 +682,7 @@ private:
     UChar_t electron_npixelhits[M_electronmaxcount];
     UChar_t electron_npixellayers[M_electronmaxcount];
     UChar_t electron_nstriplayers[M_electronmaxcount];
-    //UChar_t electron_nhitsexpected[M_electronmaxcount];
+    UChar_t electron_nhitsexpected[M_electronmaxcount];
     Float_t electron_dxy[M_electronmaxcount];
     Float_t electron_dxyerr[M_electronmaxcount];
     Float_t electron_dz[M_electronmaxcount];
@@ -847,17 +837,17 @@ private:
     Float_t tau_calocomp[M_taumaxcount];
     Float_t tau_segcomp[M_taumaxcount];
     UInt_t tau_trigger[M_taumaxcount];
-    Float_t tau_ak4pfjet_e[M_taumaxcount];
-    Float_t tau_ak4pfjet_px[M_taumaxcount];
-    Float_t tau_ak4pfjet_py[M_taumaxcount];
-    Float_t tau_ak4pfjet_pz[M_taumaxcount];
-    Float_t tau_ak4pfjet_hadronicenergy[M_taumaxcount];
-    Float_t tau_ak4pfjet_chargedhadronicenergy[M_taumaxcount];
-    Float_t tau_ak4pfjet_emenergy[M_taumaxcount];
-    Float_t tau_ak4pfjet_chargedemenergy[M_taumaxcount];
-    UInt_t tau_ak4pfjet_chargedmulti[M_taumaxcount];
-    UInt_t tau_ak4pfjet_neutralmulti[M_taumaxcount];
-    UInt_t tau_ak4pfjet_trigger[M_taumaxcount];
+    Float_t tau_ak5pfjet_e[M_taumaxcount];
+    Float_t tau_ak5pfjet_px[M_taumaxcount];
+    Float_t tau_ak5pfjet_py[M_taumaxcount];
+    Float_t tau_ak5pfjet_pz[M_taumaxcount];
+    Float_t tau_ak5pfjet_hadronicenergy[M_taumaxcount];
+    Float_t tau_ak5pfjet_chargedhadronicenergy[M_taumaxcount];
+    Float_t tau_ak5pfjet_emenergy[M_taumaxcount];
+    Float_t tau_ak5pfjet_chargedemenergy[M_taumaxcount];
+    UInt_t tau_ak5pfjet_chargedmulti[M_taumaxcount];
+    UInt_t tau_ak5pfjet_neutralmulti[M_taumaxcount];
+    UInt_t tau_ak5pfjet_trigger[M_taumaxcount];
     UInt_t tau_chargedbegin[M_taumaxcount];
     UInt_t tau_charged_count;
     Float_t tau_charged_px[M_taumaxcount*10];
@@ -883,8 +873,8 @@ private:
     UChar_t tau_charged_npixellayers[M_taumaxcount*10];
     UChar_t tau_charged_nstriplayers[M_taumaxcount*10];
 
-    Float_t ak4pfjet_rho;
-    Float_t ak4pfjet_sigma;
+    Float_t ak5pfjet_rho;
+    Float_t ak5pfjet_sigma;
 
     Float_t pfmet_ex;
     Float_t pfmet_ey;
@@ -966,14 +956,14 @@ private:
     Float_t genmettrue_ex;
     Float_t genmettrue_ey;
 
-    UInt_t genak4jet_count;
-    Float_t genak4jet_e[M_genjetmaxcount];
-    Float_t genak4jet_px[M_genjetmaxcount];
-    Float_t genak4jet_py[M_genjetmaxcount];
-    Float_t genak4jet_pz[M_genjetmaxcount];
-    Float_t genak4jet_einvisible[M_genjetmaxcount];
-    Int_t genak4jet_flavour[M_genjetmaxcount];
-    UInt_t genak4jet_info[M_genjetmaxcount];
+    UInt_t genak5jet_count;
+    Float_t genak5jet_e[M_genjetmaxcount];
+    Float_t genak5jet_px[M_genjetmaxcount];
+    Float_t genak5jet_py[M_genjetmaxcount];
+    Float_t genak5jet_pz[M_genjetmaxcount];
+    Float_t genak5jet_einvisible[M_genjetmaxcount];
+    Int_t genak5jet_flavour[M_genjetmaxcount];
+    UInt_t genak5jet_info[M_genjetmaxcount];
 
     UInt_t genparticles_count;
     Float_t genparticles_e[M_genparticlesmaxcount];
