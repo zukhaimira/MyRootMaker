@@ -222,16 +222,8 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 
 postfix = "PFlow"
 
-
-
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
-process.source.fileNames = filesRelValProdTTbarAODSIM
-
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
-
-
-
 
 usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=False, postfix=postfix,
     #jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),
