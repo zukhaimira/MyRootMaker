@@ -3150,6 +3150,8 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
                 electron_nstriplayers[electron_count]   = (gsfTr_e->hitPattern()).stripLayersWithMeasurement();
 	
        //         electron_nhitsexpected[electron_count] = gsfTr_e->trackerExpectedHitsInner().numberOfHits();
+                //electron_nhitsexpected[electron_count] = gsfTr_e->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                electron_nhitsexpected[electron_count] = gsfTr_e->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
 
                 electron_dxy[electron_count]           = gsfTr_e->dxy(pv_position);
                 electron_dxyerr[electron_count]           = gsfTr_e->dxyError();
