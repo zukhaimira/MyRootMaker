@@ -8,7 +8,7 @@ process.source.fileNames = cms.untracked.vstring(
 
 # also overridden by crab.cfg
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(500)
 )
 
 #process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))

@@ -91,9 +91,6 @@ process.kt6PFJets.voronoiRfact = 0.9
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 process.load("JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi")
-#process.load('JetMETCorrections.Type1MET.pfMETCorrections_cff')
-
-
 
 #process.pfJetMETcorr.jetCorrLabel = cms.string("ak4PFL1FastL2L3") #MC
 #from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1CorrectedMet
@@ -109,6 +106,10 @@ process.load("JetMETCorrections.Type1MET.correctedMet_cff")
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 pfMetT1seq = pfMetT1.clone (
     src = cms.InputTag('ak4PFJets'),
+    srcType1Corrections = cms.VInputTag(
+        cms.InputTag('pfMETcorrType0'),
+        cms.InputTag('pfJetMETcorr', 'type1')
+    ),
     offsetCorrLabel = cms.string("ak4PFL1Fastjet"),
     jetCorrLabel = cms.string("ak4PFL1FastL2L3"), # NOTE: use "ak4PFL1FastL2L3" for MC / "ak4PFL1FastL2L3Residual" for Data
     jetCorrEtaMax = cms.double(9.9),
@@ -116,7 +117,6 @@ pfMetT1seq = pfMetT1.clone (
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
-    skipMuonSelection = cms.string("isGlobalMuon | isStandAloneMuon")
 )
 process.metAnalysisSequence=cms.Sequence(process.pfMetT1)
 process.jet_step = cms.Path(process.kt6PFJets*process.metAnalysisSequence)
@@ -126,19 +126,10 @@ process.load('CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff')
 from CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff import *
 from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
 
-# NEW STUFF ##################
-process.stdElectronSequencePFIso = setupPFElectronIso(process, 'gedGsfElectrons')#'gsfElectrons')
-process.stdPhotonSequencePFIso = setupPFPhotonIso(process, 'photons')
-process.pfiso_step = cms.Path( process.pfParticleSelectionSequence +
-                               process.stdElectronSequencePFIso +
-                               process.stdPhotonSequencePFIso)
-##############################
+process.stdElectronSequencePFIso = setupPFElectronIso(process, 'gedGsfElectrons')
+process.stdPhotonSequencePFIso = setupPFPhotonIso(process, 'gedPhotons')
+process.pfiso_step = cms.Path( process.pfParticleSelectionSequence + process.stdElectronSequencePFIso + process.stdPhotonSequencePFIso)
 
-# OLD STUFF #########################
-#process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
-#process.phoIsoSequence = setupPFPhotonIso(process, 'photons')
-#process.pfiso_step = cms.Path( process.pfParticleSelectionSequence + process.eleIsoSequence + process.phoIsoSequence)
-#####################################
 
 ######Electron ID
 process.load("RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06_cfi")
@@ -183,30 +174,34 @@ process.pfPileUpPFlow.checkClosestZVertex = False
 #
 #from RecoJets.JetProducers.puJetIDAlgo_cff import * 
 #from RecoJets.JetProducers.puJetIDParams_cfi import * 
-#from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdProducer, _stdalgos_4x, _stdalgos_5x, _stdalgos, cutbased, _chsalgos_4x, _chsalgos_5x, _chsalgos 
+from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdProducer, _stdalgos_4x, _stdalgos_5x, _stdalgos, cutbased, _chsalgos_4x, _chsalgos_5x, _chsalgos 
 from RecoJets.JetProducers.PileupJetID_cfi import * 
 #process.load("RecoJets.JetProducers.PileupJetID_cfi")
 #process.load("RecoJets.JetProducers.puJetIDAlgo_cff")
 
 process.recoPuJetId = pileupJetIdProducer.clone(
-    runMvas = cms.bool(True),
-    algos = cms.VPSet(cutbased),
     jets = cms.InputTag("ak4PFJets"),
+    applyJec = cms.bool(True),
+    inputIsCorrected = cms.bool(False), 
+    produceJetIds = cms.bool(True),
+    jetids = cms.InputTag(""),
+    runMvas = cms.bool(False),
+    vertexes = cms.InputTag("offlinePrimaryVertices"),
+    algos = cms.VPSet(cutbased)
 )
 
-#process.recoPuJetMva = pileupJetIdProducer.clone(
-#    produceJetIds = cms.bool(False),
-#    #jetids = cms.InputTag("puJetId"),
-#    runMvas = cms.bool(True),
-#    #jets = cms.InputTag("selectedPatJets"),
-#    vertexes = cms.InputTag("offlinePrimaryVertices"),
-#    algos = _stdalgos,
-#    jets = cms.InputTag("ak4PFJets"),
-#    jetids = cms.InputTag("recoPuJetId"),
-#    applyJec = cms.bool(True),
-#    inputIsCorrected = cms.bool(False),                
-#)
-#
+process.recoPuJetMva = pileupJetIdProducer.clone(
+    jets = cms.InputTag("ak4PFJets"),
+    jetids = cms.InputTag("recoPuJetId"),
+    applyJec = cms.bool(True),
+    produceJetIds = cms.bool(False),
+    runMvas = cms.bool(True),
+    vertexes = cms.InputTag("offlinePrimaryVertices"),
+    algos = cms.VPSet(_stdalgos),
+    inputIsCorrected = cms.bool(True),                                     
+)
+
+
 #process.recoPuJetIdSequence = cms.Sequence(process.recoPuJetId * process.recoPuJetMva)
 process.recoPuJetIdSequence = cms.Sequence(process.recoPuJetId)
 process.jetpuid_step = cms.Path(process.recoPuJetIdSequence)
