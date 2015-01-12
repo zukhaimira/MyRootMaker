@@ -16,7 +16,7 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     isMiniAOD(iConfig.getUntrackedParameter<bool> ("isMiniAOD", false)),
     cgen(iConfig.getUntrackedParameter<bool> ("GenSomeParticles", false)),
     cgenallparticles(iConfig.getUntrackedParameter<bool> ("GenAllParticles", false)),
-    cgenak5jets(iConfig.getUntrackedParameter<bool> ("GenAK5Jets", false)),
+    cgenak4jets(iConfig.getUntrackedParameter<bool> ("GenAK4Jets", false)),
     ctrigger(iConfig.getUntrackedParameter<bool> ("Trigger", false)),
     cbeamspot(iConfig.getUntrackedParameter<bool> ("RecBeamSpot", false)),
     crectrack(iConfig.getUntrackedParameter<bool> ("RecTrack", false)),
@@ -31,10 +31,10 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     crecelectron(iConfig.getUntrackedParameter<bool> ("RecElectron", false)),
     crecphoton(iConfig.getUntrackedParameter<bool> ("RecPhoton", false)),
     crecallconversion(iConfig.getUntrackedParameter<bool> ("RecAllConversion", false)),
-    crecak5calojet(iConfig.getUntrackedParameter<bool> ("RecAK5CaloJet", false)),
-    crecak5jptjet(iConfig.getUntrackedParameter<bool> ("RecAK5JPTJet", false)),
-    crecak5pfjet(iConfig.getUntrackedParameter<bool> ("RecAK5PFJet", false)),
-    crecak5pfchsjet(iConfig.getUntrackedParameter<bool> ("RecAK5PFCHSJet", false)),
+    crecak4calojet(iConfig.getUntrackedParameter<bool> ("RecAK4CaloJet", false)),
+    crecak4jptjet(iConfig.getUntrackedParameter<bool> ("RecAK4JPTJet", false)),
+    crecak4pfjet(iConfig.getUntrackedParameter<bool> ("RecAK4PFJet", false)),
+    crecak4pfchsjet(iConfig.getUntrackedParameter<bool> ("RecAK4PFCHSJet", false)),
     crecpfmet(iConfig.getUntrackedParameter<bool> ("RecPFMet", false)),
     crecsecvertices(iConfig.getUntrackedParameter<bool> ("RecSecVertices", false)),
     crecmusecvertices(iConfig.getUntrackedParameter<bool> ("RecMuSecVertices", false)),
@@ -67,22 +67,22 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     cPhotonNum(iConfig.getUntrackedParameter<int> ("RecPhotonNum", 0)),
     cPhotonFilterPtMin(iConfig.getUntrackedParameter<double> ("RecPhotonFilterPtMin", 0.)),
     cPhotonFilterEtaMax(iConfig.getUntrackedParameter<double> ("RecPhotonFilterEtaMax", 1000000.)),
-    cAK5CaloFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK5CaloFilterPtMin", 0.)),
-    cAK5CaloPtMin(iConfig.getUntrackedParameter<double> ("RecAK5CaloPtMin", 0.)),
-    cAK5CaloEtaMax(iConfig.getUntrackedParameter<double> ("RecAK5CaloEtaMax", 1000000.)),
-    cAK5CaloNum(iConfig.getUntrackedParameter<int> ("RecAK5CaloNum", 0)),
-    cAK5JPTFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK5JPTFilterPtMin", 0.)),
-    cAK5JPTPtMin(iConfig.getUntrackedParameter<double> ("RecAK5JPTPtMin", 0.)),
-    cAK5JPTEtaMax(iConfig.getUntrackedParameter<double> ("RecAK5JPTEtaMax", 1000000.)),
-    cAK5JPTNum(iConfig.getUntrackedParameter<int> ("RecAK5JPTNum", 0)),
-    cAK5PFCHSFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK5PFCHSFilterPtMin", 0.)),
-    cAK5PFCHSPtMin(iConfig.getUntrackedParameter<double> ("RecAK5PFCHSPtMin", 0.)),
-    cAK5PFCHSEtaMax(iConfig.getUntrackedParameter<double> ("RecAK5PFCHSEtaMax", 1000000.)),
-    cAK5PFCHSNum(iConfig.getUntrackedParameter<int> ("RecAK5PFCHSNum", 0)),
-    cAK5PFFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK5PFFilterPtMin", 0.)),
-    cAK5PFPtMin(iConfig.getUntrackedParameter<double> ("RecAK5PFPtMin", 0.)),
-    cAK5PFEtaMax(iConfig.getUntrackedParameter<double> ("RecAK5PFEtaMax", 1000000.)),
-    cAK5PFNum(iConfig.getUntrackedParameter<int> ("RecAK5PFNum", 0)),
+    cAK4CaloFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4CaloFilterPtMin", 0.)),
+    cAK4CaloPtMin(iConfig.getUntrackedParameter<double> ("RecAK4CaloPtMin", 0.)),
+    cAK4CaloEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4CaloEtaMax", 1000000.)),
+    cAK4CaloNum(iConfig.getUntrackedParameter<int> ("RecAK4CaloNum", 0)),
+    cAK4JPTFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4JPTFilterPtMin", 0.)),
+    cAK4JPTPtMin(iConfig.getUntrackedParameter<double> ("RecAK4JPTPtMin", 0.)),
+    cAK4JPTEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4JPTEtaMax", 1000000.)),
+    cAK4JPTNum(iConfig.getUntrackedParameter<int> ("RecAK4JPTNum", 0)),
+    cAK4PFCHSFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSFilterPtMin", 0.)),
+    cAK4PFCHSPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSPtMin", 0.)),
+    cAK4PFCHSEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSEtaMax", 1000000.)),
+    cAK4PFCHSNum(iConfig.getUntrackedParameter<int> ("RecAK4PFCHSNum", 0)),
+    cAK4PFFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFFilterPtMin", 0.)),
+    cAK4PFPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFPtMin", 0.)),
+    cAK4PFEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4PFEtaMax", 1000000.)),
+    cAK4PFNum(iConfig.getUntrackedParameter<int> ("RecAK4PFNum", 0)),
     cJetCorrection(iConfig.getUntrackedParameter<string> ("JetCorrection", "L1FastL2L3Residual")),
     cJetHLTriggerMatching(iConfig.getUntrackedParameter<vector<string> > ("RecJetHLTriggerMatching")),
     cMassMuMuMin(iConfig.getUntrackedParameter<double> ("RecMassMuMuMin", 0.)),
@@ -316,112 +316,112 @@ void RootMaker::beginJob() {
     tree->Branch("muon_trigger", muon_trigger, "muon_trigger[muon_count]/i");
     tree->Branch("muon_trackermuonquality", muon_trackermuonquality, "muon_trackermuonquality[muon_count]/i");
 
-    tree->Branch("ak5calojet_count", &ak5calojet_count, "ak5calojet_count/i");
-    tree->Branch("ak5calojet_e", ak5calojet_e, "ak5calojet_e[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_px", ak5calojet_px, "ak5calojet_px[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_py", ak5calojet_py, "ak5calojet_py[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_pz", ak5calojet_pz, "ak5calojet_pz[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_hadronicenergy", ak5calojet_hadronicenergy, "ak5calojet_hadronicenergy[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_emenergy", ak5calojet_emenergy, "ak5calojet_emenergy[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_energycorr", ak5calojet_energycorr, "ak5calojet_energycorr[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_energycorrl7uds", ak5calojet_energycorrl7uds, "ak5calojet_energycorrl7uds[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_energycorrl7bottom", ak5calojet_energycorrl7bottom, "ak5calojet_energycorrl7bottom[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_fhpd", ak5calojet_fhpd, "ak5calojet_fhpd[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_restrictedemf", ak5calojet_restrictedemf, "ak5calojet_restrictedemf[ak5calojet_count]/F");
-    tree->Branch("ak5calojet_btag", ak5calojet_btag, "ak5calojet_btag[ak5calojet_count][4]/F");
-    tree->Branch("ak5calojet_n90", ak5calojet_n90, "ak5calojet_n90[ak5calojet_count]/i");
-    tree->Branch("ak5calojet_n60", ak5calojet_n60, "ak5calojet_n60[ak5calojet_count]/i");
+    tree->Branch("ak4calojet_count", &ak4calojet_count, "ak4calojet_count/i");
+    tree->Branch("ak4calojet_e", ak4calojet_e, "ak4calojet_e[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_px", ak4calojet_px, "ak4calojet_px[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_py", ak4calojet_py, "ak4calojet_py[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_pz", ak4calojet_pz, "ak4calojet_pz[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_hadronicenergy", ak4calojet_hadronicenergy, "ak4calojet_hadronicenergy[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_emenergy", ak4calojet_emenergy, "ak4calojet_emenergy[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_energycorr", ak4calojet_energycorr, "ak4calojet_energycorr[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_energycorrl7uds", ak4calojet_energycorrl7uds, "ak4calojet_energycorrl7uds[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_energycorrl7bottom", ak4calojet_energycorrl7bottom, "ak4calojet_energycorrl7bottom[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_fhpd", ak4calojet_fhpd, "ak4calojet_fhpd[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_restrictedemf", ak4calojet_restrictedemf, "ak4calojet_restrictedemf[ak4calojet_count]/F");
+    tree->Branch("ak4calojet_btag", ak4calojet_btag, "ak4calojet_btag[ak4calojet_count][4]/F");
+    tree->Branch("ak4calojet_n90", ak4calojet_n90, "ak4calojet_n90[ak4calojet_count]/i");
+    tree->Branch("ak4calojet_n60", ak4calojet_n60, "ak4calojet_n60[ak4calojet_count]/i");
 
-    tree->Branch("ak5jptjet_count", &ak5jptjet_count, "ak5jptjet_count/i");
-    tree->Branch("ak5jptjet_e", ak5jptjet_e, "ak5jptjet_e[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_px", ak5jptjet_px, "ak5jptjet_px[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_py", ak5jptjet_py, "ak5jptjet_py[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_pz", ak5jptjet_pz, "ak5jptjet_pz[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_hadronicenergy", ak5jptjet_hadronicenergy, "ak5jptjet_hadronicenergy[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_chargedhadronicenergy", ak5jptjet_chargedhadronicenergy, "ak5jptjet_chargedhadronicenergy[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_emenergy", ak5jptjet_emenergy, "ak5jptjet_emenergy[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_chargedemenergy", ak5jptjet_chargedemenergy, "ak5jptjet_chargedemenergy[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_chargedmulti", ak5jptjet_chargedmulti, "ak5jptjet_chargedmulti[ak5jptjet_count]/i");
-    tree->Branch("ak5jptjet_energycorr", ak5jptjet_energycorr, "ak5jptjet_energycorr[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_energycorrl7uds", ak5jptjet_energycorrl7uds, "ak5jptjet_energycorrl7uds[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_energycorrl7bottom", ak5jptjet_energycorrl7bottom, "ak5jptjet_energycorrl7bottom[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_fhpd", ak5jptjet_fhpd, "ak5jptjet_fhpd[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_restrictedemf", ak5jptjet_restrictedemf, "ak5jptjet_restrictedemf[ak5jptjet_count]/F");
-    tree->Branch("ak5jptjet_btag", ak5jptjet_btag, "ak5jptjet_btag[ak5jptjet_count][4]/F");
-    tree->Branch("ak5jptjet_n90", ak5jptjet_n90, "ak5jptjet_n90[ak5jptjet_count]/i");
+    tree->Branch("ak4jptjet_count", &ak4jptjet_count, "ak4jptjet_count/i");
+    tree->Branch("ak4jptjet_e", ak4jptjet_e, "ak4jptjet_e[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_px", ak4jptjet_px, "ak4jptjet_px[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_py", ak4jptjet_py, "ak4jptjet_py[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_pz", ak4jptjet_pz, "ak4jptjet_pz[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_hadronicenergy", ak4jptjet_hadronicenergy, "ak4jptjet_hadronicenergy[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_chargedhadronicenergy", ak4jptjet_chargedhadronicenergy, "ak4jptjet_chargedhadronicenergy[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_emenergy", ak4jptjet_emenergy, "ak4jptjet_emenergy[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_chargedemenergy", ak4jptjet_chargedemenergy, "ak4jptjet_chargedemenergy[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_chargedmulti", ak4jptjet_chargedmulti, "ak4jptjet_chargedmulti[ak4jptjet_count]/i");
+    tree->Branch("ak4jptjet_energycorr", ak4jptjet_energycorr, "ak4jptjet_energycorr[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_energycorrl7uds", ak4jptjet_energycorrl7uds, "ak4jptjet_energycorrl7uds[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_energycorrl7bottom", ak4jptjet_energycorrl7bottom, "ak4jptjet_energycorrl7bottom[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_fhpd", ak4jptjet_fhpd, "ak4jptjet_fhpd[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_restrictedemf", ak4jptjet_restrictedemf, "ak4jptjet_restrictedemf[ak4jptjet_count]/F");
+    tree->Branch("ak4jptjet_btag", ak4jptjet_btag, "ak4jptjet_btag[ak4jptjet_count][4]/F");
+    tree->Branch("ak4jptjet_n90", ak4jptjet_n90, "ak4jptjet_n90[ak4jptjet_count]/i");
 
-    tree->Branch("ak5pfjet_count", &ak5pfjet_count, "ak5pfjet_count/i");
-    tree->Branch("ak5pfjet_e", ak5pfjet_e, "ak5pfjet_e[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_px", ak5pfjet_px, "ak5pfjet_px[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_py", ak5pfjet_py, "ak5pfjet_py[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_pz", ak5pfjet_pz, "ak5pfjet_pz[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_area", ak5pfjet_area, "ak5pfjet_area[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_hadronicenergy", ak5pfjet_hadronicenergy, "ak5pfjet_hadronicenergy[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_chargedhadronicenergy", ak5pfjet_chargedhadronicenergy, "ak5pfjet_chargedhadronicenergy[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_emenergy", ak5pfjet_emenergy, "ak5pfjet_emenergy[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_chargedemenergy", ak5pfjet_chargedemenergy, "ak5pfjet_chargedemenergy[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_hfhadronicenergy", ak5pfjet_hfhadronicenergy, "ak5pfjet_hfhadronicenergy[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_hfemenergy", ak5pfjet_hfemenergy, "ak5pfjet_hfemenergy[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_electronenergy", ak5pfjet_electronenergy, "ak5pfjet_electronenergy[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_muonenergy", ak5pfjet_muonenergy, "ak5pfjet_muonenergy[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_chargedmulti", ak5pfjet_chargedmulti, "ak5pfjet_chargedmulti[ak5pfjet_count]/i");
-    tree->Branch("ak5pfjet_neutralmulti", ak5pfjet_neutralmulti, "ak5pfjet_neutralmulti[ak5pfjet_count]/i");
-    tree->Branch("ak5pfjet_hfhadronicmulti", ak5pfjet_hfhadronicmulti, "ak5pfjet_hfhadronicmulti[ak5pfjet_count]/i");
-    tree->Branch("ak5pfjet_hfemmulti", ak5pfjet_hfemmulti, "ak5pfjet_hfemmulti[ak5pfjet_count]/i");
-    tree->Branch("ak5pfjet_electronmulti", ak5pfjet_electronmulti, "ak5pfjet_electronmulti[ak5pfjet_count]/i");
-    tree->Branch("ak5pfjet_muonmulti", ak5pfjet_muonmulti, "ak5pfjet_muonmulti[ak5pfjet_count]/i");
-    tree->Branch("ak5pfjet_chargeda", ak5pfjet_chargeda, "ak5pfjet_chargeda[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_chargedb", ak5pfjet_chargedb, "ak5pfjet_chargedb[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_neutrala", ak5pfjet_neutrala, "ak5pfjet_neutrala[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_neutralb", ak5pfjet_neutralb, "ak5pfjet_neutralb[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_alla", ak5pfjet_alla, "ak5pfjet_alla[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_allb", ak5pfjet_allb, "ak5pfjet_allb[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_chargedfractionmv", ak5pfjet_chargedfractionmv, "ak5pfjet_chargedfractionmv[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_energycorr", ak5pfjet_energycorr, "ak5pfjet_energycorr[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_energycorrunc", ak5pfjet_energycorrunc, "ak5pfjet_energycorrunc[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_energycorrl7uds", ak5pfjet_energycorrl7uds, "ak5pfjet_energycorrl7uds[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_energycorrl7bottom", ak5pfjet_energycorrl7bottom, "ak5pfjet_energycorrl7bottom[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_puidfull", ak5pfjet_puidfull, "ak5pfjet_puidfull[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_puidsimple", ak5pfjet_puidsimple, "ak5pfjet_puidsimple[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_puidcutbased", ak5pfjet_puidcutbased, "ak5pfjet_puidcutbased[ak5pfjet_count]/F");
-    tree->Branch("ak5pfjet_btag", ak5pfjet_btag, "ak5pfjet_btag[ak5pfjet_count][6]/F");
-    tree->Branch("ak5pfjet_trigger", ak5pfjet_trigger, "ak5pfjet_trigger[ak5pfjet_count]/i");
-    tree->Branch("ak5pfjet_mcflavour", ak5pfjet_mcflavour, "ak5pfjet_mcflavour[ak5pfjet_count]/I");
+    tree->Branch("ak4pfjet_count", &ak4pfjet_count, "ak4pfjet_count/i");
+    tree->Branch("ak4pfjet_e", ak4pfjet_e, "ak4pfjet_e[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_px", ak4pfjet_px, "ak4pfjet_px[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_py", ak4pfjet_py, "ak4pfjet_py[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_pz", ak4pfjet_pz, "ak4pfjet_pz[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_area", ak4pfjet_area, "ak4pfjet_area[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_hadronicenergy", ak4pfjet_hadronicenergy, "ak4pfjet_hadronicenergy[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_chargedhadronicenergy", ak4pfjet_chargedhadronicenergy, "ak4pfjet_chargedhadronicenergy[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_emenergy", ak4pfjet_emenergy, "ak4pfjet_emenergy[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_chargedemenergy", ak4pfjet_chargedemenergy, "ak4pfjet_chargedemenergy[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_hfhadronicenergy", ak4pfjet_hfhadronicenergy, "ak4pfjet_hfhadronicenergy[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_hfemenergy", ak4pfjet_hfemenergy, "ak4pfjet_hfemenergy[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_electronenergy", ak4pfjet_electronenergy, "ak4pfjet_electronenergy[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_muonenergy", ak4pfjet_muonenergy, "ak4pfjet_muonenergy[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_chargedmulti", ak4pfjet_chargedmulti, "ak4pfjet_chargedmulti[ak4pfjet_count]/i");
+    tree->Branch("ak4pfjet_neutralmulti", ak4pfjet_neutralmulti, "ak4pfjet_neutralmulti[ak4pfjet_count]/i");
+    tree->Branch("ak4pfjet_hfhadronicmulti", ak4pfjet_hfhadronicmulti, "ak4pfjet_hfhadronicmulti[ak4pfjet_count]/i");
+    tree->Branch("ak4pfjet_hfemmulti", ak4pfjet_hfemmulti, "ak4pfjet_hfemmulti[ak4pfjet_count]/i");
+    tree->Branch("ak4pfjet_electronmulti", ak4pfjet_electronmulti, "ak4pfjet_electronmulti[ak4pfjet_count]/i");
+    tree->Branch("ak4pfjet_muonmulti", ak4pfjet_muonmulti, "ak4pfjet_muonmulti[ak4pfjet_count]/i");
+    tree->Branch("ak4pfjet_chargeda", ak4pfjet_chargeda, "ak4pfjet_chargeda[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_chargedb", ak4pfjet_chargedb, "ak4pfjet_chargedb[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_neutrala", ak4pfjet_neutrala, "ak4pfjet_neutrala[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_neutralb", ak4pfjet_neutralb, "ak4pfjet_neutralb[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_alla", ak4pfjet_alla, "ak4pfjet_alla[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_allb", ak4pfjet_allb, "ak4pfjet_allb[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_chargedfractionmv", ak4pfjet_chargedfractionmv, "ak4pfjet_chargedfractionmv[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_energycorr", ak4pfjet_energycorr, "ak4pfjet_energycorr[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_energycorrunc", ak4pfjet_energycorrunc, "ak4pfjet_energycorrunc[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_energycorrl7uds", ak4pfjet_energycorrl7uds, "ak4pfjet_energycorrl7uds[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_energycorrl7bottom", ak4pfjet_energycorrl7bottom, "ak4pfjet_energycorrl7bottom[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_puidfull", ak4pfjet_puidfull, "ak4pfjet_puidfull[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_puidsimple", ak4pfjet_puidsimple, "ak4pfjet_puidsimple[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_puidcutbased", ak4pfjet_puidcutbased, "ak4pfjet_puidcutbased[ak4pfjet_count]/F");
+    tree->Branch("ak4pfjet_btag", ak4pfjet_btag, "ak4pfjet_btag[ak4pfjet_count][6]/F");
+    tree->Branch("ak4pfjet_trigger", ak4pfjet_trigger, "ak4pfjet_trigger[ak4pfjet_count]/i");
+    tree->Branch("ak4pfjet_mcflavour", ak4pfjet_mcflavour, "ak4pfjet_mcflavour[ak4pfjet_count]/I");
 
-    tree->Branch("ak5pfchsjet_count", &ak5pfchsjet_count, "ak5pfchsjet_count/i");
-    tree->Branch("ak5pfchsjet_e", ak5pfchsjet_e, "ak5pfchsjet_e[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_px", ak5pfchsjet_px, "ak5pfchsjet_px[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_py", ak5pfchsjet_py, "ak5pfchsjet_py[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_pz", ak5pfchsjet_pz, "ak5pfchsjet_pz[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_area", ak5pfchsjet_area, "ak5pfchsjet_area[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_hadronicenergy", ak5pfchsjet_hadronicenergy, "ak5pfchsjet_hadronicenergy[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_chargedhadronicenergy", ak5pfchsjet_chargedhadronicenergy, "ak5pfchsjet_chargedhadronicenergy[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_emenergy", ak5pfchsjet_emenergy, "ak5pfchsjet_emenergy[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_chargedemenergy", ak5pfchsjet_chargedemenergy, "ak5pfchsjet_chargedemenergy[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_hfhadronicenergy", ak5pfchsjet_hfhadronicenergy, "ak5pfchsjet_hfhadronicenergy[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_hfemenergy", ak5pfchsjet_hfemenergy, "ak5pfchsjet_hfemenergy[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_electronenergy", ak5pfchsjet_electronenergy, "ak5pfchsjet_electronenergy[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_muonenergy", ak5pfchsjet_muonenergy, "ak5pfchsjet_muonenergy[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_chargedmulti", ak5pfchsjet_chargedmulti, "ak5pfchsjet_chargedmulti[ak5pfchsjet_count]/i");
-    tree->Branch("ak5pfchsjet_neutralmulti", ak5pfchsjet_neutralmulti, "ak5pfchsjet_neutralmulti[ak5pfchsjet_count]/i");
-    tree->Branch("ak5pfchsjet_hfhadronicmulti", ak5pfchsjet_hfhadronicmulti, "ak5pfchsjet_hfhadronicmulti[ak5pfchsjet_count]/i");
-    tree->Branch("ak5pfchsjet_hfemmulti", ak5pfchsjet_hfemmulti, "ak5pfchsjet_hfemmulti[ak5pfchsjet_count]/i");
-    tree->Branch("ak5pfchsjet_electronmulti", ak5pfchsjet_electronmulti, "ak5pfchsjet_electronmulti[ak5pfchsjet_count]/i");
-    tree->Branch("ak5pfchsjet_muonmulti", ak5pfchsjet_muonmulti, "ak5pfchsjet_muonmulti[ak5pfchsjet_count]/i");
-    tree->Branch("ak5pfchsjet_energycorr", ak5pfchsjet_energycorr, "ak5pfchsjet_energycorr[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_chargeda", ak5pfchsjet_chargeda, "ak5pfchsjet_chargeda[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_chargedb", ak5pfchsjet_chargedb, "ak5pfchsjet_chargedb[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_neutrala", ak5pfchsjet_neutrala, "ak5pfchsjet_neutrala[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_neutralb", ak5pfchsjet_neutralb, "ak5pfchsjet_neutralb[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_alla", ak5pfchsjet_alla, "ak5pfchsjet_alla[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_allb", ak5pfchsjet_allb, "ak5pfchsjet_allb[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_chargedfractionmv", ak5pfchsjet_chargedfractionmv, "ak5pfchsjet_chargedfractionmv[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_energycorrunc", ak5pfchsjet_energycorrunc, "ak5pfchsjet_energycorrunc[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_energycorrl7uds", ak5pfchsjet_energycorrl7uds, "ak5pfchsjet_energycorrl7uds[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_energycorrl7bottom", ak5pfchsjet_energycorrl7bottom, "ak5pfchsjet_energycorrl7bottom[ak5pfchsjet_count]/F");
-    tree->Branch("ak5pfchsjet_btag", ak5pfchsjet_btag, "ak5pfchsjet_btag[ak5pfchsjet_count][6]/F");
-    tree->Branch("ak5pfchsjet_trigger", ak5pfchsjet_trigger, "ak5pfchsjet_trigger[ak5pfchsjet_count]/i");
-    tree->Branch("ak5pfchsjet_mcflavour", ak5pfchsjet_mcflavour, "ak5pfchsjet_mcflavour[ak5pfchsjet_count]/I");
+    tree->Branch("ak4pfchsjet_count", &ak4pfchsjet_count, "ak4pfchsjet_count/i");
+    tree->Branch("ak4pfchsjet_e", ak4pfchsjet_e, "ak4pfchsjet_e[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_px", ak4pfchsjet_px, "ak4pfchsjet_px[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_py", ak4pfchsjet_py, "ak4pfchsjet_py[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_pz", ak4pfchsjet_pz, "ak4pfchsjet_pz[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_area", ak4pfchsjet_area, "ak4pfchsjet_area[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_hadronicenergy", ak4pfchsjet_hadronicenergy, "ak4pfchsjet_hadronicenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargedhadronicenergy", ak4pfchsjet_chargedhadronicenergy, "ak4pfchsjet_chargedhadronicenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_emenergy", ak4pfchsjet_emenergy, "ak4pfchsjet_emenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargedemenergy", ak4pfchsjet_chargedemenergy, "ak4pfchsjet_chargedemenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_hfhadronicenergy", ak4pfchsjet_hfhadronicenergy, "ak4pfchsjet_hfhadronicenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_hfemenergy", ak4pfchsjet_hfemenergy, "ak4pfchsjet_hfemenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_electronenergy", ak4pfchsjet_electronenergy, "ak4pfchsjet_electronenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_muonenergy", ak4pfchsjet_muonenergy, "ak4pfchsjet_muonenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargedmulti", ak4pfchsjet_chargedmulti, "ak4pfchsjet_chargedmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_neutralmulti", ak4pfchsjet_neutralmulti, "ak4pfchsjet_neutralmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_hfhadronicmulti", ak4pfchsjet_hfhadronicmulti, "ak4pfchsjet_hfhadronicmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_hfemmulti", ak4pfchsjet_hfemmulti, "ak4pfchsjet_hfemmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_electronmulti", ak4pfchsjet_electronmulti, "ak4pfchsjet_electronmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_muonmulti", ak4pfchsjet_muonmulti, "ak4pfchsjet_muonmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_energycorr", ak4pfchsjet_energycorr, "ak4pfchsjet_energycorr[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargeda", ak4pfchsjet_chargeda, "ak4pfchsjet_chargeda[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargedb", ak4pfchsjet_chargedb, "ak4pfchsjet_chargedb[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_neutrala", ak4pfchsjet_neutrala, "ak4pfchsjet_neutrala[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_neutralb", ak4pfchsjet_neutralb, "ak4pfchsjet_neutralb[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_alla", ak4pfchsjet_alla, "ak4pfchsjet_alla[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_allb", ak4pfchsjet_allb, "ak4pfchsjet_allb[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargedfractionmv", ak4pfchsjet_chargedfractionmv, "ak4pfchsjet_chargedfractionmv[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_energycorrunc", ak4pfchsjet_energycorrunc, "ak4pfchsjet_energycorrunc[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_energycorrl7uds", ak4pfchsjet_energycorrl7uds, "ak4pfchsjet_energycorrl7uds[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_energycorrl7bottom", ak4pfchsjet_energycorrl7bottom, "ak4pfchsjet_energycorrl7bottom[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_btag", ak4pfchsjet_btag, "ak4pfchsjet_btag[ak4pfchsjet_count][6]/F");
+    tree->Branch("ak4pfchsjet_trigger", ak4pfchsjet_trigger, "ak4pfchsjet_trigger[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_mcflavour", ak4pfchsjet_mcflavour, "ak4pfchsjet_mcflavour[ak4pfchsjet_count]/I");
 
     tree->Branch("electron_count", &electron_count, "electron_count/i");
     tree->Branch("electron_vtx", electron_vtx, "electron_vtx[electron_count]/I");
@@ -623,17 +623,17 @@ void RootMaker::beginJob() {
     tree->Branch("tau_dishps", tau_dishps, "tau_dishps[tau_count]/i");
     tree->Branch("tau_trigger", tau_trigger, "tau_trigger[tau_count]/i");
 
-    tree->Branch("tau_ak5pfjet_e", tau_ak5pfjet_e, "tau_ak5pfjet_e[tau_count]/F");
-    tree->Branch("tau_ak5pfjet_px", tau_ak5pfjet_px, "tau_ak5pfjet_px[tau_count]/F");
-    tree->Branch("tau_ak5pfjet_py", tau_ak5pfjet_py, "tau_ak5pfjet_py[tau_count]/F");
-    tree->Branch("tau_ak5pfjet_pz", tau_ak5pfjet_pz, "tau_ak5pfjet_pz[tau_count]/F");
-    tree->Branch("tau_ak5pfjet_hadronicenergy", tau_ak5pfjet_hadronicenergy, "tau_ak5pfjet_hadronicenergy[tau_count]/F");
-    tree->Branch("tau_ak5pfjet_chargedhadronicenergy", tau_ak5pfjet_chargedhadronicenergy, "tau_ak5pfjet_chargedhadronicenergy[tau_count]/F");
-    tree->Branch("tau_ak5pfjet_emenergy", tau_ak5pfjet_emenergy, "tau_ak5pfjet_emenergy[tau_count]/F");
-    tree->Branch("tau_ak5pfjet_chargedemenergy", tau_ak5pfjet_chargedemenergy, "tau_ak5pfjet_chargedemenergy[tau_count]/F");
-    tree->Branch("tau_ak5pfjet_chargedmulti", tau_ak5pfjet_chargedmulti, "tau_ak5pfjet_chargedmulti[tau_count]/i");
-    tree->Branch("tau_ak5pfjet_neutralmulti", tau_ak5pfjet_neutralmulti, "tau_ak5pfjet_neutralmulti[tau_count]/i");
-    tree->Branch("tau_ak5pfjet_trigger", tau_ak5pfjet_trigger, "tau_ak5pfjet_trigger[tau_count]/i");
+    tree->Branch("tau_ak4pfjet_e", tau_ak4pfjet_e, "tau_ak4pfjet_e[tau_count]/F");
+    tree->Branch("tau_ak4pfjet_px", tau_ak4pfjet_px, "tau_ak4pfjet_px[tau_count]/F");
+    tree->Branch("tau_ak4pfjet_py", tau_ak4pfjet_py, "tau_ak4pfjet_py[tau_count]/F");
+    tree->Branch("tau_ak4pfjet_pz", tau_ak4pfjet_pz, "tau_ak4pfjet_pz[tau_count]/F");
+    tree->Branch("tau_ak4pfjet_hadronicenergy", tau_ak4pfjet_hadronicenergy, "tau_ak4pfjet_hadronicenergy[tau_count]/F");
+    tree->Branch("tau_ak4pfjet_chargedhadronicenergy", tau_ak4pfjet_chargedhadronicenergy, "tau_ak4pfjet_chargedhadronicenergy[tau_count]/F");
+    tree->Branch("tau_ak4pfjet_emenergy", tau_ak4pfjet_emenergy, "tau_ak4pfjet_emenergy[tau_count]/F");
+    tree->Branch("tau_ak4pfjet_chargedemenergy", tau_ak4pfjet_chargedemenergy, "tau_ak4pfjet_chargedemenergy[tau_count]/F");
+    tree->Branch("tau_ak4pfjet_chargedmulti", tau_ak4pfjet_chargedmulti, "tau_ak4pfjet_chargedmulti[tau_count]/i");
+    tree->Branch("tau_ak4pfjet_neutralmulti", tau_ak4pfjet_neutralmulti, "tau_ak4pfjet_neutralmulti[tau_count]/i");
+    tree->Branch("tau_ak4pfjet_trigger", tau_ak4pfjet_trigger, "tau_ak4pfjet_trigger[tau_count]/i");
     tree->Branch("tau_chargedbegin", tau_chargedbegin, "tau_chargedbegin[tau_count]/i");
     tree->Branch("tau_charged_count", &tau_charged_count, "tau_charged_count/i");
     tree->Branch("tau_charged_px", tau_charged_px, "tau_charged_px[tau_charged_count]/F");
@@ -659,8 +659,8 @@ void RootMaker::beginJob() {
     tree->Branch("tau_charged_npixellayers", tau_charged_npixellayers, "tau_charged_npixellayers[tau_charged_count]/b");
     tree->Branch("tau_charged_nstriplayers", tau_charged_nstriplayers, "tau_charged_nstriplayers[tau_charged_count]/b");
 
-    tree->Branch("ak5pfjet_rho", &ak5pfjet_rho, "ak5pfjet_rho/F");
-    tree->Branch("ak5pfjet_sigma", &ak5pfjet_sigma, "ak5pfjet_sigma/F");
+    tree->Branch("ak4pfjet_rho", &ak4pfjet_rho, "ak4pfjet_rho/F");
+    tree->Branch("ak4pfjet_sigma", &ak4pfjet_sigma, "ak4pfjet_sigma/F");
 
     tree->Branch("pfmet_ex", &pfmet_ex, "pfmet_ex/F");
     tree->Branch("pfmet_ey", &pfmet_ey, "pfmet_ey/F");
@@ -772,14 +772,14 @@ void RootMaker::beginJob() {
     tree->Branch("genmettrue_ex", &genmettrue_ex, "genmettrue_ex/F");
     tree->Branch("genmettrue_ey", &genmettrue_ey, "genmettrue_ey/F");
 
-    tree->Branch("genak5jet_count", &genak5jet_count, "genak5jet_count/i");
-    tree->Branch("genak5jet_e", genak5jet_e, "genak5jet_e[genak5jet_count]/F");
-    tree->Branch("genak5jet_px", genak5jet_px, "genak5jet_px[genak5jet_count]/F");
-    tree->Branch("genak5jet_py", genak5jet_py, "genak5jet_py[genak5jet_count]/F");
-    tree->Branch("genak5jet_pz", genak5jet_pz, "genak5jet_pz[genak5jet_count]/F");
-    tree->Branch("genak5jet_einvisible", genak5jet_einvisible, "genak5jet_einvisible[genak5jet_count]/F");
-    tree->Branch("genak5jet_flavour", genak5jet_flavour, "genak5jet_flavour[genak5jet_count]/I");
-    tree->Branch("genak5jet_info", genak5jet_info, "genak5jet_info[genak5jet_count]/i");
+    tree->Branch("genak4jet_count", &genak4jet_count, "genak4jet_count/i");
+    tree->Branch("genak4jet_e", genak4jet_e, "genak4jet_e[genak4jet_count]/F");
+    tree->Branch("genak4jet_px", genak4jet_px, "genak4jet_px[genak4jet_count]/F");
+    tree->Branch("genak4jet_py", genak4jet_py, "genak4jet_py[genak4jet_count]/F");
+    tree->Branch("genak4jet_pz", genak4jet_pz, "genak4jet_pz[genak4jet_count]/F");
+    tree->Branch("genak4jet_einvisible", genak4jet_einvisible, "genak4jet_einvisible[genak4jet_count]/F");
+    tree->Branch("genak4jet_flavour", genak4jet_flavour, "genak4jet_flavour[genak4jet_count]/I");
+    tree->Branch("genak4jet_info", genak4jet_info, "genak4jet_info[genak4jet_count]/i");
 
     lumitree = FS->make<TTree> ("AC1Blumi", "AC1Blumi", 1);
 
@@ -975,10 +975,10 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     muon_count = 0;
     tau_count = 0;
     tau_charged_count = 0;
-    ak5calojet_count = 0;
-    ak5jptjet_count = 0;
-    ak5pfjet_count = 0;
-    ak5pfchsjet_count = 0;
+    ak4calojet_count = 0;
+    ak4jptjet_count = 0;
+    ak4pfjet_count = 0;
+    ak4pfchsjet_count = 0;
     electron_count = 0;
     photon_count = 0;
     conversion_count = 0;
@@ -987,7 +987,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     allconversion_count = 0;
     genallparticles_count = 0;
     genparticles_count = 0;
-    genak5jet_count = 0;
+    genak4jet_count = 0;
     genallparticlesmother_count = 0;
     genallparticlesdaughter_count = 0;
     MuVector.clear();
@@ -1275,17 +1275,17 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(crectau) {
         takeevent = AddTaus(iEvent) || takeevent;
     }
-    if(crecak5calojet) {
-        takeevent = AddAK5CaloJets(iEvent, iSetup) || takeevent;
+    if(crecak4calojet) {
+        takeevent = AddAK4CaloJets(iEvent, iSetup) || takeevent;
     }
-    if(crecak5jptjet) {
-        takeevent = AddAK5JPTJets(iEvent, iSetup) || takeevent;
+    if(crecak4jptjet) {
+        takeevent = AddAK4JPTJets(iEvent, iSetup) || takeevent;
     }
-    if(crecak5pfjet) {
-        takeevent = AddAK5PFJets(iEvent, iSetup) || takeevent;
+    if(crecak4pfjet) {
+        takeevent = AddAK4PFJets(iEvent, iSetup) || takeevent;
     }
-    if(crecak5pfchsjet) {
-        takeevent = AddAK5PFCHSJets(iEvent, iSetup) || takeevent;
+    if(crecak4pfchsjet) {
+        takeevent = AddAK4PFCHSJets(iEvent, iSetup) || takeevent;
     }
     if(crecmusecvertices) {
         AddMuVertices(iEvent);
@@ -1301,10 +1301,10 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     //edm::Handle<double> rho2;
     //iEvent.getByLabel(edm::InputTag("kt6PFJets", "rho", "RECO"), rho2);
     //cout << *rho << " " << *rho2 << endl;
-    ak5pfjet_rho = *rho;
+    ak4pfjet_rho = *rho;
     edm::Handle<double> sigma;
     iEvent.getByLabel(edm::InputTag("kt6PFJets", "sigma", "ROOTMAKER"), sigma);
-    ak5pfjet_sigma = *sigma;
+    ak4pfjet_sigma = *sigma;
 
     if(cMassMuMuMax != cMassMuMuMin) {
         takeevent = false;
@@ -1367,7 +1367,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     numpileupinteractions = -1;
     numpileupinteractionsplus = -1;
     numtruepileupinteractions = -1;
-    if(cgen || cgenallparticles || cgenak5jets) {
+    if(cgen || cgenallparticles || cgenak4jets) {
         edm::Handle<GenEventInfoProduct> HEPMC;
         iEvent.getByLabel(edm::InputTag("generator"), HEPMC);
         if(HEPMC.isValid()) {
@@ -1521,37 +1521,37 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         }
     }
 
-    if(cgenak5jets) {
-        edm::Handle<GenJetCollection> GenAK5Jets;
-        iEvent.getByLabel(edm::InputTag("ak5GenJets"), GenAK5Jets);
-        if(GenAK5Jets.isValid()) {
-            for(GenJetCollection::const_iterator it = GenAK5Jets->begin() ; it != GenAK5Jets->end() ; ++it) {
+    if(cgenak4jets) {
+        edm::Handle<GenJetCollection> GenAK4Jets;
+        iEvent.getByLabel(edm::InputTag("ak4GenJets"), GenAK4Jets);
+        if(GenAK4Jets.isValid()) {
+            for(GenJetCollection::const_iterator it = GenAK4Jets->begin() ; it != GenAK4Jets->end() ; ++it) {
                 if(it->pt() > 15.) {
-                    genak5jet_e[genak5jet_count] = it->energy();
-                    genak5jet_px[genak5jet_count] = it->px();
-                    genak5jet_py[genak5jet_count] = it->py();
-                    genak5jet_pz[genak5jet_count] = it->pz();
-                    genak5jet_einvisible[genak5jet_count] = it->invisibleEnergy();
-                    genak5jet_flavour[genak5jet_count] = 0;
-                    genak5jet_info[genak5jet_count] = 0;
+                    genak4jet_e[genak4jet_count] = it->energy();
+                    genak4jet_px[genak4jet_count] = it->px();
+                    genak4jet_py[genak4jet_count] = it->py();
+                    genak4jet_pz[genak4jet_count] = it->pz();
+                    genak4jet_einvisible[genak4jet_count] = it->invisibleEnergy();
+                    genak4jet_flavour[genak4jet_count] = 0;
+                    genak4jet_info[genak4jet_count] = 0;
                     double ptmax = 0;
                     for(size_t j = 0 ; j < GenPartons.size() ; ++j) {
                         if(DR(GenPartons[j], *it) < 0.5) {
-                            if(GenPartons[j].pdgId() == 5) {genak5jet_info[genak5jet_count] |= 1<<0;}
-                            else if(GenPartons[j].pdgId() == -5) {genak5jet_info[genak5jet_count] |= 1<<1;}
-                            else if(GenPartons[j].pdgId() == 4) {genak5jet_info[genak5jet_count] |= 1<<2;}
-                            else if(GenPartons[j].pdgId() == -4) {genak5jet_info[genak5jet_count] |= 1<<3;}
-                            else if(abs(GenPartons[j].pdgId()) <= 3) {genak5jet_info[genak5jet_count] |= 1<<4;}
-                            else if(GenPartons[j].pdgId() == 21) {genak5jet_info[genak5jet_count] |= 1<<5;}
+                            if(GenPartons[j].pdgId() == 5) {genak4jet_info[genak4jet_count] |= 1<<0;}
+                            else if(GenPartons[j].pdgId() == -5) {genak4jet_info[genak4jet_count] |= 1<<1;}
+                            else if(GenPartons[j].pdgId() == 4) {genak4jet_info[genak4jet_count] |= 1<<2;}
+                            else if(GenPartons[j].pdgId() == -4) {genak4jet_info[genak4jet_count] |= 1<<3;}
+                            else if(abs(GenPartons[j].pdgId()) <= 3) {genak4jet_info[genak4jet_count] |= 1<<4;}
+                            else if(GenPartons[j].pdgId() == 21) {genak4jet_info[genak4jet_count] |= 1<<5;}
                             if(GenPartons[j].pt() > ptmax) {
                                 ptmax = GenPartons[j].pt();
-                                genak5jet_flavour[genak5jet_count] = GenPartons[j].pdgId();
+                                genak4jet_flavour[genak4jet_count] = GenPartons[j].pdgId();
                             }
 
                         }
                     }
-                    genak5jet_count++;
-                    if(genak5jet_count == M_genjetmaxcount) {cerr << "Number of genak5jet > M_genjetmaxcount. They are missing." << endl; errors |= 1<<25; break;}
+                    genak4jet_count++;
+                    if(genak4jet_count == M_genjetmaxcount) {cerr << "Number of genak4jet > M_genjetmaxcount. They are missing." << endl; errors |= 1<<25; break;}
                 }
             }
         }
@@ -2197,8 +2197,8 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
     edm::Handle<PFTauCollection> Taus;
     //iEvent.getByLabel(edm::InputTag("shrinkingConePFTauProducer"), Taus);
     iEvent.getByLabel(edm::InputTag("hpsPFTauProducer"), Taus);
-    edm::Handle<pat::JetCollection> ak5pfJets;
-    iEvent.getByLabel(edm::InputTag("patJetsAK5PF"), ak5pfJets);
+    edm::Handle<pat::JetCollection> ak4pfJets;
+    iEvent.getByLabel(edm::InputTag("patJetsAK4PF"), ak4pfJets);
     if(Taus.isValid()) {
         vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
         for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++) {
@@ -2231,23 +2231,23 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
             tau_chargedbegin[tau_count] = tau_charged_count;
             PFJetRef thejet = (*Taus)[i].jetRef();
             bool jetfound = false;
-            if(ak5pfJets.isValid()) {
+            if(ak4pfJets.isValid()) {
                 jetfound = true;
-                tau_ak5pfjet_e[tau_count] = thejet->energy();
-                tau_ak5pfjet_px[tau_count] = thejet->px();
-                tau_ak5pfjet_py[tau_count] = thejet->py();
-                tau_ak5pfjet_pz[tau_count] = thejet->pz();
-                tau_ak5pfjet_hadronicenergy[tau_count] = thejet->chargedHadronEnergy() + thejet->neutralHadronEnergy();
-                tau_ak5pfjet_chargedhadronicenergy[tau_count] = thejet->chargedHadronEnergy();
-                tau_ak5pfjet_emenergy[tau_count] = thejet->chargedEmEnergy() + thejet->neutralEmEnergy();
-                tau_ak5pfjet_chargedemenergy[tau_count] = thejet->chargedEmEnergy();
-                tau_ak5pfjet_chargedmulti[tau_count] = thejet->chargedMultiplicity();
-                tau_ak5pfjet_neutralmulti[tau_count] = thejet->neutralMultiplicity();
-                tau_ak5pfjet_trigger[tau_count] = GetTrigger(*thejet, jettriggers);
+                tau_ak4pfjet_e[tau_count] = thejet->energy();
+                tau_ak4pfjet_px[tau_count] = thejet->px();
+                tau_ak4pfjet_py[tau_count] = thejet->py();
+                tau_ak4pfjet_pz[tau_count] = thejet->pz();
+                tau_ak4pfjet_hadronicenergy[tau_count] = thejet->chargedHadronEnergy() + thejet->neutralHadronEnergy();
+                tau_ak4pfjet_chargedhadronicenergy[tau_count] = thejet->chargedHadronEnergy();
+                tau_ak4pfjet_emenergy[tau_count] = thejet->chargedEmEnergy() + thejet->neutralEmEnergy();
+                tau_ak4pfjet_chargedemenergy[tau_count] = thejet->chargedEmEnergy();
+                tau_ak4pfjet_chargedmulti[tau_count] = thejet->chargedMultiplicity();
+                tau_ak4pfjet_neutralmulti[tau_count] = thejet->neutralMultiplicity();
+                tau_ak4pfjet_trigger[tau_count] = GetTrigger(*thejet, jettriggers);
                 break;
             }
             if(!jetfound) {
-                tau_ak5pfjet_e[tau_count] = -1.;
+                tau_ak4pfjet_e[tau_count] = -1.;
             }
 
             tau_isolationchargednum[tau_count] = 0;
@@ -2399,147 +2399,147 @@ bool RootMaker::AddTracks(const edm::Event &iEvent) {
     return (false);
 }
 
-bool RootMaker::AddAK5CaloJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+bool RootMaker::AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     int NumGood = 0;
 
-    edm::Handle<pat::JetCollection> ak5caloJets;
-    iEvent.getByLabel(edm::InputTag("patJetsAK5Calo"), ak5caloJets);
-    if(ak5caloJets.isValid()) {
-        for(unsigned i = 0 ; i < ak5caloJets->size() ; i++) {
-            if((*ak5caloJets)[i].pt() >= cAK5CaloFilterPtMin) {
-                ak5calojet_e[ak5calojet_count] = (*ak5caloJets)[i].energy();
-                ak5calojet_px[ak5calojet_count] = (*ak5caloJets)[i].px();
-                ak5calojet_py[ak5calojet_count] = (*ak5caloJets)[i].py();
-                ak5calojet_pz[ak5calojet_count] = (*ak5caloJets)[i].pz();
-                ak5calojet_hadronicenergy[ak5calojet_count] = (*ak5caloJets)[i].energyFractionHadronic() * (*ak5caloJets)[i].energy();
-                ak5calojet_emenergy[ak5calojet_count] = (*ak5caloJets)[i].emEnergyFraction() * (*ak5caloJets)[i].energy();
-                if((*ak5caloJets)[i].jecSetsAvailable()) {
-                    ak5calojet_energycorr[ak5calojet_count] = (*ak5caloJets)[i].jecFactor("Uncorrected");
-                    ak5calojet_energycorrl7uds[ak5calojet_count] = -1.;//(*ak5caloJets)[i].jecFactor("L7Parton", "UDS");
-                    ak5calojet_energycorrl7bottom[ak5calojet_count] = -1;//(*ak5caloJets)[i].jecFactor("L7Parton", "BOTTOM");
+    edm::Handle<pat::JetCollection> ak4caloJets;
+    iEvent.getByLabel(edm::InputTag("patJetsAK4Calo"), ak4caloJets);
+    if(ak4caloJets.isValid()) {
+        for(unsigned i = 0 ; i < ak4caloJets->size() ; i++) {
+            if((*ak4caloJets)[i].pt() >= cAK4CaloFilterPtMin) {
+                ak4calojet_e[ak4calojet_count] = (*ak4caloJets)[i].energy();
+                ak4calojet_px[ak4calojet_count] = (*ak4caloJets)[i].px();
+                ak4calojet_py[ak4calojet_count] = (*ak4caloJets)[i].py();
+                ak4calojet_pz[ak4calojet_count] = (*ak4caloJets)[i].pz();
+                ak4calojet_hadronicenergy[ak4calojet_count] = (*ak4caloJets)[i].energyFractionHadronic() * (*ak4caloJets)[i].energy();
+                ak4calojet_emenergy[ak4calojet_count] = (*ak4caloJets)[i].emEnergyFraction() * (*ak4caloJets)[i].energy();
+                if((*ak4caloJets)[i].jecSetsAvailable()) {
+                    ak4calojet_energycorr[ak4calojet_count] = (*ak4caloJets)[i].jecFactor("Uncorrected");
+                    ak4calojet_energycorrl7uds[ak4calojet_count] = -1.;//(*ak4caloJets)[i].jecFactor("L7Parton", "UDS");
+                    ak4calojet_energycorrl7bottom[ak4calojet_count] = -1;//(*ak4caloJets)[i].jecFactor("L7Parton", "BOTTOM");
                 } else {
-                    ak5calojet_energycorr[ak5calojet_count] = -1.;
-                    ak5calojet_energycorrl7uds[ak5calojet_count] = -1.;
-                    ak5calojet_energycorrl7bottom[ak5calojet_count] = -1.;
+                    ak4calojet_energycorr[ak4calojet_count] = -1.;
+                    ak4calojet_energycorrl7uds[ak4calojet_count] = -1.;
+                    ak4calojet_energycorrl7bottom[ak4calojet_count] = -1.;
                 }
                 for(unsigned n = 0 ; n < bdisclabel.size() ; n++) {
                     if(bdisclabel[n] != "F") {
-                        ak5calojet_btag[ak5calojet_count][n] = (*ak5caloJets)[i].bDiscriminator(bdisclabel[n]);
+                        ak4calojet_btag[ak4calojet_count][n] = (*ak4caloJets)[i].bDiscriminator(bdisclabel[n]);
                     } else {
-                        ak5calojet_btag[ak5calojet_count][n] = -1000;
+                        ak4calojet_btag[ak4calojet_count][n] = -1000;
                     }
                 }
 
-                ak5calojet_fhpd[ak5calojet_count] = (*ak5caloJets)[i].jetID().fHPD;
-                ak5calojet_restrictedemf[ak5calojet_count] = (*ak5caloJets)[i].jetID().restrictedEMF;
-                //for(unsigned n = 0 ; n < min((*ak5caloJets)[i].getPairDiscri().size(), unsigned(M_btagmax)) ; n++) {
-                //    cout << (*ak5caloJets)[i].getPairDiscri()[n].first << " " << (*ak5caloJets)[i].getPairDiscri()[n].second << " " << ak5calojet_btag[i][n] << endl;
+                ak4calojet_fhpd[ak4calojet_count] = (*ak4caloJets)[i].jetID().fHPD;
+                ak4calojet_restrictedemf[ak4calojet_count] = (*ak4caloJets)[i].jetID().restrictedEMF;
+                //for(unsigned n = 0 ; n < min((*ak4caloJets)[i].getPairDiscri().size(), unsigned(M_btagmax)) ; n++) {
+                //    cout << (*ak4caloJets)[i].getPairDiscri()[n].first << " " << (*ak4caloJets)[i].getPairDiscri()[n].second << " " << ak4calojet_btag[i][n] << endl;
                 //}
-                ak5calojet_n90[ak5calojet_count] = (*ak5caloJets)[i].n90();
-                ak5calojet_n60[ak5calojet_count] = (*ak5caloJets)[i].n60();
-                ak5calojet_count++;
-                if(ak5calojet_count == M_jetmaxcount) {cerr << "number of ak5calojet > M_jetmaxcount. They are missing." << endl; errors |= 1<<8; break;}
-                if((*ak5caloJets)[i].pt() >= cAK5CaloPtMin && fabs((*ak5caloJets)[i].eta()) < cAK5CaloEtaMax) { NumGood++; }
+                ak4calojet_n90[ak4calojet_count] = (*ak4caloJets)[i].n90();
+                ak4calojet_n60[ak4calojet_count] = (*ak4caloJets)[i].n60();
+                ak4calojet_count++;
+                if(ak4calojet_count == M_jetmaxcount) {cerr << "number of ak4calojet > M_jetmaxcount. They are missing." << endl; errors |= 1<<8; break;}
+                if((*ak4caloJets)[i].pt() >= cAK4CaloPtMin && fabs((*ak4caloJets)[i].eta()) < cAK4CaloEtaMax) { NumGood++; }
             }
         }
     }
-    if(NumGood >= cAK5CaloNum) { return (true); }
+    if(NumGood >= cAK4CaloNum) { return (true); }
     return (false);
 }
 
-bool RootMaker::AddAK5JPTJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+bool RootMaker::AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     int NumGood = 0;
 
-    edm::Handle<pat::JetCollection> ak5jptJets;
-    iEvent.getByLabel(edm::InputTag("patJetsAK5JPT"), ak5jptJets);
-    if(ak5jptJets.isValid()) {
-        for(unsigned i = 0 ; i < ak5jptJets->size() ; i++) {
-            if((*ak5jptJets)[i].pt() >= cAK5JPTFilterPtMin) {
-                ak5jptjet_e[ak5jptjet_count] = (*ak5jptJets)[i].energy();
-                ak5jptjet_px[ak5jptjet_count] = (*ak5jptJets)[i].px();
-                ak5jptjet_py[ak5jptjet_count] = (*ak5jptJets)[i].py();
-                ak5jptjet_pz[ak5jptjet_count] = (*ak5jptJets)[i].pz();
-                ak5jptjet_hadronicenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedHadronEnergy() + (*ak5jptJets)[i].neutralHadronEnergy();
-                ak5jptjet_chargedhadronicenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedHadronEnergy();
-                ak5jptjet_emenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedEmEnergy() + (*ak5jptJets)[i].neutralEmEnergy();
-                ak5jptjet_chargedemenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedEmEnergy();
-                ak5jptjet_chargedmulti[ak5jptjet_count] = (*ak5jptJets)[i].chargedMultiplicity();
-                if((*ak5jptJets)[i].jecSetsAvailable()) {
-                    ak5jptjet_energycorr[ak5jptjet_count] = (*ak5jptJets)[i].jecFactor("Uncorrected");
-                    ak5jptjet_energycorrl7uds[ak5jptjet_count] = -1.;//(*ak5jptJets)[i].jecFactor("L7Parton", "UDS");
-                    ak5jptjet_energycorrl7bottom[ak5jptjet_count] = -1.;//(*ak5jptJets)[i].jecFactor("L7Parton", "BOTTOM");
+    edm::Handle<pat::JetCollection> ak4jptJets;
+    iEvent.getByLabel(edm::InputTag("patJetsAK4JPT"), ak4jptJets);
+    if(ak4jptJets.isValid()) {
+        for(unsigned i = 0 ; i < ak4jptJets->size() ; i++) {
+            if((*ak4jptJets)[i].pt() >= cAK4JPTFilterPtMin) {
+                ak4jptjet_e[ak4jptjet_count] = (*ak4jptJets)[i].energy();
+                ak4jptjet_px[ak4jptjet_count] = (*ak4jptJets)[i].px();
+                ak4jptjet_py[ak4jptjet_count] = (*ak4jptJets)[i].py();
+                ak4jptjet_pz[ak4jptjet_count] = (*ak4jptJets)[i].pz();
+                ak4jptjet_hadronicenergy[ak4jptjet_count] = (*ak4jptJets)[i].chargedHadronEnergy() + (*ak4jptJets)[i].neutralHadronEnergy();
+                ak4jptjet_chargedhadronicenergy[ak4jptjet_count] = (*ak4jptJets)[i].chargedHadronEnergy();
+                ak4jptjet_emenergy[ak4jptjet_count] = (*ak4jptJets)[i].chargedEmEnergy() + (*ak4jptJets)[i].neutralEmEnergy();
+                ak4jptjet_chargedemenergy[ak4jptjet_count] = (*ak4jptJets)[i].chargedEmEnergy();
+                ak4jptjet_chargedmulti[ak4jptjet_count] = (*ak4jptJets)[i].chargedMultiplicity();
+                if((*ak4jptJets)[i].jecSetsAvailable()) {
+                    ak4jptjet_energycorr[ak4jptjet_count] = (*ak4jptJets)[i].jecFactor("Uncorrected");
+                    ak4jptjet_energycorrl7uds[ak4jptjet_count] = -1.;//(*ak4jptJets)[i].jecFactor("L7Parton", "UDS");
+                    ak4jptjet_energycorrl7bottom[ak4jptjet_count] = -1.;//(*ak4jptJets)[i].jecFactor("L7Parton", "BOTTOM");
                 } else {
-                    ak5jptjet_energycorr[ak5jptjet_count] = -1.;
-                    ak5jptjet_energycorrl7uds[ak5jptjet_count] = -1.;
-                    ak5jptjet_energycorrl7bottom[ak5jptjet_count] = -1.;
+                    ak4jptjet_energycorr[ak4jptjet_count] = -1.;
+                    ak4jptjet_energycorrl7uds[ak4jptjet_count] = -1.;
+                    ak4jptjet_energycorrl7bottom[ak4jptjet_count] = -1.;
                 }
                 for(unsigned n = 0 ; n < bdisclabel.size() ; n++) {
                     if(bdisclabel[n] != "F") {
-                        ak5jptjet_btag[ak5jptjet_count][n] = (*ak5jptJets)[i].bDiscriminator(bdisclabel[n]);
+                        ak4jptjet_btag[ak4jptjet_count][n] = (*ak4jptJets)[i].bDiscriminator(bdisclabel[n]);
                     } else {
-                        ak5jptjet_btag[ak5jptjet_count][n] = -1000;
+                        ak4jptjet_btag[ak4jptjet_count][n] = -1000;
                     }
                 }
 
-                ak5jptjet_fhpd[ak5jptjet_count] = (*ak5jptJets)[i].jetID().fHPD;
-                ak5jptjet_restrictedemf[ak5jptjet_count] = (*ak5jptJets)[i].jetID().restrictedEMF;
-                ak5jptjet_n90[ak5jptjet_count] = (*ak5jptJets)[i].jetID().n90Hits;
-                ak5jptjet_count++;
-                if(ak5jptjet_count == M_jetmaxcount) {cerr << "number of ak5jptjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<9; break;}
-                if((*ak5jptJets)[i].pt() >= cAK5JPTPtMin && fabs((*ak5jptJets)[i].eta()) < cAK5JPTEtaMax) { NumGood++; }
+                ak4jptjet_fhpd[ak4jptjet_count] = (*ak4jptJets)[i].jetID().fHPD;
+                ak4jptjet_restrictedemf[ak4jptjet_count] = (*ak4jptJets)[i].jetID().restrictedEMF;
+                ak4jptjet_n90[ak4jptjet_count] = (*ak4jptJets)[i].jetID().n90Hits;
+                ak4jptjet_count++;
+                if(ak4jptjet_count == M_jetmaxcount) {cerr << "number of ak4jptjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<9; break;}
+                if((*ak4jptJets)[i].pt() >= cAK4JPTPtMin && fabs((*ak4jptJets)[i].eta()) < cAK4JPTEtaMax) { NumGood++; }
             }
         }
     }
 
-    if(NumGood >= cAK5JPTNum) { return (true); }
+    if(NumGood >= cAK4JPTNum) { return (true); }
     return (false);
 }
 
-bool RootMaker::AddAK5PFCHSJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     int NumGood = 0;
 
-    edm::Handle<pat::JetCollection> ak5pfJets;
-    iEvent.getByLabel(edm::InputTag("selectedPatJetsPFlow"), ak5pfJets);
+    edm::Handle<pat::JetCollection> ak4pfJets;
+    iEvent.getByLabel(edm::InputTag("selectedPatJetsPFlow"), ak4pfJets);
 
     edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
-    iEvent.getByLabel("AK5byValAlgo", jetMCFlHandle);
-    if(ak5pfJets.isValid()) {
-        for(unsigned i = 0 ; i < ak5pfJets->size() ; i++) {
-            pat::Jet corjet((*ak5pfJets)[i]);
-            if(corjet.pt() >= cAK5PFCHSFilterPtMin) {
-                ak5pfchsjet_e[ak5pfchsjet_count] = corjet.energy();
-                ak5pfchsjet_px[ak5pfchsjet_count] = corjet.px();
-                ak5pfchsjet_py[ak5pfchsjet_count] = corjet.py();
-                ak5pfchsjet_pz[ak5pfchsjet_count] = corjet.pz();
-                ak5pfchsjet_area[ak5pfchsjet_count] = corjet.jetArea();
-                ak5pfchsjet_hadronicenergy[ak5pfchsjet_count] = corjet.chargedHadronEnergy() + corjet.neutralHadronEnergy();
-                ak5pfchsjet_chargedhadronicenergy[ak5pfchsjet_count] = corjet.chargedHadronEnergy();
-                ak5pfchsjet_emenergy[ak5pfchsjet_count] = corjet.chargedEmEnergy() + corjet.neutralEmEnergy();
-                ak5pfchsjet_chargedemenergy[ak5pfchsjet_count] = corjet.chargedEmEnergy();
-                ak5pfchsjet_hfhadronicenergy[ak5pfchsjet_count] = corjet.HFHadronEnergy();
-                ak5pfchsjet_hfemenergy[ak5pfchsjet_count] = corjet.HFEMEnergy();
-                ak5pfchsjet_electronenergy[ak5pfchsjet_count] = corjet.electronEnergy();
-                ak5pfchsjet_muonenergy[ak5pfchsjet_count] = corjet.muonEnergy();
-                ak5pfchsjet_chargedmulti[ak5pfchsjet_count] = corjet.chargedMultiplicity();
-                ak5pfchsjet_neutralmulti[ak5pfchsjet_count] = corjet.neutralMultiplicity();
-                ak5pfchsjet_hfhadronicmulti[ak5pfchsjet_count] = corjet.HFHadronMultiplicity();
-                ak5pfchsjet_hfemmulti[ak5pfchsjet_count] = corjet.HFEMMultiplicity();
-                ak5pfchsjet_electronmulti[ak5pfchsjet_count] = corjet.electronMultiplicity();
-                ak5pfchsjet_muonmulti[ak5pfchsjet_count] = corjet.muonMultiplicity();
-                ak5pfchsjet_energycorr[ak5pfchsjet_count] = corjet.jecFactor("Uncorrected");
-                ak5pfchsjet_energycorrunc[ak5pfchsjet_count] = -1;
-                ak5pfchsjet_energycorrl7uds[ak5pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
-                ak5pfchsjet_energycorrl7bottom[ak5pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
+    iEvent.getByLabel("AK4byValAlgo", jetMCFlHandle);
+    if(ak4pfJets.isValid()) {
+        for(unsigned i = 0 ; i < ak4pfJets->size() ; i++) {
+            pat::Jet corjet((*ak4pfJets)[i]);
+            if(corjet.pt() >= cAK4PFCHSFilterPtMin) {
+                ak4pfchsjet_e[ak4pfchsjet_count] = corjet.energy();
+                ak4pfchsjet_px[ak4pfchsjet_count] = corjet.px();
+                ak4pfchsjet_py[ak4pfchsjet_count] = corjet.py();
+                ak4pfchsjet_pz[ak4pfchsjet_count] = corjet.pz();
+                ak4pfchsjet_area[ak4pfchsjet_count] = corjet.jetArea();
+                ak4pfchsjet_hadronicenergy[ak4pfchsjet_count] = corjet.chargedHadronEnergy() + corjet.neutralHadronEnergy();
+                ak4pfchsjet_chargedhadronicenergy[ak4pfchsjet_count] = corjet.chargedHadronEnergy();
+                ak4pfchsjet_emenergy[ak4pfchsjet_count] = corjet.chargedEmEnergy() + corjet.neutralEmEnergy();
+                ak4pfchsjet_chargedemenergy[ak4pfchsjet_count] = corjet.chargedEmEnergy();
+                ak4pfchsjet_hfhadronicenergy[ak4pfchsjet_count] = corjet.HFHadronEnergy();
+                ak4pfchsjet_hfemenergy[ak4pfchsjet_count] = corjet.HFEMEnergy();
+                ak4pfchsjet_electronenergy[ak4pfchsjet_count] = corjet.electronEnergy();
+                ak4pfchsjet_muonenergy[ak4pfchsjet_count] = corjet.muonEnergy();
+                ak4pfchsjet_chargedmulti[ak4pfchsjet_count] = corjet.chargedMultiplicity();
+                ak4pfchsjet_neutralmulti[ak4pfchsjet_count] = corjet.neutralMultiplicity();
+                ak4pfchsjet_hfhadronicmulti[ak4pfchsjet_count] = corjet.HFHadronMultiplicity();
+                ak4pfchsjet_hfemmulti[ak4pfchsjet_count] = corjet.HFEMMultiplicity();
+                ak4pfchsjet_electronmulti[ak4pfchsjet_count] = corjet.electronMultiplicity();
+                ak4pfchsjet_muonmulti[ak4pfchsjet_count] = corjet.muonMultiplicity();
+                ak4pfchsjet_energycorr[ak4pfchsjet_count] = corjet.jecFactor("Uncorrected");
+                ak4pfchsjet_energycorrunc[ak4pfchsjet_count] = -1;
+                ak4pfchsjet_energycorrl7uds[ak4pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
+                ak4pfchsjet_energycorrl7bottom[ak4pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
                 JetShape shape = getJetShape(corjet);
-                ak5pfchsjet_chargeda[ak5pfchsjet_count] = shape.chargeda;
-                ak5pfchsjet_chargedb[ak5pfchsjet_count] = shape.chargedb;
-                ak5pfchsjet_neutrala[ak5pfchsjet_count] = shape.neutrala;
-                ak5pfchsjet_neutralb[ak5pfchsjet_count] = shape.neutralb;
-                ak5pfchsjet_alla[ak5pfchsjet_count] = shape.alla;
-                ak5pfchsjet_allb[ak5pfchsjet_count] = shape.allb;
-                ak5pfchsjet_chargedfractionmv[ak5pfchsjet_count] = shape.chargedfractionmv;
+                ak4pfchsjet_chargeda[ak4pfchsjet_count] = shape.chargeda;
+                ak4pfchsjet_chargedb[ak4pfchsjet_count] = shape.chargedb;
+                ak4pfchsjet_neutrala[ak4pfchsjet_count] = shape.neutrala;
+                ak4pfchsjet_neutralb[ak4pfchsjet_count] = shape.neutralb;
+                ak4pfchsjet_alla[ak4pfchsjet_count] = shape.alla;
+                ak4pfchsjet_allb[ak4pfchsjet_count] = shape.allb;
+                ak4pfchsjet_chargedfractionmv[ak4pfchsjet_count] = shape.chargedfractionmv;
 
-                ak5pfchsjet_mcflavour[ak5pfchsjet_count] = 0;
+                ak4pfchsjet_mcflavour[ak4pfchsjet_count] = 0;
                 if(jetMCFlHandle.isValid()) {
                     const JetFlavourMatchingCollection &jetMCFl = * (jetMCFlHandle.product());
                     double drmin = 0.5;
@@ -2552,11 +2552,11 @@ bool RootMaker::AddAK5PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                         }
                     }
                     if(num != -1) {
-                        ak5pfchsjet_mcflavour[ak5pfchsjet_count] = jetMCFl[num].second.getFlavour();
+                        ak4pfchsjet_mcflavour[ak4pfchsjet_count] = jetMCFl[num].second.getFlavour();
                     }
                 }
                 for(unsigned n = 0 ; n < bdisclabel.size() ; n++) {
-                    ak5pfchsjet_btag[ak5pfchsjet_count][n] = -1000000;
+                    ak4pfchsjet_btag[ak4pfchsjet_count][n] = -1000000;
                     edm::Handle<JetTagCollection> bTagHandle;
                     iEvent.getByLabel(edm::InputTag(bdisclabel[n], "", "ROOTMAKER"), bTagHandle);
                     //iEvent.getByLabel(bdisclabel[n], bTagHandle);
@@ -2572,35 +2572,35 @@ bool RootMaker::AddAK5PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                             }
                         }
                         if(num != -1) {
-                            ak5pfchsjet_btag[ak5pfchsjet_count][n] = bTags[num].second;
+                            ak4pfchsjet_btag[ak4pfchsjet_count][n] = bTags[num].second;
                         }
                     }
                 }
-                ak5pfchsjet_trigger[ak5pfchsjet_count] = GetTrigger(corjet, jettriggers);
-                ak5pfchsjet_count++;
-                if(ak5pfchsjet_count == M_jetmaxcount) {cerr << "number of ak5pfchsjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<25; break;}
-                if(corjet.pt() >= cAK5PFCHSPtMin && fabs(corjet.eta()) < cAK5PFCHSEtaMax) { NumGood++; }
+                ak4pfchsjet_trigger[ak4pfchsjet_count] = GetTrigger(corjet, jettriggers);
+                ak4pfchsjet_count++;
+                if(ak4pfchsjet_count == M_jetmaxcount) {cerr << "number of ak4pfchsjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<25; break;}
+                if(corjet.pt() >= cAK4PFCHSPtMin && fabs(corjet.eta()) < cAK4PFCHSEtaMax) { NumGood++; }
             }
         }
     }
-    if(NumGood >= cAK5PFCHSNum) { return (true); }
+    if(NumGood >= cAK4PFCHSNum) { return (true); }
     return (false);
 }
 
-bool RootMaker::AddAK5PFJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+bool RootMaker::AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     int NumGood = 0;
 
-    edm::Handle<PFJetCollection> ak5pfJets;
-    iEvent.getByLabel(edm::InputTag("ak5PFJets"), ak5pfJets);
-    const JetCorrector *corrector = JetCorrector::getJetCorrector((string("ak5PF")+cJetCorrection).c_str(), iSetup);
+    edm::Handle<PFJetCollection> ak4pfJets;
+    iEvent.getByLabel(edm::InputTag("ak4PFJets"), ak4pfJets);
+    const JetCorrector *corrector = JetCorrector::getJetCorrector((string("ak4PF")+cJetCorrection).c_str(), iSetup);
 
     edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-    iSetup.get<JetCorrectionsRecord>().get("AK5PF",JetCorParColl);
+    iSetup.get<JetCorrectionsRecord>().get("AK4PF",JetCorParColl);
     JetCorrectorParameters const &JetCorPar = (*JetCorParColl)["Uncertainty"];
     JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
 
     edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
-    iEvent.getByLabel("AK5byValAlgo", jetMCFlHandle);
+    iEvent.getByLabel("AK4byValAlgo", jetMCFlHandle);
 
     edm::Handle<ValueMap<float> > puidfullHandle;
     iEvent.getByLabel(edm::InputTag("recoPuJetMva", "fullDiscriminant", "ROOTMAKER"), puidfullHandle);
@@ -2608,51 +2608,51 @@ bool RootMaker::AddAK5PFJets(const edm::Event &iEvent, const edm::EventSetup &iS
     iEvent.getByLabel(edm::InputTag("recoPuJetMva", "simpleDiscriminant", "ROOTMAKER"), puidsimpleHandle);
     edm::Handle<ValueMap<float> > puidcutbasedHandle;
     iEvent.getByLabel(edm::InputTag("recoPuJetMva", "cutbasedDiscriminant", "ROOTMAKER"), puidcutbasedHandle);
-    if(ak5pfJets.isValid()) {
-        for(unsigned i = 0 ; i < ak5pfJets->size() ; i++) {
-            PFJet corjet((*ak5pfJets)[i]);
-            PFJetRef jetref(ak5pfJets, i);
+    if(ak4pfJets.isValid()) {
+        for(unsigned i = 0 ; i < ak4pfJets->size() ; i++) {
+            PFJet corjet((*ak4pfJets)[i]);
+            PFJetRef jetref(ak4pfJets, i);
             double jec = corrector->correction(corjet, iEvent, iSetup);
             corjet.scaleEnergy(jec);
-            if(corjet.pt() >= cAK5PFFilterPtMin) {
-                ak5pfjet_e[ak5pfjet_count] = corjet.energy();
-                ak5pfjet_px[ak5pfjet_count] = corjet.px();
-                ak5pfjet_py[ak5pfjet_count] = corjet.py();
-                ak5pfjet_pz[ak5pfjet_count] = corjet.pz();
-                ak5pfjet_area[ak5pfjet_count] = corjet.jetArea();
-                ak5pfjet_hadronicenergy[ak5pfjet_count] = corjet.chargedHadronEnergy() + corjet.neutralHadronEnergy();
-                ak5pfjet_chargedhadronicenergy[ak5pfjet_count] = corjet.chargedHadronEnergy();
-                ak5pfjet_emenergy[ak5pfjet_count] = corjet.chargedEmEnergy() + corjet.neutralEmEnergy();
-                ak5pfjet_chargedemenergy[ak5pfjet_count] = corjet.chargedEmEnergy();
-                ak5pfjet_hfhadronicenergy[ak5pfjet_count] = corjet.HFHadronEnergy();
-                ak5pfjet_hfemenergy[ak5pfjet_count] = corjet.HFEMEnergy();
-                ak5pfjet_electronenergy[ak5pfjet_count] = corjet.electronEnergy();
-                ak5pfjet_muonenergy[ak5pfjet_count] = corjet.muonEnergy();
-                ak5pfjet_chargedmulti[ak5pfjet_count] = corjet.chargedMultiplicity();
-                ak5pfjet_neutralmulti[ak5pfjet_count] = corjet.neutralMultiplicity();
-                ak5pfjet_hfhadronicmulti[ak5pfjet_count] = corjet.HFHadronMultiplicity();
-                ak5pfjet_hfemmulti[ak5pfjet_count] = corjet.HFEMMultiplicity();
-                ak5pfjet_electronmulti[ak5pfjet_count] = corjet.electronMultiplicity();
-                ak5pfjet_muonmulti[ak5pfjet_count] = corjet.muonMultiplicity();
-                ak5pfjet_energycorr[ak5pfjet_count] = 1./jec;
+            if(corjet.pt() >= cAK4PFFilterPtMin) {
+                ak4pfjet_e[ak4pfjet_count] = corjet.energy();
+                ak4pfjet_px[ak4pfjet_count] = corjet.px();
+                ak4pfjet_py[ak4pfjet_count] = corjet.py();
+                ak4pfjet_pz[ak4pfjet_count] = corjet.pz();
+                ak4pfjet_area[ak4pfjet_count] = corjet.jetArea();
+                ak4pfjet_hadronicenergy[ak4pfjet_count] = corjet.chargedHadronEnergy() + corjet.neutralHadronEnergy();
+                ak4pfjet_chargedhadronicenergy[ak4pfjet_count] = corjet.chargedHadronEnergy();
+                ak4pfjet_emenergy[ak4pfjet_count] = corjet.chargedEmEnergy() + corjet.neutralEmEnergy();
+                ak4pfjet_chargedemenergy[ak4pfjet_count] = corjet.chargedEmEnergy();
+                ak4pfjet_hfhadronicenergy[ak4pfjet_count] = corjet.HFHadronEnergy();
+                ak4pfjet_hfemenergy[ak4pfjet_count] = corjet.HFEMEnergy();
+                ak4pfjet_electronenergy[ak4pfjet_count] = corjet.electronEnergy();
+                ak4pfjet_muonenergy[ak4pfjet_count] = corjet.muonEnergy();
+                ak4pfjet_chargedmulti[ak4pfjet_count] = corjet.chargedMultiplicity();
+                ak4pfjet_neutralmulti[ak4pfjet_count] = corjet.neutralMultiplicity();
+                ak4pfjet_hfhadronicmulti[ak4pfjet_count] = corjet.HFHadronMultiplicity();
+                ak4pfjet_hfemmulti[ak4pfjet_count] = corjet.HFEMMultiplicity();
+                ak4pfjet_electronmulti[ak4pfjet_count] = corjet.electronMultiplicity();
+                ak4pfjet_muonmulti[ak4pfjet_count] = corjet.muonMultiplicity();
+                ak4pfjet_energycorr[ak4pfjet_count] = 1./jec;
                 jecUnc->setJetEta(corjet.eta());
                 jecUnc->setJetPt(corjet.pt());
-                ak5pfjet_energycorrunc[ak5pfjet_count] = jecUnc->getUncertainty(true);
-                //cout << ak5pfjet_energycorr[ak5pfjet_count] << endl;
-                ak5pfjet_energycorrl7uds[ak5pfjet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
-                ak5pfjet_energycorrl7bottom[ak5pfjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
-                ak5pfjet_puidfull[ak5pfjet_count] = (*puidfullHandle)[jetref];
-                ak5pfjet_puidsimple[ak5pfjet_count] = (*puidsimpleHandle)[jetref];
-                ak5pfjet_puidcutbased[ak5pfjet_count] = (*puidcutbasedHandle)[jetref];
+                ak4pfjet_energycorrunc[ak4pfjet_count] = jecUnc->getUncertainty(true);
+                //cout << ak4pfjet_energycorr[ak4pfjet_count] << endl;
+                ak4pfjet_energycorrl7uds[ak4pfjet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
+                ak4pfjet_energycorrl7bottom[ak4pfjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
+                ak4pfjet_puidfull[ak4pfjet_count] = (*puidfullHandle)[jetref];
+                ak4pfjet_puidsimple[ak4pfjet_count] = (*puidsimpleHandle)[jetref];
+                ak4pfjet_puidcutbased[ak4pfjet_count] = (*puidcutbasedHandle)[jetref];
                 JetShape shape = getJetShape(corjet);
-                ak5pfjet_chargeda[ak5pfjet_count] = shape.chargeda;
-                ak5pfjet_chargedb[ak5pfjet_count] = shape.chargedb;
-                ak5pfjet_neutrala[ak5pfjet_count] = shape.neutrala;
-                ak5pfjet_neutralb[ak5pfjet_count] = shape.neutralb;
-                ak5pfjet_alla[ak5pfjet_count] = shape.alla;
-                ak5pfjet_allb[ak5pfjet_count] = shape.allb;
-                ak5pfjet_chargedfractionmv[ak5pfjet_count] = shape.chargedfractionmv;
-                ak5pfjet_mcflavour[ak5pfjet_count] = 0;
+                ak4pfjet_chargeda[ak4pfjet_count] = shape.chargeda;
+                ak4pfjet_chargedb[ak4pfjet_count] = shape.chargedb;
+                ak4pfjet_neutrala[ak4pfjet_count] = shape.neutrala;
+                ak4pfjet_neutralb[ak4pfjet_count] = shape.neutralb;
+                ak4pfjet_alla[ak4pfjet_count] = shape.alla;
+                ak4pfjet_allb[ak4pfjet_count] = shape.allb;
+                ak4pfjet_chargedfractionmv[ak4pfjet_count] = shape.chargedfractionmv;
+                ak4pfjet_mcflavour[ak4pfjet_count] = 0;
                 if(jetMCFlHandle.isValid()) {
                     const JetFlavourMatchingCollection &jetMCFl = * (jetMCFlHandle.product());
                     double drmin = 0.5;
@@ -2665,11 +2665,11 @@ bool RootMaker::AddAK5PFJets(const edm::Event &iEvent, const edm::EventSetup &iS
                         }
                     }
                     if(num != -1) {
-                        ak5pfjet_mcflavour[ak5pfjet_count] = jetMCFl[num].second.getFlavour();
+                        ak4pfjet_mcflavour[ak4pfjet_count] = jetMCFl[num].second.getFlavour();
                     }
                 }
                 for(unsigned n = 0 ; n < bdisclabel.size() ; n++) {
-                    ak5pfjet_btag[ak5pfjet_count][n] = -1000000;
+                    ak4pfjet_btag[ak4pfjet_count][n] = -1000000;
                     edm::Handle<JetTagCollection> bTagHandle;
                     iEvent.getByLabel(edm::InputTag(bdisclabel[n], "", "ROOTMAKER"), bTagHandle);
                     if(bTagHandle.isValid()) {
@@ -2684,20 +2684,20 @@ bool RootMaker::AddAK5PFJets(const edm::Event &iEvent, const edm::EventSetup &iS
                             }
                         }
                         if(num != -1) {
-                            ak5pfjet_btag[ak5pfjet_count][n] = bTags[num].second;
+                            ak4pfjet_btag[ak4pfjet_count][n] = bTags[num].second;
                         }
                     }
                 }
 
-                ak5pfjet_trigger[ak5pfjet_count] = GetTrigger(corjet, jettriggers);
-                ak5pfjet_count++;
-                if(ak5pfjet_count == M_jetmaxcount) {cerr << "number of ak5pfjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
-                if(corjet.pt() >= cAK5PFPtMin && fabs(corjet.eta()) < cAK5PFEtaMax) { NumGood++; }
+                ak4pfjet_trigger[ak4pfjet_count] = GetTrigger(corjet, jettriggers);
+                ak4pfjet_count++;
+                if(ak4pfjet_count == M_jetmaxcount) {cerr << "number of ak4pfjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
+                if(corjet.pt() >= cAK4PFPtMin && fabs(corjet.eta()) < cAK4PFEtaMax) { NumGood++; }
             }
         }
     }
     delete jecUnc;
-    if(NumGood >= cAK5PFNum) { return (true); }
+    if(NumGood >= cAK4PFNum) { return (true); }
     return (false);
 }
 
@@ -2964,11 +2964,11 @@ RootMaker::JetShape RootMaker::getJetShape(const PFJet &jet) {
 
 }
 // duplicate of above funtion
-//bool RootMaker::AddAK5PFJets(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+//bool RootMaker::AddAK4PFJets(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 //  int NumGood = 0;
-//  edm::Handle<PFJetCollection> ak5pfJets;
-//  iEvent.getByLabel(edm::InputTag("ak5PFJets"), ak5pfJets);
-//  if(ak5pfJets.isValid())
+//  edm::Handle<PFJetCollection> ak4pfJets;
+//  iEvent.getByLabel(edm::InputTag("ak4PFJets"), ak4pfJets);
+//  if(ak4pfJets.isValid())
 //  {
 //  vector<edm::Handle<JetFloatAssociation::Container> > btag(bdisclabel.size());
 //  for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
@@ -2979,62 +2979,62 @@ RootMaker::JetShape RootMaker::getJetShape(const PFJet &jet) {
 //  const JetCorrector* corrector;
 //  if(cdata)
 //  {
-//  corrector = JetCorrector::getJetCorrector("ak5PFL1L2L3Residual", iSetup);
+//  corrector = JetCorrector::getJetCorrector("ak4PFL1L2L3Residual", iSetup);
 //  }
 //  else
 //  {
-//  corrector = JetCorrector::getJetCorrector("ak5PFL1L2L3", iSetup);
+//  corrector = JetCorrector::getJetCorrector("ak4PFL1L2L3", iSetup);
 //  }
 //
-//  for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
+//  for(unsigned i = 0 ; i < ak4pfJets->size() ; i++)
 //  {
-//  if((*ak5pfJets)[i].pt() >= cAK5PFFilterPtMin)
+//  if((*ak4pfJets)[i].pt() >= cAK4PFFilterPtMin)
 //  {
-//  ak5pfjet_e[ak5pfjet_count] = (*ak5pfJets)[i].energy();
-//  ak5pfjet_px[ak5pfjet_count] = (*ak5pfJets)[i].px();
-//  ak5pfjet_py[ak5pfjet_count] = (*ak5pfJets)[i].py();
-//  ak5pfjet_pz[ak5pfjet_count] = (*ak5pfJets)[i].pz();
-//  ak5pfjet_hadronicenergy[ak5pfjet_count] = (*ak5pfJets)[i].chargedHadronEnergy() + (*ak5pfJets)[i].neutralHadronEnergy();
-//  ak5pfjet_chargedhadronicenergy[ak5pfjet_count] = (*ak5pfJets)[i].chargedHadronEnergy();
-//  ak5pfjet_emenergy[ak5pfjet_count] = (*ak5pfJets)[i].chargedEmEnergy() + (*ak5pfJets)[i].neutralEmEnergy();
-//  ak5pfjet_chargedemenergy[ak5pfjet_count] = (*ak5pfJets)[i].chargedEmEnergy();
-//  ak5pfjet_chargedmulti[ak5pfjet_count] = (*ak5pfJets)[i].chargedMultiplicity();
-//  ak5pfjet_neutralmulti[ak5pfjet_count] = (*ak5pfJets)[i].neutralMultiplicity();
-//  JetBaseRef jetRef(edm::Ref<PFJetCollection>(ak5pfJets, i));
-//  ak5pfjet_energycorr[ak5pfjet_count] = corrector->correction((*ak5pfJets)[i], jetRef, iEvent, iSetup);
-//  ak5pfjet_energycorrl7uds[ak5pfjet_count] = -1.;
-//  ak5pfjet_energycorrl7bottom[ak5pfjet_count] = -1.;
+//  ak4pfjet_e[ak4pfjet_count] = (*ak4pfJets)[i].energy();
+//  ak4pfjet_px[ak4pfjet_count] = (*ak4pfJets)[i].px();
+//  ak4pfjet_py[ak4pfjet_count] = (*ak4pfJets)[i].py();
+//  ak4pfjet_pz[ak4pfjet_count] = (*ak4pfJets)[i].pz();
+//  ak4pfjet_hadronicenergy[ak4pfjet_count] = (*ak4pfJets)[i].chargedHadronEnergy() + (*ak4pfJets)[i].neutralHadronEnergy();
+//  ak4pfjet_chargedhadronicenergy[ak4pfjet_count] = (*ak4pfJets)[i].chargedHadronEnergy();
+//  ak4pfjet_emenergy[ak4pfjet_count] = (*ak4pfJets)[i].chargedEmEnergy() + (*ak4pfJets)[i].neutralEmEnergy();
+//  ak4pfjet_chargedemenergy[ak4pfjet_count] = (*ak4pfJets)[i].chargedEmEnergy();
+//  ak4pfjet_chargedmulti[ak4pfjet_count] = (*ak4pfJets)[i].chargedMultiplicity();
+//  ak4pfjet_neutralmulti[ak4pfjet_count] = (*ak4pfJets)[i].neutralMultiplicity();
+//  JetBaseRef jetRef(edm::Ref<PFJetCollection>(ak4pfJets, i));
+//  ak4pfjet_energycorr[ak4pfjet_count] = corrector->correction((*ak4pfJets)[i], jetRef, iEvent, iSetup);
+//  ak4pfjet_energycorrl7uds[ak4pfjet_count] = -1.;
+//  ak4pfjet_energycorrl7bottom[ak4pfjet_count] = -1.;
 //
 //  for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
 //  {
 //  if(btag[n].isValid())
 //  {
-////ak5pfjet_btag[ak5pfjet_count][n] = (*(btag[n]))[jetRef];
-////ak5pfjet_btag[ak5pfjet_count][n] = JetFloatAssociation::getValue(*(btag[n]), (*ak5pfJets)[i]);
-//cout << "btag1: " << n << " " << ak5pfjet_btag[ak5pfjet_count][n] << endl;
+////ak4pfjet_btag[ak4pfjet_count][n] = (*(btag[n]))[jetRef];
+////ak4pfjet_btag[ak4pfjet_count][n] = JetFloatAssociation::getValue(*(btag[n]), (*ak4pfJets)[i]);
+//cout << "btag1: " << n << " " << ak4pfjet_btag[ak4pfjet_count][n] << endl;
 //}
 //else
 //{
-//ak5pfjet_btag[ak5pfjet_count][n] = -1000;
+//ak4pfjet_btag[ak4pfjet_count][n] = -1000;
 //}
 //}
 //
 //if(crecjettrigger)
 //{
-//ak5pfjet_trigger[i] = GetTrigger((*ak5pfJets)[i], jettriggers);
+//ak4pfjet_trigger[i] = GetTrigger((*ak4pfJets)[i], jettriggers);
 //}
 //else
 //{
-//ak5pfjet_trigger[i] = 0;
+//ak4pfjet_trigger[i] = 0;
 //}
-//ak5pfjet_count++;
-//if(ak5pfjet_count == M_jetmaxcount){cerr << "number of ak5pfjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
-//if((*ak5pfJets)[i].pt() >= cAK5PFPtMin && fabs((*ak5pfJets)[i].eta()) < cAK5PFEtaMax) NumGood++;
+//ak4pfjet_count++;
+//if(ak4pfjet_count == M_jetmaxcount){cerr << "number of ak4pfjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
+//if((*ak4pfJets)[i].pt() >= cAK4PFPtMin && fabs((*ak4pfJets)[i].eta()) < cAK4PFEtaMax) NumGood++;
 //}
 //}
 //}
 //
-//if(NumGood >= cAK5PFNum) return(true);
+//if(NumGood >= cAK4PFNum) return(true);
 //return(false);
 //}
 

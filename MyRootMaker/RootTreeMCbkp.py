@@ -31,10 +31,10 @@ process.GlobalTag.toGet = cms.VPSet(
 
 # No data of type "JetTagComputer" with label "negativeTrackCounting3D2nd" in record "JetTagComputerRecord"
 # process.load("RecoBTag.ImpactParameter.negativeTrackCounting3D2ndComputer_cfi")
-# No data of type "JetCorrectorParametersCollection" with label "AK5PF" in record "JetCorrectionsRecord"
-#process.load("RecoJets.JetProducers.ak5PFJets_cfi")
+# No data of type "JetCorrectorParametersCollection" with label "AK4PF" in record "JetCorrectionsRecord"
+#process.load("RecoJets.JetProducers.ak4PFJets_cfi")
 
-#from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+#from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 #process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
 
 
@@ -47,7 +47,7 @@ process.makeroottree.HLTriggerSelection = cms.untracked.vstring()
 #process.patJetCorrFactors.levels=cms.vstring('L1FastJet','L2Relative', 'L3Absolute')
 process.makeroottree.GenAllParticles = cms.untracked.bool(True)
 process.makeroottree.GenSomeParticles = cms.untracked.bool(False)
-process.makeroottree.GenAK5Jets = cms.untracked.bool(True)
+process.makeroottree.GenAK4Jets = cms.untracked.bool(True)
 
 process.schedule = cms.Schedule(
 process.vertex_step,
