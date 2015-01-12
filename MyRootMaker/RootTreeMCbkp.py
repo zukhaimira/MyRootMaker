@@ -5,17 +5,18 @@ from MyRootMaker.MyRootMaker.RootMakerTemplateMC_cfg import *
 process.source.fileNames = cms.untracked.vstring(
     #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/ZZTo4L_Tune4C_13TeV-powheg-pythia8/AODSIM/PU20bx25_PHYS14_25_V1-v1/00000/08E67F10-0069-E411-B1B1-00266CF9BEE4.root'
     #'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/003B7873-00F3-E311-8F81-0025905A48F2.root'
-    'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/DYJetsToEEMuMu_M-120To200_13TeV-madgraph/AODSIM/PU20bx25_PHYS14_25_V1-v2/10000/6E4F7A3D-9B7C-E411-9A04-00259073E34C.root'
+    #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/DYJetsToEEMuMu_M-120To200_13TeV-madgraph/AODSIM/PU20bx25_PHYS14_25_V1-v2/10000/6E4F7A3D-9B7C-E411-9A04-00259073E34C.root'
+    'root://cms-xrd-global.cern.ch//store/mc/Spring14dr/ZZTo4L_Tune4C_13TeV-powheg-pythia8/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/0407D41F-FA0C-E411-9B63-008CFA00148C.root'
 )
 
 # also overridden by crab.cfg
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
 
-#process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
-#process.GlobalTag.globaltag = cms.string('POSTLS170_V6::All')
-process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
+process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
+process.GlobalTag.globaltag = cms.string('POSTLS170_V5::All')
+#process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
 
 #from Configuration.PyReleaseValidation.autoCond import autoCond
 #process.GlobalTag.globaltag = autoCond['startup']

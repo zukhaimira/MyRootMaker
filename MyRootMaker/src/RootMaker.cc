@@ -1341,9 +1341,10 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         } else {
             errors |= 1<<21;
         }
+
         edm::Handle<reco::PFMETCollection> pfMetType1;
         //iEvent.getByLabel(edm::InputTag("pfType1CorrectedMet"), pfMetType1);
-        iEvent.getByLabel(edm::InputTag("pfType1CorrectedMet"), pfMetType1);
+        iEvent.getByLabel(edm::InputTag("pfMetT1"), pfMetType1);
         cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl;
         if(pfMetType1.isValid() && pfMetType1->size() > 0) {
             pfmettype1_ex = (*pfMetType1)[0].px();
@@ -1351,6 +1352,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         } else {
             errors |= 1<<24;
         }
+
         edm::Handle<reco::PFMETCollection> pfMetType0Type1;
         iEvent.getByLabel(edm::InputTag("pfType0Type1CorrectedMet"), pfMetType0Type1);
         cout<<"pfMetType0Type1.isValid() = "<<pfMetType0Type1.isValid()<<endl;
@@ -2604,8 +2606,8 @@ bool RootMaker::AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iS
 
     edm::Handle<ValueMap<float> > puidfullHandle;
     iEvent.getByLabel(edm::InputTag("recoPuJetMva", "fullDiscriminant", "ROOTMAKER"), puidfullHandle);
-    edm::Handle<ValueMap<float> > puidsimpleHandle;
-    iEvent.getByLabel(edm::InputTag("recoPuJetMva", "simpleDiscriminant", "ROOTMAKER"), puidsimpleHandle);
+    //edm::Handle<ValueMap<float> > puidsimpleHandle;
+    //iEvent.getByLabel(edm::InputTag("recoPuJetMva", "simpleDiscriminant", "ROOTMAKER"), puidsimpleHandle);
     edm::Handle<ValueMap<float> > puidcutbasedHandle;
     iEvent.getByLabel(edm::InputTag("recoPuJetMva", "cutbasedDiscriminant", "ROOTMAKER"), puidcutbasedHandle);
     if(ak4pfJets.isValid()) {
@@ -2642,7 +2644,7 @@ bool RootMaker::AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iS
                 ak4pfjet_energycorrl7uds[ak4pfjet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
                 ak4pfjet_energycorrl7bottom[ak4pfjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
                 ak4pfjet_puidfull[ak4pfjet_count] = (*puidfullHandle)[jetref];
-                ak4pfjet_puidsimple[ak4pfjet_count] = (*puidsimpleHandle)[jetref];
+                //ak4pfjet_puidsimple[ak4pfjet_count] = (*puidsimpleHandle)[jetref];
                 ak4pfjet_puidcutbased[ak4pfjet_count] = (*puidcutbasedHandle)[jetref];
                 JetShape shape = getJetShape(corjet);
                 ak4pfjet_chargeda[ak4pfjet_count] = shape.chargeda;
