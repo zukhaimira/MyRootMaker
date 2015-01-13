@@ -1334,7 +1334,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(crecpfmet) {
         edm::Handle<reco::PFMETCollection> pfMet;
         iEvent.getByLabel(edm::InputTag("pfMet"), pfMet);
-        cout<<"pfMet.isValid() = "<<pfMet.isValid()<<endl;
+        if (pfMet.isValid()==0) cout<<"pfMet.isValid() = "<<pfMet.isValid()<<endl;
         if(pfMet.isValid() && pfMet->size() > 0) {
             pfmet_ex = (*pfMet)[0].px();
             pfmet_ey = (*pfMet)[0].py();
@@ -1345,7 +1345,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         edm::Handle<reco::PFMETCollection> pfMetType1;
         //iEvent.getByLabel(edm::InputTag("pfType1CorrectedMet"), pfMetType1);
         iEvent.getByLabel(edm::InputTag("pfMetT1"), pfMetType1);
-        cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl;
+        if (pfMetType1.isValid()==0) cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl;
         if(pfMetType1.isValid() && pfMetType1->size() > 0) {
             pfmettype1_ex = (*pfMetType1)[0].px();
             pfmettype1_ey = (*pfMetType1)[0].py();
@@ -1355,7 +1355,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
         edm::Handle<reco::PFMETCollection> pfMetType0Type1;
         iEvent.getByLabel(edm::InputTag("pfType0Type1CorrectedMet"), pfMetType0Type1);
-        cout<<"pfMetType0Type1.isValid() = "<<pfMetType0Type1.isValid()<<endl;
+        if (pfMetType0Type1.isValid()==0) cout<<"pfMetType0Type1.isValid() = "<<pfMetType0Type1.isValid()<<endl;
         if(pfMetType0Type1.isValid() && pfMetType0Type1->size() > 0) {
             pfmettype0type1_ex = (*pfMetType0Type1)[0].px();
             pfmettype0type1_ey = (*pfMetType0Type1)[0].py();

@@ -90,6 +90,7 @@ process.kt6PFJets.voronoiRfact = 0.9
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 process.load("JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi")
+process.load("PhysicsTools.PatAlgos.recoLayer0.metCorrections_cff")
 
 #process.pfJetMETcorr.jetCorrLabel = cms.string("ak4PFL1FastL2L3") #MC
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
@@ -104,26 +105,7 @@ process.pfType0Type1CorrectedMet = pfMetT1.clone(
         cms.InputTag('pfJetMETcorr', 'type1')
     )
 )
-#process.metAnalysisSequence=cms.Sequence(process.type0PFMEtCorrection*process.producePFMETCorrections*process.pfType0Type1CorrectedMet)
-process.metAnalysisSequence=cms.Sequence(process.type0PFMEtCorrection*process.pfType0Type1CorrectedMet)
-
-
-#from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
-#pfMetT1seq = pfMetT1.clone (
-#    src = cms.InputTag('ak4PFJets'),
-#    srcType1Corrections = cms.VInputTag(
-#        cms.InputTag('pfMETcorrType0'),
-#        cms.InputTag('pfJetMETcorr', 'type1')
-#    ),
-#    offsetCorrLabel = cms.string("ak4PFL1Fastjet"),
-#    jetCorrLabel = cms.string("ak4PFL1FastL2L3"), # NOTE: use "ak4PFL1FastL2L3" for MC / "ak4PFL1FastL2L3Residual" for Data
-#    jetCorrEtaMax = cms.double(9.9),
-#    type1JetPtThreshold = cms.double(10.0),
-#    skipEM = cms.bool(True),
-#    skipEMfractionThreshold = cms.double(0.90),
-#    skipMuons = cms.bool(True),
-#)
-#process.metAnalysisSequence=cms.Sequence(process.pfMetT1*process.type0PFMEtCorrection*process.producePFMETCorrections*process.pfType0Type1CorrectedMet)
+process.metAnalysisSequence=cms.Sequence(process.type0PFMEtCorrection*process.patMETCorrections*process.pfType0Type1CorrectedMet)
 process.jet_step = cms.Path(process.kt6PFJets*process.metAnalysisSequence)
 
 ######PF ISO calculation for Electrons
