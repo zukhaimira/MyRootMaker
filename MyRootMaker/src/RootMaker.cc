@@ -2434,8 +2434,9 @@ bool RootMaker::AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &
 
                 ak4calojet_fhpd[ak4calojet_count] = (*ak4caloJets)[i].jetID().fHPD;
                 ak4calojet_restrictedemf[ak4calojet_count] = (*ak4caloJets)[i].jetID().restrictedEMF;
+// 13-01
                 //for(unsigned n = 0 ; n < min((*ak4caloJets)[i].getPairDiscri().size(), unsigned(M_btagmax)) ; n++) {
-                //    cout << (*ak4caloJets)[i].getPairDiscri()[n].first << " " << (*ak4caloJets)[i].getPairDiscri()[n].second << " " << ak4calojet_btag[i][n] << endl;
+                  //  cout << (*ak4caloJets)[i].getPairDiscri()[n].first << " " << (*ak4caloJets)[i].getPairDiscri()[n].second << " " << ak4calojet_btag[i][n] << endl;
                 //}
                 ak4calojet_n90[ak4calojet_count] = (*ak4caloJets)[i].n90();
                 ak4calojet_n60[ak4calojet_count] = (*ak4caloJets)[i].n60();
@@ -3156,7 +3157,6 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
                 electron_nstriplayers[electron_count]   = (gsfTr_e->hitPattern()).stripLayersWithMeasurement();
 	
        //         electron_nhitsexpected[electron_count] = gsfTr_e->trackerExpectedHitsInner().numberOfHits();
-                //electron_nhitsexpected[electron_count] = gsfTr_e->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
                 electron_nhitsexpected[electron_count] = gsfTr_e->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
 
                 electron_dxy[electron_count]           = gsfTr_e->dxy(pv_position);
