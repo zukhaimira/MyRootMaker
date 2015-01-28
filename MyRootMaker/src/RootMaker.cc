@@ -1011,7 +1011,6 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     const TechnicalTriggerWord &L1triggerbits = L1trigger->technicalTriggerWord();
     for(int i  = 0  ; i < 8 ; i++) {trigger_level1bits[i] = 0;}
     for(unsigned i = 0 ; i < min(unsigned(L1triggerbits.size()), unsigned(64)) ; i++) {trigger_level1bits[i/8] |= (Byte_t)L1triggerbits[i] << (i%8);}
-
     //L1TriggerAlgos
     const DecisionWord &L1triggeralgos = L1trigger->decisionWord();
     for(int i = 0  ; i < 128 ; i++) {trigger_level1[i] = 0;}
