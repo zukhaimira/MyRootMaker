@@ -106,8 +106,8 @@ process.pfType0Type1CorrectedMet = pfMetT1.clone(
     )
 )
 process.metAnalysisSequence=cms.Sequence(process.type0PFMEtCorrection*process.patMETCorrections*process.pfType0Type1CorrectedMet)
-#process.jet_step = cms.Path(process.kt6PFJets*process.metAnalysisSequence)
-process.jet_step = cms.Path(process.kt6PFJets)
+process.jet_step = cms.Path(process.kt6PFJets*process.metAnalysisSequence)
+#process.jet_step = cms.Path(process.kt6PFJets)
 
 ######PF ISO calculation for Electrons
 process.load('CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff')
