@@ -29,7 +29,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/ZZTo4L_Tune4C_13TeV-powheg-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/241933C6-E269-E411-B532-7845C4FC3A19.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/6856B40F-0C77-E411-893D-D8D385FF7678.root'
     )
 )
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions
