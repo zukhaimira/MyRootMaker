@@ -154,6 +154,10 @@
 #include "EgammaAnalysis/ElectronTools/src/PFIsolationEstimator.cc"
 #include "EgammaAnalysis/ElectronTools/src/SuperClusterHelper.cc"
 #include "PFIsolation/SuperClusterFootprintRemoval/interface/SuperClusterFootprintRemoval.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
+
 
 #include "TGeoPara.h"
 
@@ -198,15 +202,95 @@ private:
     virtual void endLuminosityBlock(const edm::LuminosityBlock &iLumiBlock, const edm::EventSetup &iSetup);
     virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
 
-
+    // tokens 
+    edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
+    edm::EDGetTokenT<pat::MuonCollection> muonsToken_;
+    edm::EDGetTokenT<pat::ElectronCollection> electronsToken_;
+/*
+    edm::EDGetTokenT<bool> electronVetoIdMapToken_;
+    edm::EDGetTokenT<bool> electronTightIdMapToken_;
+*/
+    edm::EDGetTokenT<pat::TauCollection> tausToken_;
+    edm::EDGetTokenT<pat::PhotonCollection> photonsToken_;
+    edm::EDGetTokenT<pat::JetCollection> jetsToken_;
+    edm::EDGetTokenT<pat::JetCollection> jetsAK8Token_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection> packedPFCandsToken_;
+    edm::EDGetTokenT<edm::View<reco::GenParticle> > prunedGenParticlesToken_;
+    edm::EDGetTokenT<edm::View<pat::PackedGenParticle> > packedGenParticlesToken_;
+    edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerBitsToken_;
+    edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken_;
+    edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescalesToken_;
+    edm::EDGetTokenT<pat::METCollection> metToken_;
+    edm::EDGetTokenT<edm::TriggerResults> metFilterBitsToken_;
+    //edm::EDGetTokenT<LHEEventProduct> lheInfoToken_;
+    edm::EDGetTokenT<GenEventInfoProduct> genInfoToken_;
+    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puInfoToken_;
+    edm::EDGetTokenT<HcalNoiseSummary> hcalNoiseInfoToken_;
+    edm::EDGetTokenT<vector<reco::VertexCompositePtrCandidate> > secondaryVerticesToken_;
+    edm::EDGetTokenT<double> rhoAllToken_;
+    edm::EDGetTokenT<double> rhoFastjetAllToken_;
+    edm::EDGetTokenT<double> rhoFastjetAllCaloToken_;
+    edm::EDGetTokenT<double> rhoFastjetCentralCaloToken_;
+    edm::EDGetTokenT<double> rhoFastjetCentralChargedPileUpToken_;
+    edm::EDGetTokenT<double> rhoFastjetCentralNeutralToken_;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
     edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebRecHitsToken_;
     edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeRecHitsToken_;
     edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > esRecHitsToken_;
-
-    edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebRecHits;
-    edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeRecHits;
-    edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > esRecHits;
-    edm::Handle<VertexCollection> Vertices;
+    edm::EDGetTokenT<vector<reco::CaloCluster> > ebeeClustersToken_;
+    edm::EDGetTokenT<vector<reco::CaloCluster> > esClustersToken_;
+    edm::EDGetTokenT<vector<reco::Conversion> > conversionsToken_;
+    edm::EDGetTokenT<vector<reco::Conversion> > singleLegConversionsToken_;
+    edm::EDGetTokenT<vector<reco::GsfElectronCore> > gedGsfElectronCoresToken_;
+    edm::EDGetTokenT<vector<reco::PhotonCore> > gedPhotonCoresToken_;
+    edm::EDGetTokenT<vector<reco::SuperCluster> > superClustersToken_;
+    edm::EDGetTokenT<vector<pat::PackedCandidate> > lostTracksToken_;
+    
+    // handles
+    edm::Handle<edm::TriggerResults> triggerBits;
+    edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
+    edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
+    edm::Handle<edm::TriggerResults> metFilterBits;
+    edm::Handle<reco::VertexCollection> Vertices;
+    edm::Handle<pat::PackedCandidateCollection> packedPFCands;
+    edm::Handle<pat::MuonCollection> Muons;
+    edm::Handle<pat::ElectronCollection> Electrons;
+/*
+    edm::Handle<edm::ValueMap<bool> > veto_id_decisions_;
+    edm::Handle<edm::ValueMap<bool> > tight_id_decisions_;
+*/
+    edm::Handle<pat::PhotonCollection> Photons;
+    edm::Handle<pat::TauCollection> Taus;
+    edm::Handle<pat::JetCollection> jets;
+    edm::Handle<pat::JetCollection> jetsAK8;
+    edm::Handle<pat::METCollection> pfMetType1;
+    edm::Handle<edm::View<reco::GenParticle> > prunedGenParticles;
+    edm::Handle<edm::View<pat::PackedGenParticle> > packedGenParticles;
+    edm::Handle<reco::GenJetCollection> GenAK4Jets;
+    //edm::Handle<LHEEventProduct> lheInfo;
+    edm::Handle<GenEventInfoProduct> HEPMC;
+    edm::Handle<std::vector<PileupSummaryInfo> > PUInfo;
+    edm::Handle<HcalNoiseSummary> HcalNoiseInfo;
+    edm::Handle<vector<reco::VertexCompositePtrCandidate> > secondaryVertices;
+    edm::Handle<double> rhoAll;
+    edm::Handle<double> rhoFastjetAll;
+    edm::Handle<double> rhoFastjetAllCalo;
+    edm::Handle<double> rhoFastjetCentralCalo;
+    edm::Handle<double> rhoFastjetCentralChargedPileUp;
+    edm::Handle<double> rhoFastjetCentralNeutral;
+    edm::Handle<reco::BeamSpot> TheBeamSpot;
+    edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > barrelHits;
+    edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapHits;
+    edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > esHits;
+    edm::Handle<vector<reco::CaloCluster> > ebeeClusters;
+    edm::Handle<vector<reco::CaloCluster> > esClusters;
+    edm::Handle<vector<reco::Conversion> > Conversions;
+    edm::Handle<vector<reco::Conversion>> singleLegConversions;
+    edm::Handle<vector<reco::GsfElectronCore> > gedGsfElectronCores;
+    edm::Handle<vector<reco::PhotonCore> > gedPhotonCores;
+    edm::Handle<vector<reco::SuperCluster> > superClusters;
+    edm::Handle<vector<pat::PackedCandidate> > lostTracks;
 
     bool AddTracks(const edm::Event &iEvent);
     bool AddElectrons(const edm::Event &iEvent);

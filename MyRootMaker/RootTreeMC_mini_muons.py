@@ -33,7 +33,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions
-process.GlobalTag.globaltag = cms.string('POSTLS172_V3::All')
+process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
 
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string('AC1B_test.root')
@@ -42,7 +42,7 @@ process.TFileService = cms.Service("TFileService",
 process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
 
 # ROOTMAKER #########################################################################################
-process.makeroottree = cms.EDAnalyzer("RootMakerMini",
+process.makeroottree = cms.EDAnalyzer("RootMaker",
     
     packedPfCands = cms.InputTag("packedPFCandidates"),
     hcalNoiseInfo = cms.InputTag("hcalnoise", "", "RECO"),
@@ -84,9 +84,9 @@ process.makeroottree = cms.EDAnalyzer("RootMakerMini",
     electrons = cms.InputTag("slimmedElectrons"),
     photons = cms.InputTag("slimmedPhotons"),
 
-    ebRecHits = cms.InputTag("reducedEgamma", "reducedEBRecHits", "PAT"),
-    eeRecHits = cms.InputTag("reducedEgamma", "reducedEERecHits", "PAT"),
-    esRecHits = cms.InputTag("reducedEgamma", "reducedESRecHits", "PAT"),
+    barrelHits = cms.InputTag("reducedEgamma", "reducedEBRecHits", "PAT"),
+    endcapHits = cms.InputTag("reducedEgamma", "reducedEERecHits", "PAT"),
+    esHits = cms.InputTag("reducedEgamma", "reducedESRecHits", "PAT"),
     ebeeClusters = cms.InputTag("reducedEgamma", "reducedEBEEClusters", "PAT"),
     esClusters = cms.InputTag("reducedEgamma", "reducedESClusters", "PAT"),
     conversions = cms.InputTag("reducedEgamma", "reducedConversions", "PAT"),

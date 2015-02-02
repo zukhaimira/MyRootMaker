@@ -9,11 +9,51 @@ typedef ROOT::Math::SVector<double, 3> SVector3;
 
 RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
 
-    ebRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("ebRecHits"))),
-    eeRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("eeRecHits"))),
-    esRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("esRecHits"))),
-
-    isMiniAOD(iConfig.getUntrackedParameter<bool> ("isMiniAOD", false)),
+    verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+    muonsToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+    electronsToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+/*
+    electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
+    electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),
+*/
+    tausToken_(consumes<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
+    photonsToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
+    jetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
+    jetsAK8Token_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jetsAK8"))),
+    packedPFCandsToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPfCands"))),
+    prunedGenParticlesToken_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("prunedGenParticles"))),
+    packedGenParticlesToken_(consumes<edm::View<pat::PackedGenParticle> >(iConfig.getParameter<edm::InputTag>("packedGenParticles"))),
+    genJetsToken_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJets"))),
+    triggerBitsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerBits"))),
+    triggerObjectsToken_(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("triggerObjects"))),
+    triggerPrescalesToken_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("triggerPrescales"))),     
+    metToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
+    metFilterBitsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("metFilterBits"))),
+    //lheInfoToken_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("lheInfo"))),
+    genInfoToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genInfo"))),
+    puInfoToken_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("puInfo"))),
+    hcalNoiseInfoToken_(consumes<HcalNoiseSummary>(iConfig.getParameter<edm::InputTag>("hcalNoiseInfo"))),
+    secondaryVerticesToken_(consumes<vector<reco::VertexCompositePtrCandidate> >(iConfig.getParameter<edm::InputTag>("secondaryVertices"))),
+    rhoAllToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoAll"))),
+    rhoFastjetAllToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoFastjetAll"))),
+    rhoFastjetAllCaloToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoFastjetAllCalo"))),
+    rhoFastjetCentralCaloToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoFastjetCentralCalo"))),
+    rhoFastjetCentralChargedPileUpToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoFastjetCentralChargedPileUp"))),
+    rhoFastjetCentralNeutralToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoFastjetCentralNeutral"))),
+    beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+    ebRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("barrelHits"))),
+    eeRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("endcapHits"))),
+    esRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("esHits"))),
+    ebeeClustersToken_(consumes<vector<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("ebeeClusters"))),
+    esClustersToken_(consumes<vector<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("esClusters"))),
+    conversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("conversions"))),
+    singleLegConversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("singleLegConversions"))),
+    gedGsfElectronCoresToken_(consumes<vector<reco::GsfElectronCore> >(iConfig.getParameter<edm::InputTag>("gedGsfElectronCores"))),
+    gedPhotonCoresToken_(consumes<vector<reco::PhotonCore> >(iConfig.getParameter<edm::InputTag>("gedPhotonCores"))),
+    superClustersToken_(consumes<vector<reco::SuperCluster> >(iConfig.getParameter<edm::InputTag>("superClusters"))),
+    lostTracksToken_(consumes<vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostTracks"))),
+  
+    isMiniAOD(iConfig.getUntrackedParameter<bool> ("isMiniAOD", true)),
     cgen(iConfig.getUntrackedParameter<bool> ("GenSomeParticles", false)),
     cgenallparticles(iConfig.getUntrackedParameter<bool> ("GenAllParticles", false)),
     cgenak4jets(iConfig.getUntrackedParameter<bool> ("GenAK4Jets", false)),
@@ -1040,7 +1080,8 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(!takeevent) { return; }
 
     if(crecprimvertex) {
-        iEvent.getByLabel(edm::InputTag("offlinePrimaryVertices"), Vertices);
+        //iEvent.getByLabel(edm::InputTag("offlinePrimaryVertices"), Vertices);
+        iEvent.getByToken(verticesToken_, Vertices);
 
         if(Vertices.isValid()) {
             for(unsigned i = 0 ; i < Vertices->size(); i++) {
@@ -1081,8 +1122,9 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     }
 
     if(cbeamspot) {
-        edm::Handle<BeamSpot> TheBeamSpot;
-        iEvent.getByLabel(edm::InputTag("offlineBeamSpot"), TheBeamSpot);
+        //edm::Handle<BeamSpot> TheBeamSpot;
+        //iEvent.getByLabel(edm::InputTag("offlineBeamSpot"), TheBeamSpot);
+        iEvent.getByToken(beamSpotToken_, TheBeamSpot);
         if(TheBeamSpot.isValid()) {
             beamspot_x = TheBeamSpot->x0();
             beamspot_y = TheBeamSpot->y0();
@@ -1121,14 +1163,20 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         iEvent.getByLabel(edm::InputTag("correctedMulti5x5SuperClustersWithPreshower"), SCendcap);
 
         edm::ESHandle<CaloGeometry> caloGeo;
-        edm::Handle<EcalRecHitCollection> barrelHits;
-        edm::Handle<EcalRecHitCollection> endcapHits;
-        edm::Handle<EcalRecHitCollection> esHits;
+        //edm::Handle<EcalRecHitCollection> barrelHits;
+        //edm::Handle<EcalRecHitCollection> endcapHits;
+        //edm::Handle<EcalRecHitCollection> esHits;
+
         if(crecsuperclusterhit) {
             iSetup.get<CaloGeometryRecord>().get(caloGeo);
-            iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsEB"), barrelHits);
-            iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsEE"), endcapHits);
-            iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsES"), esHits);
+
+            //iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsEB"), barrelHits);
+            //iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsEE"), endcapHits);
+            //iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsES"), esHits);
+            iEvent.getByToken(ebRecHitsToken_, barrelHits);
+            iEvent.getByToken(eeRecHitsToken_, endcapHits);
+            iEvent.getByToken(esRecHitsToken_, esHits);
+
         }
         if(SCbarrel.isValid()) {
             for(SuperClusterCollection::const_iterator itsceb = SCbarrel->begin() ; itsceb != SCbarrel->end() ; ++itsceb) {
@@ -1331,8 +1379,11 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
 
     if(crecpfmet) {
+/*
         edm::Handle<reco::PFMETCollection> pfMet;
-        iEvent.getByLabel(edm::InputTag("pfMet"), pfMet);
+        //iEvent.getByLabel(edm::InputTag("pfMet"), pfMet);
+        // see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD#ETmiss
+        //
         if (pfMet.isValid()==0) cout<<"pfMet.isValid() = "<<pfMet.isValid()<<endl;
         if(pfMet.isValid() && pfMet->size() > 0) {
             pfmet_ex = (*pfMet)[0].px();
@@ -1340,10 +1391,12 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         } else {
             errors |= 1<<21;
         }
+*/
 
-        edm::Handle<reco::PFMETCollection> pfMetType1;
+        //edm::Handle<reco::PFMETCollection> pfMetType1;
         //iEvent.getByLabel(edm::InputTag("pfType1CorrectedMet"), pfMetType1);
-        iEvent.getByLabel(edm::InputTag("pfMetT1"), pfMetType1);
+        iEvent.getByToken(metToken_, pfMetType1);
+        //iEvent.getByLabel(edm::InputTag("pfMetT1"), pfMetType1);
         if (pfMetType1.isValid()==0) cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl;
         if(pfMetType1.isValid() && pfMetType1->size() > 0) {
             pfmettype1_ex = (*pfMetType1)[0].px();
@@ -1351,7 +1404,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         } else {
             errors |= 1<<24;
         }
-
+/*
         edm::Handle<reco::PFMETCollection> pfMetType0Type1;
         iEvent.getByLabel(edm::InputTag("pfType0Type1CorrectedMet"), pfMetType0Type1);
         if (pfMetType0Type1.isValid()==0) cout<<"pfMetType0Type1.isValid() = "<<pfMetType0Type1.isValid()<<endl;
@@ -1361,6 +1414,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         } else {
             errors |= 1<<26;
         }
+*/
     }
 
     genweight = 1.;
@@ -1369,8 +1423,9 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     numpileupinteractionsplus = -1;
     numtruepileupinteractions = -1;
     if(cgen || cgenallparticles || cgenak4jets) {
-        edm::Handle<GenEventInfoProduct> HEPMC;
-        iEvent.getByLabel(edm::InputTag("generator"), HEPMC);
+        //edm::Handle<GenEventInfoProduct> HEPMC;
+        //iEvent.getByLabel(edm::InputTag("generator"), HEPMC);
+        iEvent.getByToken(genInfoToken_,HEPMC);
         if(HEPMC.isValid()) {
             genweight = HEPMC->weight();
             genid1 = HEPMC->pdf()->id.first;
@@ -1381,7 +1436,9 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         }
 
         edm::Handle<vector<PileupSummaryInfo> > PUInfo;
-        iEvent.getByLabel(edm::InputTag("addPileupInfo"), PUInfo);
+        //iEvent.getByLabel(edm::InputTag("addPileupInfo"), PUInfo);
+        iEvent.getByToken(puInfoToken_,PUInfo);
+
 
         if(PUInfo.isValid()) {
             for(vector<PileupSummaryInfo>::const_iterator PVI = PUInfo->begin(); PVI != PUInfo->end(); ++PVI) {
@@ -1523,8 +1580,9 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     }
 
     if(cgenak4jets) {
-        edm::Handle<GenJetCollection> GenAK4Jets;
-        iEvent.getByLabel(edm::InputTag("ak4GenJets"), GenAK4Jets);
+        //edm::Handle<GenJetCollection> GenAK4Jets;
+        //iEvent.getByLabel(edm::InputTag("ak4GenJets"), GenAK4Jets);
+        iEvent.getByToken(genJetsToken_, GenAK4Jets);
         if(GenAK4Jets.isValid()) {
             for(GenJetCollection::const_iterator it = GenAK4Jets->begin() ; it != GenAK4Jets->end() ; ++it) {
                 if(it->pt() > 15.) {
@@ -1678,10 +1736,9 @@ math::XYZPoint RootMaker::PositionOnECalSurface(TransientTrack &trTrack) {
 
 bool RootMaker::AddMuons(const edm::Event &iEvent) {
     int NumGood = 0;
-    //edm::Handle<pat::MuonCollection> Muons;
-    //iEvent.getByLabel(edm::InputTag("patMuons"), Muons);
-    edm::Handle<MuonCollection> Muons;
-    iEvent.getByLabel(edm::InputTag("muons"), Muons);
+    //edm::Handle<MuonCollection> Muons;
+    //iEvent.getByLabel(edm::InputTag("muons"), Muons);
+    iEvent.getByToken(muonsToken_, Muons);
     if(Muons.isValid()) {
         for(unsigned i = 0 ; i < Muons->size() ; i++) {
             const Muon &themu = (*Muons)[i];
@@ -1903,10 +1960,10 @@ UInt_t RootMaker::GetTrigger(const LeafCandidate &particle, vector<pair<unsigned
 bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
 
     int NumGood = 0;
-    edm::Handle<PhotonCollection> Photons;
+    //edm::Handle<PhotonCollection> Photons;
     //iEvent.getByLabel(edm::InputTag("photons"), Photons);
-    iEvent.getByLabel(edm::InputTag("gedPhotons"), Photons);
-
+    //iEvent.getByLabel(edm::InputTag("gedPhotons"), Photons);
+    iEvent.getByToken(photonsToken_, Photons);
     //vector< edm::Handle< edm::ValueMap<double> > > photonIsoPF(3);
     //iEvent.getByLabel(edm::InputTag("phPFIsoValueCharged03PFIdPFIso"), photonIsoPF[0]);
     //iEvent.getByLabel(edm::InputTag("phPFIsoValueGamma03PFIdPFIso"), photonIsoPF[1]);
@@ -1914,11 +1971,13 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
     //cout << "PH " << photonIsoPF[0].isValid() << endl;
 
     if(Photons.isValid() && Photons->size() > 0) {
-        edm::Handle<GsfElectronCollection> Electrons;
-        //iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
-        iEvent.getByLabel(edm::InputTag("gedGsfElectrons"), Electrons);
-        edm::Handle<ConversionCollection> Conversions;
-        iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+        //edm::Handle<GsfElectronCollection> Electrons;
+        //iEvent.getByLabel(edm::InputTag("gedGsfElectrons"), Electrons);
+        iEvent.getByToken(electronsToken_, Electrons);
+        //edm::Handle<ConversionCollection> Conversions;
+        //iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+        iEvent.getByToken(conversionsToken_, Conversions);
+
         PFIsolationEstimator isolator;
         VertexRef myprimvertex(Vertices, 0);
         edm::Handle<PFCandidateCollection> PFCandidates;
@@ -1931,7 +1990,7 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
 
         for(size_t n = 0 ; n < Photons->size() ; n++) {
             const Photon &theph = (*Photons)[n];
-            PhotonRef refph(Photons, n);
+            pat::PhotonRef refph(Photons, n);
             if(theph.pt() > cPhotonFilterPtMin && TMath::Abs(theph.eta()) < cPhotonFilterEtaMax) {
                 photon_px[photon_count] = theph.px();
                 photon_py[photon_count] = theph.py();
@@ -2107,8 +2166,9 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
     return (false);
 }
 bool RootMaker::AddAllConversions(const edm::Event &iEvent) {
-    edm::Handle<ConversionCollection> Conversions;
-    iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+    //edm::Handle<ConversionCollection> Conversions;
+    iEvent.getByToken(conversionsToken_, Conversions);
+    //iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
     if(Conversions.isValid()) {
         for(unsigned i = 0 ; i < Conversions->size() ; i++) {
             allconversion_info[allconversion_count] = 0;
@@ -2194,10 +2254,12 @@ bool RootMaker::AddAllConversions(const edm::Event &iEvent) {
     return (true);
 }
 bool RootMaker::AddTaus(const edm::Event &iEvent) {
+/*
     int NumGood = 0;
-    edm::Handle<PFTauCollection> Taus;
-    //iEvent.getByLabel(edm::InputTag("shrinkingConePFTauProducer"), Taus);
-    iEvent.getByLabel(edm::InputTag("hpsPFTauProducer"), Taus);
+    //edm::Handle<PFTauCollection> Taus;
+    iEvent.getByToken(tausToken_, Taus);
+    ////iEvent.getByLabel(edm::InputTag("shrinkingConePFTauProducer"), Taus);
+    //iEvent.getByLabel(edm::InputTag("hpsPFTauProducer"), Taus);
     edm::Handle<pat::JetCollection> ak4pfJets;
     iEvent.getByLabel(edm::InputTag("patJetsAK4PF"), ak4pfJets);
     if(Taus.isValid()) {
@@ -2334,8 +2396,11 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
 
     if(NumGood >= cTauNum) { return (true); }
     return (false);
+*/
+return true;
 }
 bool RootMaker::AddTracks(const edm::Event &iEvent) {
+/*
     int NumGood = 0;
     edm::Handle<TrackCollection> Tracks;
     iEvent.getByLabel(edm::InputTag("generalTracks"), Tracks);
@@ -2398,8 +2463,9 @@ bool RootMaker::AddTracks(const edm::Event &iEvent) {
     }
     if(NumGood >= cTrackNum) { return (true); }
     return (false);
+*/
+return true;
 }
-
 bool RootMaker::AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     int NumGood = 0;
 
@@ -3048,7 +3114,7 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     //iEvent.getByLabel(edm::InputTag("l1extraParticles", "NonIsolated"), L1Electrons);
     //iEvent.getByLabel(edm::InputTag("l1extraParticles", "Isolated"), L1ElectronsIso);
     //}
-    edm::Handle<GsfElectronCollection> Electrons;
+    //edm::Handle<GsfElectronCollection> Electrons;
     //iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
     iEvent.getByLabel(edm::InputTag("gedGsfElectrons"), Electrons);
     edm::Handle<ConversionCollection> Conversions;
@@ -3059,7 +3125,7 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     iEvent.getByLabel(edm::InputTag("elPFIsoValueCharged03PFIdPFIso"), electronIsoPF[0]);
     iEvent.getByLabel(edm::InputTag("elPFIsoValueGamma03PFIdPFIso"), electronIsoPF[1]);
     iEvent.getByLabel(edm::InputTag("elPFIsoValueNeutral03PFIdPFIso"), electronIsoPF[2]);
-
+/*
     edm::Handle<edm::ValueMap<float> > eIDValueMapHyperTight1;
     iEvent.getByLabel("eidHyperTight1MC", eIDValueMapHyperTight1);
     const edm::ValueMap<float> &eIDHyperTight1map = * eIDValueMapHyperTight1;
@@ -3067,13 +3133,15 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     edm::Handle<edm::ValueMap<float> > eIDValueMapLoose;
     iEvent.getByLabel("eidLooseMC", eIDValueMapLoose);
     const edm::ValueMap<float> &eIDLoosemap = * eIDValueMapLoose;
-
+*/
     if(Electrons.isValid()) {
         //for(GsfElectronCollection::const_iterator itel = Electrons->begin() ; itel != Electrons->end() ; ++itel)
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
             //const GsfElectron& theel = *itel;
-            const GsfElectron &theel = (*Electrons)[n];
-            GsfElectronRef refel(Electrons, n);
+            //const GsfElectron &theel = (*Electrons)[n];
+            //GsfElectronRef refel(Electrons, n);
+            const pat::Electron &theel = (*Electrons)[n];
+            pat::ElectronRef refel(Electrons, n);
             if(theel.pt() > cElFilterPtMin && TMath::Abs(theel.eta()) < cElFilterEtaMax) {
                 electron_px[electron_count] = theel.px();
                 electron_py[electron_count] = theel.py();
@@ -3181,10 +3249,14 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
 
                 electron_trigger[electron_count] = GetTrigger(theel, electrontriggers);
 
+// https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2
+/*
+                //edm::Ref<reco::GsfElectronCollection> electronRef(Electrons,n);
                 edm::Ref<reco::GsfElectronCollection> electronRef(Electrons,n);
                 electron_eID[electron_count]=0;
                 electron_eID[electron_count] |= (Byte_t)eIDHyperTight1map[electronRef];
                 electron_eID[electron_count] |= ((Byte_t)eIDLoosemap[electronRef]<<4);
+*/
 
                 electron_supercluster_e[electron_count] = theel.superCluster()->energy();
                 electron_supercluster_x[electron_count] = theel.superCluster()->x();
