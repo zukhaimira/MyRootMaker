@@ -8,12 +8,13 @@ typedef ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3> > SMa
 typedef ROOT::Math::SVector<double, 3> SVector3;
 
 RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
-
+ 
     ebRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("ebRecHits"))),
     eeRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("eeRecHits"))),
     esRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("esRecHits"))),
 
     isMiniAOD(iConfig.getUntrackedParameter<bool> ("isMiniAOD", false)),
+    debug(iConfig.getUntrackedParameter<bool> ("debug", true)),
     cgen(iConfig.getUntrackedParameter<bool> ("GenSomeParticles", false)),
     cgenallparticles(iConfig.getUntrackedParameter<bool> ("GenAllParticles", false)),
     cgenak4jets(iConfig.getUntrackedParameter<bool> ("GenAK4Jets", false)),
@@ -254,6 +255,9 @@ void RootMaker::beginJob() {
     tree->Branch("muon_px", muon_px, "muon_px[muon_count]/F");
     tree->Branch("muon_py", muon_py, "muon_py[muon_count]/F");
     tree->Branch("muon_pz", muon_pz, "muon_pz[muon_count]/F");
+    tree->Branch("muon_pt", muon_pt, "muon_pt[muon_count]/F");
+    tree->Branch("muon_phi", muon_phi, "muon_phi[muon_count]/F");
+    tree->Branch("muon_eta", muon_eta, "muon_eta[muon_count]/F");
     tree->Branch("muon_pterror", muon_pterror, "muon_pterror[muon_count]/F");
     tree->Branch("muon_chi2", muon_chi2, "muon_chi2[muon_count]/F");
     tree->Branch("muon_ndof", muon_ndof, "muon_ndof[muon_count]/F");
@@ -393,6 +397,9 @@ void RootMaker::beginJob() {
     tree->Branch("ak4pfchsjet_px", ak4pfchsjet_px, "ak4pfchsjet_px[ak4pfchsjet_count]/F");
     tree->Branch("ak4pfchsjet_py", ak4pfchsjet_py, "ak4pfchsjet_py[ak4pfchsjet_count]/F");
     tree->Branch("ak4pfchsjet_pz", ak4pfchsjet_pz, "ak4pfchsjet_pz[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_pt", ak4pfchsjet_pt, "ak4pfchsjet_pt[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_phi", ak4pfchsjet_phi, "ak4pfchsjet_phi[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_eta", ak4pfchsjet_eta, "ak4pfchsjet_eta[ak4pfchsjet_count]/F");
     tree->Branch("ak4pfchsjet_area", ak4pfchsjet_area, "ak4pfchsjet_area[ak4pfchsjet_count]/F");
     tree->Branch("ak4pfchsjet_hadronicenergy", ak4pfchsjet_hadronicenergy, "ak4pfchsjet_hadronicenergy[ak4pfchsjet_count]/F");
     tree->Branch("ak4pfchsjet_chargedhadronicenergy", ak4pfchsjet_chargedhadronicenergy, "ak4pfchsjet_chargedhadronicenergy[ak4pfchsjet_count]/F");
@@ -428,6 +435,9 @@ void RootMaker::beginJob() {
     tree->Branch("electron_px", electron_px, "electron_px[electron_count]/F");
     tree->Branch("electron_py", electron_py, "electron_py[electron_count]/F");
     tree->Branch("electron_pz", electron_pz, "electron_pz[electron_count]/F");
+    tree->Branch("electron_pt", electron_pt, "electron_pt[electron_count]/F");
+    tree->Branch("electron_phi", electron_phi, "electron_phi[electron_count]/F");
+    tree->Branch("electron_eta", electron_eta, "electron_eta[electron_count]/F");
     tree->Branch("electron_correctedecalenergy", electron_correctedecalenergy, "electron_correctedecalenergy[electron_count]/F");
     tree->Branch("electron_trackchi2", electron_trackchi2, "electron_trackchi2[electron_count]/F");
     tree->Branch("electron_trackndof", electron_trackndof, "electron_trackndof[electron_count]/F");
@@ -494,6 +504,9 @@ void RootMaker::beginJob() {
     tree->Branch("photon_px", photon_px, "photon_px[photon_count]/F");
     tree->Branch("photon_py", photon_py, "photon_py[photon_count]/F");
     tree->Branch("photon_pz", photon_pz, "photon_pz[photon_count]/F");
+    tree->Branch("photon_pt", photon_pt, "photon_pt[photon_count]/F");
+    tree->Branch("photon_phi", photon_phi, "photon_phi[photon_count]/F");
+    tree->Branch("photon_eta", photon_eta, "photon_eta[photon_count]/F");
     tree->Branch("photon_e1x5", photon_e1x5, "photon_e1x5[photon_count]/F");
     tree->Branch("photon_e2x5", photon_e2x5, "photon_e2x5[photon_count]/F");
     tree->Branch("photon_e3x3", photon_e3x3, "photon_e3x3[photon_count]/F");
@@ -606,6 +619,9 @@ void RootMaker::beginJob() {
     tree->Branch("tau_px", tau_px, "tau_px[tau_count]/F");
     tree->Branch("tau_py", tau_py, "tau_py[tau_count]/F");
     tree->Branch("tau_pz", tau_pz, "tau_pz[tau_count]/F");
+    tree->Branch("tau_pt", tau_pt, "tau_pt[tau_count]/F");
+    tree->Branch("tau_phi", tau_phi, "tau_phi[tau_count]/F");
+    tree->Branch("tau_eta", tau_eta, "tau_eta[tau_count]/F");
     tree->Branch("tau_isolationneutralspt", tau_isolationneutralspt, "tau_isolationneutralspt[tau_count]/F");
     tree->Branch("tau_isolationneutralsnum", tau_isolationneutralsnum, "tau_isolationneutralsnum[tau_count]/i");
     tree->Branch("tau_isolationchargedpt", tau_isolationchargedpt, "tau_isolationchargedpt[tau_count]/F");
@@ -819,6 +835,7 @@ void RootMaker::beginJob() {
 }
 
 void RootMaker::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
+    if(debug) cout<<"beginRun..."<<endl;
     if(propagatorWithMaterial != 0) { delete propagatorWithMaterial;}
     iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
     propagatorWithMaterial = new PropagatorWithMaterial(alongMomentum, 0.10566, & (*magneticField));
@@ -932,7 +949,7 @@ void RootMaker::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
             cout << HLTConfiguration.triggerName(i) << " " << j << " " << run_hltl1prescaletables[i+HLTConfiguration.size()*j] << " " << run_hltprescaletables[i+HLTConfiguration.size()*j] <<endl;
         }
     }
-
+    if (debug) cout<<"runtree->Fill();"<<endl;
     runtree->Fill();
 }
 
@@ -961,10 +978,12 @@ void RootMaker::beginLuminosityBlock(const edm::LuminosityBlock &iLumiBlock, con
 }
 
 void RootMaker::endLuminosityBlock(const edm::LuminosityBlock &iLumiBlock, const edm::EventSetup &iSetup) {
+    if (debug) cout<<"lumitree->Fill();"<<endl;
     lumitree->Fill();
 }
 
 void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+    if (debug) cout<<"analyze..."<<endl;
     track_count = 0;
     primvertex_count = 0;
     supercluster_count = 0;
@@ -1565,6 +1584,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 }
 
 pair<Int_t, Int_t> RootMaker::HasAnyMother(const GenParticle *particle, vector<int> ids) {
+
     Int_t motherid = 0;
     vector<unsigned> bknummother;
     vector<const GenParticle *> bkparticle;
@@ -1677,17 +1697,22 @@ math::XYZPoint RootMaker::PositionOnECalSurface(TransientTrack &trTrack) {
 }
 
 bool RootMaker::AddMuons(const edm::Event &iEvent) {
+    if (debug) cout<<"AddMuons..."<<endl;
     int NumGood = 0;
     //edm::Handle<pat::MuonCollection> Muons;
     //iEvent.getByLabel(edm::InputTag("patMuons"), Muons);
     edm::Handle<MuonCollection> Muons;
     iEvent.getByLabel(edm::InputTag("muons"), Muons);
+    if (debug) cout<<"Muons.isValid() = "<<Muons.isValid()<<endl;
     if(Muons.isValid()) {
         for(unsigned i = 0 ; i < Muons->size() ; i++) {
             const Muon &themu = (*Muons)[i];
             muon_px[muon_count] = themu.px();
             muon_py[muon_count] = themu.py();
             muon_pz[muon_count] = themu.pz();
+            muon_pt[muon_count] = themu.pt();
+            muon_phi[muon_count] = themu.phi();
+            muon_eta[muon_count] = themu.eta();
             if(themu.globalTrack().isNonnull()) {
                 muon_pterror[muon_count] = themu.globalTrack()->ptError();
                 muon_chi2[muon_count] = themu.globalTrack()->chi2();
@@ -1901,7 +1926,7 @@ UInt_t RootMaker::GetTrigger(const LeafCandidate &particle, vector<pair<unsigned
     return (result);
 }
 bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-
+    if (debug) cout<<"AddPhotons..."<<endl;
     int NumGood = 0;
     edm::Handle<PhotonCollection> Photons;
     //iEvent.getByLabel(edm::InputTag("photons"), Photons);
@@ -1912,7 +1937,7 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
     //iEvent.getByLabel(edm::InputTag("phPFIsoValueGamma03PFIdPFIso"), photonIsoPF[1]);
     //iEvent.getByLabel(edm::InputTag("phPFIsoValueNeutral03PFIdPFIso"), photonIsoPF[2]);
     //cout << "PH " << photonIsoPF[0].isValid() << endl;
-
+    if (debug) cout<<"Photons.isValid() = "<<Photons.isValid()<<endl;
     if(Photons.isValid() && Photons->size() > 0) {
         edm::Handle<GsfElectronCollection> Electrons;
         //iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
@@ -1936,6 +1961,9 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
                 photon_px[photon_count] = theph.px();
                 photon_py[photon_count] = theph.py();
                 photon_pz[photon_count] = theph.pz();
+                photon_pt[photon_count] = theph.pt();
+                photon_phi[photon_count] = theph.phi();
+                photon_eta[photon_count] = theph.eta();
                 photon_e1x5[photon_count] = theph.e1x5();
                 photon_e2x5[photon_count] = theph.e2x5();
                 photon_e3x3[photon_count] = theph.e3x3();
@@ -2107,8 +2135,10 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
     return (false);
 }
 bool RootMaker::AddAllConversions(const edm::Event &iEvent) {
+    if (debug) cout<<"AddAllConversions..."<<endl;
     edm::Handle<ConversionCollection> Conversions;
     iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+    if (debug) cout<<"Conversions.isValid() = "<<Conversions.isValid()<<endl;
     if(Conversions.isValid()) {
         for(unsigned i = 0 ; i < Conversions->size() ; i++) {
             allconversion_info[allconversion_count] = 0;
@@ -2194,12 +2224,14 @@ bool RootMaker::AddAllConversions(const edm::Event &iEvent) {
     return (true);
 }
 bool RootMaker::AddTaus(const edm::Event &iEvent) {
+    if (debug) cout<<"AddTaus..."<<endl;
     int NumGood = 0;
     edm::Handle<PFTauCollection> Taus;
     //iEvent.getByLabel(edm::InputTag("shrinkingConePFTauProducer"), Taus);
     iEvent.getByLabel(edm::InputTag("hpsPFTauProducer"), Taus);
     edm::Handle<pat::JetCollection> ak4pfJets;
     iEvent.getByLabel(edm::InputTag("patJetsAK4PF"), ak4pfJets);
+    if (debug) cout<<"Taus.isValid() = "<<Taus.isValid()<<endl;
     if(Taus.isValid()) {
         vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
         for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++) {
@@ -2220,6 +2252,9 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
             tau_px[tau_count] = (*Taus)[i].px();
             tau_py[tau_count] = (*Taus)[i].py();
             tau_pz[tau_count] = (*Taus)[i].pz();
+            tau_pt[tau_count] = (*Taus)[i].pt();
+            tau_phi[tau_count] = (*Taus)[i].phi();
+            tau_eta[tau_count] = (*Taus)[i].eta();
             tau_emfraction[tau_count] = (*Taus)[i].emFraction();
             tau_hcaltotoverplead[tau_count] = (*Taus)[i].hcalTotOverPLead();
             tau_hcal3x3overplead[tau_count] = (*Taus)[i].hcalMaxOverPLead();
@@ -2335,12 +2370,15 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
     if(NumGood >= cTauNum) { return (true); }
     return (false);
 }
+
 bool RootMaker::AddTracks(const edm::Event &iEvent) {
+    if (debug) cout<<"AddTracks..."<<endl;
     int NumGood = 0;
     edm::Handle<TrackCollection> Tracks;
     iEvent.getByLabel(edm::InputTag("generalTracks"), Tracks);
     edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
     iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+    if (debug) cout<<"Tracks.isValid() = "<<Tracks.isValid()<<endl;
     if(Tracks.isValid()) {
         for(unsigned i = 0 ; i < Tracks->size() ; i++) {
             int numvtx = getPrimVertex((*Tracks)[i]);
@@ -2401,10 +2439,11 @@ bool RootMaker::AddTracks(const edm::Event &iEvent) {
 }
 
 bool RootMaker::AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+    if (debug) cout<<"AddAK4CaloJets..."<<endl;
     int NumGood = 0;
-
     edm::Handle<pat::JetCollection> ak4caloJets;
     iEvent.getByLabel(edm::InputTag("patJetsAK4Calo"), ak4caloJets);
+    if (debug) cout<<"ak4caloJets.isValid() = "<<ak4caloJets.isValid()<<endl;
     if(ak4caloJets.isValid()) {
         for(unsigned i = 0 ; i < ak4caloJets->size() ; i++) {
             if((*ak4caloJets)[i].pt() >= cAK4CaloFilterPtMin) {
@@ -2450,10 +2489,11 @@ bool RootMaker::AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &
 }
 
 bool RootMaker::AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+    if (debug) cout<<"AddAK4JPTJets..."<<endl;
     int NumGood = 0;
-
     edm::Handle<pat::JetCollection> ak4jptJets;
     iEvent.getByLabel(edm::InputTag("patJetsAK4JPT"), ak4jptJets);
+    if (debug) cout<<"ak4jptJets.isValid() = "<<ak4jptJets.isValid()<<endl;
     if(ak4jptJets.isValid()) {
         for(unsigned i = 0 ; i < ak4jptJets->size() ; i++) {
             if((*ak4jptJets)[i].pt() >= cAK4JPTFilterPtMin) {
@@ -2498,13 +2538,13 @@ bool RootMaker::AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &i
 }
 
 bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+    if (debug) cout<<"AddAK4PFCHSJets..."<<endl;
     int NumGood = 0;
-
     edm::Handle<pat::JetCollection> ak4pfJets;
     iEvent.getByLabel(edm::InputTag("selectedPatJetsPFlow"), ak4pfJets);
-
     edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
     iEvent.getByLabel("AK4byValAlgo", jetMCFlHandle);
+    if (debug) cout<<"ak4pfJets.isValid() = "<<ak4pfJets.isValid()<<endl;
     if(ak4pfJets.isValid()) {
         for(unsigned i = 0 ; i < ak4pfJets->size() ; i++) {
             pat::Jet corjet((*ak4pfJets)[i]);
@@ -2513,6 +2553,9 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                 ak4pfchsjet_px[ak4pfchsjet_count] = corjet.px();
                 ak4pfchsjet_py[ak4pfchsjet_count] = corjet.py();
                 ak4pfchsjet_pz[ak4pfchsjet_count] = corjet.pz();
+                ak4pfchsjet_pt[ak4pfchsjet_count] = corjet.pt();
+                ak4pfchsjet_phi[ak4pfchsjet_count] = corjet.phi();
+                ak4pfchsjet_eta[ak4pfchsjet_count] = corjet.eta();
                 ak4pfchsjet_area[ak4pfchsjet_count] = corjet.jetArea();
                 ak4pfchsjet_hadronicenergy[ak4pfchsjet_count] = corjet.chargedHadronEnergy() + corjet.neutralHadronEnergy();
                 ak4pfchsjet_chargedhadronicenergy[ak4pfchsjet_count] = corjet.chargedHadronEnergy();
@@ -2590,26 +2633,24 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
 }
 
 bool RootMaker::AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+    if (debug) cout<<"AddAK4PFJets..."<<endl;
     int NumGood = 0;
-
     edm::Handle<PFJetCollection> ak4pfJets;
     iEvent.getByLabel(edm::InputTag("ak4PFJets"), ak4pfJets);
     const JetCorrector *corrector = JetCorrector::getJetCorrector((string("ak4PF")+cJetCorrection).c_str(), iSetup);
-
     edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
     iSetup.get<JetCorrectionsRecord>().get("AK4PF",JetCorParColl);
     JetCorrectorParameters const &JetCorPar = (*JetCorParColl)["Uncertainty"];
     JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
-
     edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
     iEvent.getByLabel("AK4byValAlgo", jetMCFlHandle);
-
     edm::Handle<ValueMap<float> > puidfullHandle;
     iEvent.getByLabel(edm::InputTag("recoPuJetMva", "fullDiscriminant", "ROOTMAKER"), puidfullHandle);
     //edm::Handle<ValueMap<float> > puidsimpleHandle;
     //iEvent.getByLabel(edm::InputTag("recoPuJetMva", "simpleDiscriminant", "ROOTMAKER"), puidsimpleHandle);
     edm::Handle<ValueMap<float> > puidcutbasedHandle;
     iEvent.getByLabel(edm::InputTag("recoPuJetMva", "cutbasedDiscriminant", "ROOTMAKER"), puidcutbasedHandle);
+    if (debug) cout<<"ak4pfJets.isValid() = "<<ak4pfJets.isValid()<<endl;
     if(ak4pfJets.isValid()) {
         for(unsigned i = 0 ; i < ak4pfJets->size() ; i++) {
             PFJet corjet((*ak4pfJets)[i]);
@@ -3042,6 +3083,7 @@ RootMaker::JetShape RootMaker::getJetShape(const PFJet &jet) {
 
 
 bool RootMaker::AddElectrons(const edm::Event &iEvent) {
+    if (debug) cout<<"AddElectrons..."<<endl;
     int NumGood = 0;
     //if(crecelectrontrigger)
     //{
@@ -3067,7 +3109,7 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     edm::Handle<edm::ValueMap<float> > eIDValueMapLoose;
     iEvent.getByLabel("eidLooseMC", eIDValueMapLoose);
     const edm::ValueMap<float> &eIDLoosemap = * eIDValueMapLoose;
-
+    if (debug) cout<<"Electrons.isValid() = "<<Electrons.isValid()<<endl;
     if(Electrons.isValid()) {
         //for(GsfElectronCollection::const_iterator itel = Electrons->begin() ; itel != Electrons->end() ; ++itel)
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
@@ -3078,6 +3120,9 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
                 electron_px[electron_count] = theel.px();
                 electron_py[electron_count] = theel.py();
                 electron_pz[electron_count] = theel.pz();
+                electron_pt[electron_count] = theel.pt();
+                electron_phi[electron_count] = theel.phi();
+                electron_eta[electron_count] = theel.eta();
                 electron_correctedecalenergy[electron_count] = theel.ecalEnergy();
                 electron_charge[electron_count] = theel.charge();
                 electron_esuperclusterovertrack[electron_count] = theel.eSuperClusterOverP();
@@ -3211,6 +3256,7 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     return (false);
 }
 Int_t RootMaker::getSuperClusterEl(const SuperClusterRef &A) {
+    if (debug) cout<<"getSuperClusterEl..."<<endl;
     TVector3 testa(A->x(), A->y(), A->z());
     for(UInt_t i = 0 ; i < supercluster_count ; i++) {
         TVector3 testb(supercluster_x[i], supercluster_y[i], supercluster_z[i]);
@@ -3223,6 +3269,7 @@ Int_t RootMaker::getSuperClusterEl(const SuperClusterRef &A) {
 }
 
 Int_t RootMaker::getSuperClusterPh(const SuperClusterRef &A) {
+    if (debug) cout<<"getSuperClusterPh..."<<endl;
     for(UInt_t i = 0 ; i < supercluster_count ; i++) {
         if(supercluster_rawe[i] == Float_t (A->rawEnergy())) {
             return (i);
@@ -3245,12 +3292,14 @@ Int_t RootMaker::getPrimVertex(const Track &trk) {
 }
 
 bool RootMaker::AddVertices(const edm::Event &iEvent) {
+    if (debug) cout<<"AddVertices..."<<endl;
     double mpi = 0.13957018;
     double mp = 0.93827203;
     edm::Handle<TrackCollection> Tracks;
     iEvent.getByLabel(edm::InputTag("generalTracks"), Tracks);
     edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
     iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+    if (debug) cout<<"Tracks.isValid() = "<<Tracks.isValid()<<endl;
     if(Tracks.isValid() && primvertex_count > 0) {
         KalmanVertexFitter fitter(true);
 

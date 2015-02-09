@@ -252,6 +252,7 @@ private:
     TH1D *drhist;
     //Configuration
     bool isMiniAOD;
+    bool debug;
     bool cgen;
     bool cgenallparticles;
     bool cgenak4jets;
@@ -468,6 +469,9 @@ private:
     Float_t muon_px[M_muonmaxcount];
     Float_t muon_py[M_muonmaxcount];
     Float_t muon_pz[M_muonmaxcount];
+    Float_t muon_pt[M_muonmaxcount];
+    Float_t muon_phi[M_muonmaxcount];
+    Float_t muon_eta[M_muonmaxcount];
     Float_t muon_pterror[M_muonmaxcount];
     Float_t muon_chi2[M_muonmaxcount];
     Float_t muon_ndof[M_muonmaxcount];
@@ -607,6 +611,9 @@ private:
     Float_t ak4pfchsjet_px[M_jetmaxcount];
     Float_t ak4pfchsjet_py[M_jetmaxcount];
     Float_t ak4pfchsjet_pz[M_jetmaxcount];
+    Float_t ak4pfchsjet_pt[M_jetmaxcount];
+    Float_t ak4pfchsjet_phi[M_jetmaxcount];
+    Float_t ak4pfchsjet_eta[M_jetmaxcount];
     Float_t ak4pfchsjet_area[M_jetmaxcount];
     Float_t ak4pfchsjet_hadronicenergy[M_jetmaxcount];
     Float_t ak4pfchsjet_chargedhadronicenergy[M_jetmaxcount];
@@ -642,6 +649,9 @@ private:
     Float_t electron_px[M_electronmaxcount];
     Float_t electron_py[M_electronmaxcount];
     Float_t electron_pz[M_electronmaxcount];
+    Float_t electron_pt[M_electronmaxcount];
+    Float_t electron_phi[M_electronmaxcount];
+    Float_t electron_eta[M_electronmaxcount];
     Float_t electron_correctedecalenergy[M_electronmaxcount];
     Float_t electron_trackchi2[M_electronmaxcount];
     Float_t electron_trackndof[M_electronmaxcount];
@@ -708,6 +718,9 @@ private:
     Float_t photon_px[M_photonmaxcount];
     Float_t photon_py[M_photonmaxcount];
     Float_t photon_pz[M_photonmaxcount];
+    Float_t photon_pt[M_photonmaxcount];
+    Float_t photon_phi[M_photonmaxcount];
+    Float_t photon_eta[M_photonmaxcount];
     Float_t photon_e1x5[M_photonmaxcount];
     Float_t photon_e2x5[M_photonmaxcount];
     Float_t photon_e3x3[M_photonmaxcount];
@@ -820,6 +833,9 @@ private:
     Float_t tau_px[M_taumaxcount];
     Float_t tau_py[M_taumaxcount];
     Float_t tau_pz[M_taumaxcount];
+    Float_t tau_pt[M_taumaxcount];
+    Float_t tau_phi[M_taumaxcount];
+    Float_t tau_eta[M_taumaxcount];
     Float_t tau_isolationneutralspt[M_taumaxcount];
     UInt_t tau_isolationneutralsnum[M_taumaxcount];
     Float_t tau_isolationchargedpt[M_taumaxcount];
