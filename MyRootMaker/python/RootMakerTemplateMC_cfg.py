@@ -106,8 +106,8 @@ process.pfType0Type1CorrectedMet = pfMetT1.clone(
     )
 )
 process.metAnalysisSequence=cms.Sequence(process.type0PFMEtCorrection*process.patMETCorrections*process.pfType0Type1CorrectedMet)
-#process.jet_step = cms.Path(process.kt6PFJets*process.metAnalysisSequence)
-process.jet_step = cms.Path(process.kt6PFJets)
+process.jet_step = cms.Path(process.kt6PFJets*process.metAnalysisSequence)
+#process.jet_step = cms.Path(process.kt6PFJets)
 
 ######PF ISO calculation for Electrons
 process.load('CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff')
@@ -128,32 +128,37 @@ process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")
 process.AK4byRef.jets = cms.InputTag("ak4PFJets")
 process.jetflavour_step = cms.Path(process.myPartons * process.AK4Flavour)
 
-######PAT
+###########
+######PAT##
+###########
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
 process.out = cms.OutputModule("PoolOutputModule",
-		fileName = cms.untracked.string('patTuple.root'),
-# save only events passing the full path
-		SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
-# save PAT Layer 1 output; you need a '*' to
-# unpack the list of commands 'patEventContent'
-		outputCommands = cms.untracked.vstring('drop *', *patEventContent )
-		)
+    fileName = cms.untracked.string('patTuple.root'),
+    # save only events passing the full path
+    SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
+    # save PAT Layer 1 output; you need a '*' to
+    # unpack the list of commands 'patEventContent'
+    outputCommands = cms.untracked.vstring('drop *', *patEventContent )
+)
 from PhysicsTools.PatAlgos.tools.coreTools import *
 #removeAllPATObjectsBut(process, ['Jets'])
 from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
 postfix = "PFlow"
+#postfix = ""
 usePF2PAT(process,runPF2PAT=True,
-		jetAlgo='AK4', runOnMC=False, postfix=postfix,
-		#jetCorrections=('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),
-                jetCorrections=('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'],'Type-1'),
+    jetAlgo='AK4', runOnMC=True, postfix=postfix,
+    #jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),
+    jetCorrections=('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'],'Type-1'),
+    pvCollection=cms.InputTag('offlinePrimaryVertices')
+)
+#process.pfPileUpPFlow.checkClosestZVertex = False
+process.pfPileUp.checkClosestZVertex = False
 
-		pvCollection=cms.InputTag('offlinePrimaryVertices')
-	 )
-process.pfPileUpPFlow.checkClosestZVertex = False
-#getattr(process, "patPF2PATSequence"+postfix).remove(getattr(process, "cleanPatCandidates"+postfix))
-#getattr(process, "patPF2PATSequence"+postfix).remove(getattr(process, "countPatCandidates"+postfix))
-#process.patseq = cms.Sequence(getattr(process,"patPF2PATSequence"+postfix))
+####getattr(process, "patPF2PATSequence"+postfix).remove(getattr(process, "cleanPatCandidates"+postfix))
+####getattr(process, "patPF2PATSequence"+postfix).remove(getattr(process, "countPatCandidates"+postfix))
+####process.patseq = cms.Sequence(getattr(process,"patPF2PATSequence"+postfix))
+
 #process.pat_step = cms.Path(process.patseq)
 
 ######Pileup Jet ID (Hendrik)
@@ -337,18 +342,18 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     
     RecTauPtMin = cms.untracked.double(0.),
     RecTauEta = cms.untracked.double(0.),
-    RecTauNum = cms.untracked.int32(100000),
+#    RecTauNum = cms.untracked.int32(100000),
     
     RecAK4CaloJet = cms.untracked.bool(False),
     RecAK4CaloPtMin = cms.untracked.double(20.),
     RecAK4CaloEtaMax = cms.untracked.double(2.4),
-    RecAK4CaloNum = cms.untracked.int32(100000),
+#    RecAK4CaloNum = cms.untracked.int32(100000),
     RecAK4CaloFilterPtMin = cms.untracked.double(20.),
     
     RecAK4JPTJet = cms.untracked.bool(False),
     RecAK4JPTPtMin = cms.untracked.double(20.),
     RecAK4JPTEtaMax = cms.untracked.double(2.4),
-    RecAK4JPTNum = cms.untracked.int32(100000),
+#    RecAK4JPTNum = cms.untracked.int32(100000),
     RecAK4JPTFilterPtMin = cms.untracked.double(20.),
     
     #JetCorrection = cms.untracked.string('L1FastL2L3Residual'),#Data
@@ -358,13 +363,13 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     RecAK4PFJet = cms.untracked.bool(True),
     RecAK4PFPtMin = cms.untracked.double(20.),
     RecAK4PFEtaMax = cms.untracked.double(3.0),
-    RecAK4PFNum = cms.untracked.int32(100000),
+#    RecAK4PFNum = cms.untracked.int32(100000),
     RecAK4PFFilterPtMin = cms.untracked.double(20.),
     
     RecAK4PFCHSJet = cms.untracked.bool(True),
     RecAK4PFCHSPtMin = cms.untracked.double(20.),
     RecAK4PFCHSEtaMax = cms.untracked.double(3.0),
-    RecAK4PFCHSNum = cms.untracked.int32(100000),
+#    RecAK4PFCHSNum = cms.untracked.int32(100000),
     RecAK4PFCHSFilterPtMin = cms.untracked.double(20.),
     
     RecSecVertices = cms.untracked.bool(False),
