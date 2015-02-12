@@ -250,6 +250,52 @@ private:
     TTree *lumitree;
     TTree *runtree;
     TH1D *drhist;
+
+    TH1F *all_muon_count;
+    TH1F *all_muon_pt;
+    TH1F *all_muon_phi;
+    TH1F *all_muon_eta;
+    TH1F *good_muon_count;
+    TH1F *good_muon_pt;
+    TH1F *good_muon_phi;
+    TH1F *good_muon_eta;
+
+    TH1F *all_electron_count;
+    TH1F *all_electron_pt;
+    TH1F *all_electron_phi;
+    TH1F *all_electron_eta;
+    TH1F *good_electron_count;
+    TH1F *good_electron_pt;
+    TH1F *good_electron_phi;
+    TH1F *good_electron_eta;
+
+    TH1F *all_tau_count;
+    TH1F *all_tau_pt;
+    TH1F *all_tau_phi;
+    TH1F *all_tau_eta;
+    TH1F *good_tau_count;
+    TH1F *good_tau_pt;
+    TH1F *good_tau_phi;
+    TH1F *good_tau_eta;
+
+    TH1F *all_photon_count;
+    TH1F *all_photon_pt;
+    TH1F *all_photon_phi;
+    TH1F *all_photon_eta;
+    TH1F *good_photon_count;
+    TH1F *good_photon_pt;
+    TH1F *good_photon_phi;
+    TH1F *good_photon_eta;
+
+    TH1F *all_jet_count;
+    TH1F *all_jet_pt;
+    TH1F *all_jet_phi;
+    TH1F *all_jet_eta;
+    TH1F *good_jet_count;
+    TH1F *good_jet_pt;
+    TH1F *good_jet_phi;
+    TH1F *good_jet_eta;
+
     //Configuration
     bool isMiniAOD;
     bool debug;

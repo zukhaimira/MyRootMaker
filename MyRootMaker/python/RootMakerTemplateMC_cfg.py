@@ -14,7 +14,7 @@ process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 process.MessageLogger.cerr.threshold = 'INFO'
 #process.MessageLogger.categories.append('PATSummaryTables')
-process.GlobalTag.globaltag = cms.string('START70_V7::All')
+#process.GlobalTag.globaltag = cms.string('START70_V7::All')
 
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 

@@ -157,6 +157,51 @@ void RootMaker::beginJob() {
     tree = FS->make<TTree> ("AC1B", "AC1B", 1);
     drhist = FS->make<TH1D> ("drhist", "drhist", 10000, 0., 100.);
 
+    all_muon_count = FS->make<TH1F> ("all_muon_count", "all_muon_count", 30, 0., 30.);
+    all_muon_pt = FS->make<TH1F> ("all_muon_pt", "all_muon_pt", 100, 0., 100.);
+    all_muon_phi = FS->make<TH1F> ("all_muon_phi", "all_muon_phi", 80, -4., 4.);
+    all_muon_eta = FS->make<TH1F> ("all_muon_eta", "all_muon_eta", 60, -3., 3.);
+    good_muon_count = FS->make<TH1F> ("good_muon_count", "good_muon_count", 20, 0., 20.);
+    good_muon_pt = FS->make<TH1F> ("good_muon_pt", "good_muon_pt", 100, 0., 100.);
+    good_muon_phi = FS->make<TH1F> ("good_muon_phi", "good_muon_phi", 80, -4., 4.);
+    good_muon_eta = FS->make<TH1F> ("good_muon_eta", "good_muon_eta", 60, -3., 3.);
+
+    all_electron_count = FS->make<TH1F> ("all_electron_count", "all_electron_count", 30, 0., 30.);
+    all_electron_pt = FS->make<TH1F> ("all_electron_pt", "all_electron_pt", 100, 0., 100.);
+    all_electron_phi = FS->make<TH1F> ("all_electron_phi", "all_electron_phi", 80, -4., 4.);
+    all_electron_eta = FS->make<TH1F> ("all_electron_eta", "all_electron_eta", 60, -3., 3.);
+    good_electron_count = FS->make<TH1F> ("good_electron_count", "good_electron_count", 20, 0., 20.);
+    good_electron_pt = FS->make<TH1F> ("good_electron_pt", "good_electron_pt", 100, 0., 100.);
+    good_electron_phi = FS->make<TH1F> ("good_electron_phi", "good_electron_phi", 80, -4., 4.);
+    good_electron_eta = FS->make<TH1F> ("good_electron_eta", "good_electron_eta", 60, -3., 3.);
+
+    all_tau_count = FS->make<TH1F> ("all_tau_count", "all_tau_count", 30, 0., 30.);
+    all_tau_pt = FS->make<TH1F> ("all_tau_pt", "all_tau_pt", 100, 0., 100.);
+    all_tau_phi = FS->make<TH1F> ("all_tau_phi", "all_tau_phi", 80, -4., 4.);
+    all_tau_eta = FS->make<TH1F> ("all_tau_eta", "all_tau_eta", 60, -3., 3.);
+    good_tau_count = FS->make<TH1F> ("good_tau_count", "good_tau_count", 20, 0., 20.);
+    good_tau_pt = FS->make<TH1F> ("good_tau_pt", "good_tau_pt", 100, 0., 100.);
+    good_tau_phi = FS->make<TH1F> ("good_tau_phi", "good_tau_phi", 80, -4., 4.);
+    good_tau_eta = FS->make<TH1F> ("good_tau_eta", "good_tau_eta", 60, -3., 3.);
+
+    all_photon_count = FS->make<TH1F> ("all_photon_count", "all_photon_count", 30, 0., 30.);
+    all_photon_pt = FS->make<TH1F> ("all_photon_pt", "all_photon_pt", 100, 0., 100.);
+    all_photon_phi = FS->make<TH1F> ("all_photon_phi", "all_photon_phi", 80, -4., 4.);
+    all_photon_eta = FS->make<TH1F> ("all_photon_eta", "all_photon_eta", 60, -3., 3.);
+    good_photon_count = FS->make<TH1F> ("good_photon_count", "good_photon_count", 20, 0., 20.);
+    good_photon_pt = FS->make<TH1F> ("good_photon_pt", "good_photon_pt", 100, 0., 100.);
+    good_photon_phi = FS->make<TH1F> ("good_photon_phi", "good_photon_phi", 80, -4., 4.);
+    good_photon_eta = FS->make<TH1F> ("good_photon_eta", "good_photon_eta", 60, -3., 3.);
+
+    all_jet_count = FS->make<TH1F> ("all_jet_count", "all_jet_count", 200, 0., 200.);
+    all_jet_pt = FS->make<TH1F> ("all_jet_pt", "all_jet_pt", 100, 0., 100.);
+    all_jet_phi = FS->make<TH1F> ("all_jet_phi", "all_jet_phi", 80, -4., 4.);
+    all_jet_eta = FS->make<TH1F> ("all_jet_eta", "all_jet_eta", 60, -3., 3.);
+    good_jet_count = FS->make<TH1F> ("good_jet_count", "good_jet_count", 100, 0., 100.);
+    good_jet_pt = FS->make<TH1F> ("good_jet_pt", "good_jet_pt", 100, 0., 100.);
+    good_jet_phi = FS->make<TH1F> ("good_jet_phi", "good_jet_phi", 80, -4., 4.);
+    good_jet_eta = FS->make<TH1F> ("good_jet_eta", "good_jet_eta", 60, -3., 3.);
+
     tree->Branch("errors", &errors, "errors/i");
     tree->Branch("event_nr", &event_nr, "event_nr/D");
     tree->Branch("event_run", &event_run, "event_run/i");
@@ -1698,15 +1743,21 @@ math::XYZPoint RootMaker::PositionOnECalSurface(TransientTrack &trTrack) {
 
 bool RootMaker::AddMuons(const edm::Event &iEvent) {
     if (debug) cout<<"AddMuons..."<<endl;
+    int NumAll = 0;
     int NumGood = 0;
     //edm::Handle<pat::MuonCollection> Muons;
     //iEvent.getByLabel(edm::InputTag("patMuons"), Muons);
     edm::Handle<MuonCollection> Muons;
     iEvent.getByLabel(edm::InputTag("muons"), Muons);
     if (debug) cout<<"Muons.isValid() = "<<Muons.isValid()<<endl;
+    if (debug) cout<<"Muons->size() = "<<Muons->size()<<endl;
+    NumAll = Muons->size();
     if(Muons.isValid()) {
         for(unsigned i = 0 ; i < Muons->size() ; i++) {
             const Muon &themu = (*Muons)[i];
+            all_muon_pt->Fill(themu.pt());
+            all_muon_phi->Fill(themu.phi());
+            all_muon_eta->Fill(themu.eta());
             muon_px[muon_count] = themu.px();
             muon_py[muon_count] = themu.py();
             muon_pz[muon_count] = themu.pz();
@@ -1879,13 +1930,17 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
             }
             if(themu.isGlobalMuon() && themu.isTrackerMuon() && themu.pt() >= cMuPtMin && fabs(themu.eta()) <= cMuEtaMax && themu.isolationR03().sumPt/themu.pt() <= cMuTrackIso) {
                 NumGood++;
+                good_muon_pt->Fill(themu.pt());
+                good_muon_phi->Fill(themu.phi());
+                good_muon_eta->Fill(themu.eta()); 
                 double energy = sqrt(pow(muon_px[i],2) + pow(muon_py[i],2) + pow(muon_pz[i],2));
                 MuVector.push_back(TLorentzVector(muon_px[i], muon_py[i], muon_pz[i], energy));
 
             }
         }
     }
-
+    all_muon_count->Fill(NumAll);
+    good_muon_count->Fill(NumGood);
     if(NumGood >= cMuNum) { return (true); }
     return (false);
 }
@@ -1927,6 +1982,7 @@ UInt_t RootMaker::GetTrigger(const LeafCandidate &particle, vector<pair<unsigned
 }
 bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     if (debug) cout<<"AddPhotons..."<<endl;
+    int NumAll = 0;
     int NumGood = 0;
     edm::Handle<PhotonCollection> Photons;
     //iEvent.getByLabel(edm::InputTag("photons"), Photons);
@@ -1938,6 +1994,8 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
     //iEvent.getByLabel(edm::InputTag("phPFIsoValueNeutral03PFIdPFIso"), photonIsoPF[2]);
     //cout << "PH " << photonIsoPF[0].isValid() << endl;
     if (debug) cout<<"Photons.isValid() = "<<Photons.isValid()<<endl;
+    if (debug) cout<<"Photons->size() = "<<Photons->size()<<endl;
+    NumAll = Photons->size();
     if(Photons.isValid() && Photons->size() > 0) {
         edm::Handle<GsfElectronCollection> Electrons;
         //iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
@@ -1956,6 +2014,9 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
 
         for(size_t n = 0 ; n < Photons->size() ; n++) {
             const Photon &theph = (*Photons)[n];
+            all_photon_pt->Fill(theph.pt());
+            all_photon_phi->Fill(theph.phi());
+            all_photon_eta->Fill(theph.eta());
             PhotonRef refph(Photons, n);
             if(theph.pt() > cPhotonFilterPtMin && TMath::Abs(theph.eta()) < cPhotonFilterEtaMax) {
                 photon_px[photon_count] = theph.px();
@@ -2125,11 +2186,17 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
                 }
                 photon_count++;
                 if(photon_count == M_photonmaxcount || conversion_count == M_conversionmaxcount) {cerr << "number of photon > M_photonmaxcount. They are missing." << endl; errors |= 1<<3; break;}
-                if(theph.pt() >= cPhotonPtMin && fabs(theph.eta()) <= cPhotonEtaMax) { NumGood++; }
+                if(theph.pt() >= cPhotonPtMin && fabs(theph.eta()) <= cPhotonEtaMax) { 
+                    NumGood++; 
+                    good_photon_pt->Fill(theph.pt());
+                    good_photon_phi->Fill(theph.phi());
+                    good_photon_eta->Fill(theph.eta()); 
+                }
             }
         }
     }
-
+    all_photon_count->Fill(NumAll);
+    good_photon_count->Fill(NumGood);
     if(NumGood >= cPhotonNum) { return (true); }
 
     return (false);
@@ -2225,6 +2292,7 @@ bool RootMaker::AddAllConversions(const edm::Event &iEvent) {
 }
 bool RootMaker::AddTaus(const edm::Event &iEvent) {
     if (debug) cout<<"AddTaus..."<<endl;
+    int NumAll = 0;
     int NumGood = 0;
     edm::Handle<PFTauCollection> Taus;
     //iEvent.getByLabel(edm::InputTag("shrinkingConePFTauProducer"), Taus);
@@ -2232,6 +2300,8 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
     edm::Handle<pat::JetCollection> ak4pfJets;
     iEvent.getByLabel(edm::InputTag("patJetsAK4PF"), ak4pfJets);
     if (debug) cout<<"Taus.isValid() = "<<Taus.isValid()<<endl;
+    if (debug) cout<<"Taus->size() = "<<Taus->size()<<endl;
+    NumAll = Taus->size();
     if(Taus.isValid()) {
         vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
         for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++) {
@@ -2249,6 +2319,9 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
                 if((*PFTauDiscriminatiors[n])[tauCandidate] > 0.5) {tau_dishps[tau_count] |= 1<<n;}
             }
 
+            all_tau_pt->Fill((*Taus)[i].pt());
+            all_tau_phi->Fill((*Taus)[i].phi());
+            all_tau_eta->Fill((*Taus)[i].eta());
             tau_px[tau_count] = (*Taus)[i].px();
             tau_py[tau_count] = (*Taus)[i].py();
             tau_pz[tau_count] = (*Taus)[i].pz();
@@ -2363,10 +2436,16 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
             tau_count++;
 
             if(tau_count == M_taumaxcount || tau_charged_count == M_taumaxcount*10) {cerr << "number of taus > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
-            if((*Taus)[i].pt() >= cTauPtMin && fabs((*Taus)[i].eta()) < cTauEtaMax) { NumGood++; }
+            if((*Taus)[i].pt() >= cTauPtMin && fabs((*Taus)[i].eta()) < cTauEtaMax) { 
+                NumGood++; 
+                good_tau_pt->Fill((*Taus)[i].pt());
+                good_tau_phi->Fill((*Taus)[i].phi());
+                good_tau_eta->Fill((*Taus)[i].eta()); 
+            }
         }
     }
-
+    all_tau_count->Fill(NumAll);
+    good_tau_count->Fill(NumGood);
     if(NumGood >= cTauNum) { return (true); }
     return (false);
 }
@@ -2539,15 +2618,21 @@ bool RootMaker::AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &i
 
 bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     if (debug) cout<<"AddAK4PFCHSJets..."<<endl;
+    int NumAll = 0;
     int NumGood = 0;
     edm::Handle<pat::JetCollection> ak4pfJets;
     iEvent.getByLabel(edm::InputTag("selectedPatJetsPFlow"), ak4pfJets);
     edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
     iEvent.getByLabel("AK4byValAlgo", jetMCFlHandle);
     if (debug) cout<<"ak4pfJets.isValid() = "<<ak4pfJets.isValid()<<endl;
+    if (debug) cout<<"ak4pfJets->size() = "<<ak4pfJets->size()<<endl;
+    NumAll = ak4pfJets->size();
     if(ak4pfJets.isValid()) {
         for(unsigned i = 0 ; i < ak4pfJets->size() ; i++) {
             pat::Jet corjet((*ak4pfJets)[i]);
+            all_jet_pt->Fill(corjet.pt());
+            all_jet_phi->Fill(corjet.phi());
+            all_jet_eta->Fill(corjet.eta());
             if(corjet.pt() >= cAK4PFCHSFilterPtMin) {
                 ak4pfchsjet_e[ak4pfchsjet_count] = corjet.energy();
                 ak4pfchsjet_px[ak4pfchsjet_count] = corjet.px();
@@ -2624,10 +2709,19 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                 ak4pfchsjet_trigger[ak4pfchsjet_count] = GetTrigger(corjet, jettriggers);
                 ak4pfchsjet_count++;
                 if(ak4pfchsjet_count == M_jetmaxcount) {cerr << "number of ak4pfchsjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<25; break;}
-                if(corjet.pt() >= cAK4PFCHSPtMin && fabs(corjet.eta()) < cAK4PFCHSEtaMax) { NumGood++; }
+                if(corjet.pt() >= cAK4PFCHSPtMin && fabs(corjet.eta()) < cAK4PFCHSEtaMax) { 
+                    NumGood++; 
+                    good_jet_pt->Fill(corjet.pt());
+                    good_jet_phi->Fill(corjet.phi());
+                    good_jet_eta->Fill(corjet.eta());
+                }
             }
         }
     }
+    cout<<"jets num all = "<<NumAll<<endl;
+    all_jet_count->Fill(NumAll);
+    cout<<"filled all_jet_count with "<<NumAll<<endl;
+    good_jet_count->Fill(NumGood);
     if(NumGood >= cAK4PFCHSNum) { return (true); }
     return (false);
 }
@@ -3084,6 +3178,7 @@ RootMaker::JetShape RootMaker::getJetShape(const PFJet &jet) {
 
 bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     if (debug) cout<<"AddElectrons..."<<endl;
+    int NumAll = 0;
     int NumGood = 0;
     //if(crecelectrontrigger)
     //{
@@ -3110,11 +3205,16 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     iEvent.getByLabel("eidLooseMC", eIDValueMapLoose);
     const edm::ValueMap<float> &eIDLoosemap = * eIDValueMapLoose;
     if (debug) cout<<"Electrons.isValid() = "<<Electrons.isValid()<<endl;
+    if (debug) cout<<"Electrons->size() = "<<Electrons->size()<<endl;
+    NumAll = Electrons->size();
     if(Electrons.isValid()) {
         //for(GsfElectronCollection::const_iterator itel = Electrons->begin() ; itel != Electrons->end() ; ++itel)
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
             //const GsfElectron& theel = *itel;
             const GsfElectron &theel = (*Electrons)[n];
+            all_electron_pt->Fill(theel.pt());
+            all_electron_phi->Fill(theel.phi());
+            all_electron_eta->Fill(theel.eta());
             GsfElectronRef refel(Electrons, n);
             if(theel.pt() > cElFilterPtMin && TMath::Abs(theel.eta()) < cElFilterEtaMax) {
                 electron_px[electron_count] = theel.px();
@@ -3246,11 +3346,17 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
                     errors |= 1<<1;
                     break;
                 }
-                if(theel.pt() >= cElPtMin && fabs(theel.eta()) <= cElEtaMax && theel.dr03TkSumPt()/theel.pt() <= cElTrackIso) {NumGood++;}
+                if(theel.pt() >= cElPtMin && fabs(theel.eta()) <= cElEtaMax && theel.dr03TkSumPt()/theel.pt() <= cElTrackIso) {
+                    NumGood++;
+                    good_electron_pt->Fill(theel.pt());
+                    good_electron_phi->Fill(theel.phi());
+                    good_electron_eta->Fill(theel.eta());
+                }
             }
         }
     }
-
+    all_electron_count->Fill(NumAll);
+    good_electron_count->Fill(NumGood);
     if(NumGood >= cElNum) { return (true); }
 
     return (false);
