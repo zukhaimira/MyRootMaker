@@ -253,7 +253,7 @@ private:
     edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
     edm::Handle<edm::TriggerResults> metFilterBits;
     edm::Handle<reco::VertexCollection> Vertices;
-    edm::Handle<pat::PackedCandidateCollection> packedPFCands;
+    edm::Handle<pat::PackedCandidateCollection> PFCandidates;
     edm::Handle<pat::MuonCollection> Muons;
     edm::Handle<pat::ElectronCollection> Electrons;
 /*
@@ -262,7 +262,7 @@ private:
 */
     edm::Handle<pat::PhotonCollection> Photons;
     edm::Handle<pat::TauCollection> Taus;
-    edm::Handle<pat::JetCollection> jets;
+    edm::Handle<pat::JetCollection> Jets;
     edm::Handle<pat::JetCollection> jetsAK8;
     edm::Handle<pat::METCollection> pfMetType1;
     edm::Handle<edm::View<reco::GenParticle> > prunedGenParticles;
@@ -289,21 +289,22 @@ private:
     edm::Handle<vector<reco::Conversion>> singleLegConversions;
     edm::Handle<vector<reco::GsfElectronCore> > gedGsfElectronCores;
     edm::Handle<vector<reco::PhotonCore> > gedPhotonCores;
-    edm::Handle<vector<reco::SuperCluster> > superClusters;
+    //edm::Handle<vector<reco::SuperCluster> > superClusters;
+    edm::Handle<vector<reco::SuperCluster> > SCbarrel;
     edm::Handle<vector<pat::PackedCandidate> > lostTracks;
 
-    bool AddTracks(const edm::Event &iEvent);
+//    bool AddTracks(const edm::Event &iEvent);
     bool AddElectrons(const edm::Event &iEvent);
     bool AddMuons(const edm::Event &iEvent);
     bool AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     bool AddAllConversions(const edm::Event &iEvent);
     bool AddTaus(const edm::Event &iEvent);
-    bool AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-    bool AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-    bool AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+//    bool AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+//    bool AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+//    bool AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     bool AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-    bool AddVertices(const edm::Event &iEvent);
-    bool AddMuVertices(const edm::Event &iEvent);
+//    bool AddVertices(const edm::Event &iEvent);
+//    bool AddMuVertices(const edm::Event &iEvent);
     bool AddConvPhotons(const edm::Event &iEvent);
     bool AddCaloPhotons(const edm::Event &iEvent);
     bool foundCompatibleInnerHits(const reco::HitPattern &hitPatA, const reco::HitPattern &hitPatB);
@@ -334,8 +335,55 @@ private:
     TTree *lumitree;
     TTree *runtree;
     TH1D *drhist;
+
+    TH1F *all_muon_count;
+    TH1F *all_muon_pt;
+    TH1F *all_muon_phi;
+    TH1F *all_muon_eta;
+    TH1F *good_muon_count;
+    TH1F *good_muon_pt;
+    TH1F *good_muon_phi;
+    TH1F *good_muon_eta;
+
+    TH1F *all_electron_count;
+    TH1F *all_electron_pt;
+    TH1F *all_electron_phi;
+    TH1F *all_electron_eta;
+    TH1F *good_electron_count;
+    TH1F *good_electron_pt;
+    TH1F *good_electron_phi;
+    TH1F *good_electron_eta;
+
+    TH1F *all_tau_count;
+    TH1F *all_tau_pt;
+    TH1F *all_tau_phi;
+    TH1F *all_tau_eta;
+    TH1F *good_tau_count;
+    TH1F *good_tau_pt;
+    TH1F *good_tau_phi;
+    TH1F *good_tau_eta;
+
+    TH1F *all_photon_count;
+    TH1F *all_photon_pt;
+    TH1F *all_photon_phi;
+    TH1F *all_photon_eta;
+    TH1F *good_photon_count;
+    TH1F *good_photon_pt;
+    TH1F *good_photon_phi;
+    TH1F *good_photon_eta;
+
+    TH1F *all_jet_count;
+    TH1F *all_jet_pt;
+    TH1F *all_jet_phi;
+    TH1F *all_jet_eta;
+    TH1F *good_jet_count;
+    TH1F *good_jet_pt;
+    TH1F *good_jet_phi;
+    TH1F *good_jet_eta;
+
     //Configuration
     bool isMiniAOD;
+    bool debug;
     bool cgen;
     bool cgenallparticles;
     bool cgenak4jets;
@@ -353,9 +401,9 @@ private:
     bool crecelectron;
     bool crecphoton;
     bool crecallconversion;
-    bool crecak4calojet;
-    bool crecak4jptjet;
-    bool crecak4pfjet;
+//    bool crecak4calojet;
+//    bool crecak4jptjet;
+//    bool crecak4pfjet;
     bool crecak4pfchsjet;
     bool crecjettrigger;
     bool crecpfmet;
@@ -471,7 +519,7 @@ private:
     Float_t beamspot_ywidth;
     Float_t beamspot_zsigma;
     Float_t beamspot_cov[6];
-
+/*
     UInt_t track_count;
     Int_t track_vtx[M_trackmaxcount];
     Float_t track_px[M_trackmaxcount];
@@ -496,7 +544,7 @@ private:
     UChar_t track_npixelhits[M_trackmaxcount];
     UChar_t track_npixellayers[M_trackmaxcount];
     UChar_t track_nstriplayers[M_trackmaxcount];
-
+*/
     UInt_t primvertex_count;
     Float_t primvertex_x[M_primvertexmaxcount];
     Float_t primvertex_y[M_primvertexmaxcount];
@@ -552,6 +600,9 @@ private:
     Float_t muon_px[M_muonmaxcount];
     Float_t muon_py[M_muonmaxcount];
     Float_t muon_pz[M_muonmaxcount];
+    Float_t muon_pt[M_muonmaxcount];
+    Float_t muon_phi[M_muonmaxcount];
+    Float_t muon_eta[M_muonmaxcount];
     Float_t muon_pterror[M_muonmaxcount];
     Float_t muon_chi2[M_muonmaxcount];
     Float_t muon_ndof[M_muonmaxcount];
@@ -613,7 +664,7 @@ private:
     UChar_t muon_type[M_muonmaxcount];
     UInt_t muon_trigger[M_muonmaxcount];
     UInt_t muon_trackermuonquality[M_muonmaxcount];
-
+/*
     UInt_t ak4calojet_count;
     Float_t ak4calojet_e[M_jetmaxcount];
     Float_t ak4calojet_px[M_jetmaxcount];
@@ -685,12 +736,15 @@ private:
     Float_t ak4pfjet_btag[M_jetmaxcount][M_btagmax];
     UInt_t ak4pfjet_trigger[M_jetmaxcount];
     Int_t ak4pfjet_mcflavour[M_jetmaxcount];
-
+*/
     UInt_t ak4pfchsjet_count;
     Float_t ak4pfchsjet_e[M_jetmaxcount];
     Float_t ak4pfchsjet_px[M_jetmaxcount];
     Float_t ak4pfchsjet_py[M_jetmaxcount];
     Float_t ak4pfchsjet_pz[M_jetmaxcount];
+    Float_t ak4pfchsjet_pt[M_jetmaxcount];
+    Float_t ak4pfchsjet_phi[M_jetmaxcount];
+    Float_t ak4pfchsjet_eta[M_jetmaxcount];
     Float_t ak4pfchsjet_area[M_jetmaxcount];
     Float_t ak4pfchsjet_hadronicenergy[M_jetmaxcount];
     Float_t ak4pfchsjet_chargedhadronicenergy[M_jetmaxcount];
@@ -726,6 +780,9 @@ private:
     Float_t electron_px[M_electronmaxcount];
     Float_t electron_py[M_electronmaxcount];
     Float_t electron_pz[M_electronmaxcount];
+    Float_t electron_pt[M_electronmaxcount];
+    Float_t electron_phi[M_electronmaxcount];
+    Float_t electron_eta[M_electronmaxcount];
     Float_t electron_correctedecalenergy[M_electronmaxcount];
     Float_t electron_trackchi2[M_electronmaxcount];
     Float_t electron_trackndof[M_electronmaxcount];
@@ -792,6 +849,9 @@ private:
     Float_t photon_px[M_photonmaxcount];
     Float_t photon_py[M_photonmaxcount];
     Float_t photon_pz[M_photonmaxcount];
+    Float_t photon_pt[M_photonmaxcount];
+    Float_t photon_phi[M_photonmaxcount];
+    Float_t photon_eta[M_photonmaxcount];
     Float_t photon_e1x5[M_photonmaxcount];
     Float_t photon_e2x5[M_photonmaxcount];
     Float_t photon_e3x3[M_photonmaxcount];
@@ -904,6 +964,9 @@ private:
     Float_t tau_px[M_taumaxcount];
     Float_t tau_py[M_taumaxcount];
     Float_t tau_pz[M_taumaxcount];
+    Float_t tau_pt[M_taumaxcount];
+    Float_t tau_phi[M_taumaxcount];
+    Float_t tau_eta[M_taumaxcount];
     Float_t tau_isolationneutralspt[M_taumaxcount];
     UInt_t tau_isolationneutralsnum[M_taumaxcount];
     Float_t tau_isolationchargedpt[M_taumaxcount];
@@ -967,7 +1030,7 @@ private:
 
     Float_t pfmettype0type1_ex;
     Float_t pfmettype0type1_ey;
-
+/*
     UInt_t secvertices_count;
     Float_t secvertices_vx[M_secverticesmaxcount];
     Float_t secvertices_vy[M_secverticesmaxcount];
@@ -1021,6 +1084,7 @@ private:
     UChar_t musecvertices_track_npixelhits[M_musecverticesmaxcount][2];
     UChar_t musecvertices_track_npixellayers[M_musecverticesmaxcount][2];
     UChar_t musecvertices_track_nstriplayers[M_musecverticesmaxcount][2];
+*/
     //Generator Information
     Float_t genweight;
     Float_t genid1;
