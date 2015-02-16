@@ -382,8 +382,8 @@ private:
     TH1F *good_jet_eta;
 
     //Configuration
-    bool isMiniAOD;
-    bool debug;
+    bool cisMiniAOD;
+    bool cdebug;
     bool cgen;
     bool cgenallparticles;
     bool cgenak4jets;

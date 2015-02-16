@@ -53,8 +53,8 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     superClustersToken_(consumes<vector<reco::SuperCluster> >(iConfig.getParameter<edm::InputTag>("superClusters"))),
     lostTracksToken_(consumes<vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostTracks"))),
   
-    isMiniAOD(iConfig.getUntrackedParameter<bool> ("isMiniAOD", true)),
-    debug(iConfig.getUntrackedParameter<bool> ("debug", true)),
+    cisMiniAOD(iConfig.getUntrackedParameter<bool> ("isMiniAOD", true)),
+    cdebug(iConfig.getUntrackedParameter<bool> ("debug", true)),
     cgen(iConfig.getUntrackedParameter<bool> ("GenSomeParticles", false)),
     cgenallparticles(iConfig.getUntrackedParameter<bool> ("GenAllParticles", false)),
     cgenak4jets(iConfig.getUntrackedParameter<bool> ("GenAK4Jets", false)),
@@ -196,8 +196,8 @@ std::vector<double> RootMaker::extract(const Collection &cands, Function func) {
 }
 
 void RootMaker::beginJob() {
-    cout<<"begin job... isMiniAOD = "<<isMiniAOD<<endl;
-    cout<<"debug = "<<debug<<endl;
+    cout<<"begin job... isMiniAOD = "<<cisMiniAOD<<endl;
+    cout<<"debug = "<<cdebug<<endl;
     edm::Service<TFileService> FS;
     tree = FS->make<TTree> ("AC1B", "AC1B", 1);
     drhist = FS->make<TH1D> ("drhist", "drhist", 10000, 0., 100.);
@@ -1406,7 +1406,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         AddAllConversions(iEvent);
     }
 
-    if (debug) cout<<"takeevent = "<<takeevent<<endl;
+    if (cdebug) cout<<"takeevent = "<<takeevent<<endl;
     if(!takeevent) { return; }
 /*
     edm::Handle<double> rho;
@@ -1463,7 +1463,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         //iEvent.getByLabel(edm::InputTag("pfType1CorrectedMet"), pfMetType1);
         iEvent.getByToken(metToken_, pfMetType1);
         //iEvent.getByLabel(edm::InputTag("pfMetT1"), pfMetType1);
-        if (debug) cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl;
+        if (cdebug) cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl;
         if(pfMetType1.isValid() && pfMetType1->size() > 0) {
             pfmettype1_ex = (*pfMetType1)[0].px();
             pfmettype1_ey = (*pfMetType1)[0].py();
@@ -1687,7 +1687,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         tree->Fill();
     }
 
-    if (debug) cout<<"end analyse..."<<endl;
+    if (cdebug) cout<<"end analyse..."<<endl;
 }
 
 pair<Int_t, Int_t> RootMaker::HasAnyMother(const GenParticle *particle, vector<int> ids) {
@@ -1807,8 +1807,8 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
     //edm::Handle<MuonCollection> Muons;
     //iEvent.getByLabel(edm::InputTag("muons"), Muons);
     iEvent.getByToken(muonsToken_, Muons);
-    if (debug) cout<<"Muons.isValid() = "<<Muons.isValid()<<endl;
-    if (debug) cout<<"Muons->size() = "<<Muons->size()<<endl;
+    if (cdebug) cout<<"Muons.isValid() = "<<Muons.isValid()<<endl;
+    if (cdebug) cout<<"Muons->size() = "<<Muons->size()<<endl;
     if(Muons.isValid()) {
         all_muon_count->Fill(Muons->size());
         for(unsigned i = 0 ; i < Muons->size() ; i++) {
@@ -1998,7 +1998,7 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
         }
     }
     good_muon_count->Fill(NumGood);
-    if (debug) cout<<"num good muon = "<<NumGood<<endl;
+    if (cdebug) cout<<"num good muon = "<<NumGood<<endl;
     if(NumGood >= cMuNum) { return (true); }
     return (false);
 }
@@ -2039,7 +2039,7 @@ UInt_t RootMaker::GetTrigger(const LeafCandidate &particle, vector<pair<unsigned
     return (result);
 }
 bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-    if (debug) cout<<"begin AddPhotons..."<<endl;
+    if (cdebug) cout<<"begin AddPhotons..."<<endl;
     int NumAll = 0;
     int NumGood = 0;
     //edm::Handle<PhotonCollection> Photons;
@@ -2051,8 +2051,8 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
     //iEvent.getByLabel(edm::InputTag("phPFIsoValueGamma03PFIdPFIso"), photonIsoPF[1]);
     //iEvent.getByLabel(edm::InputTag("phPFIsoValueNeutral03PFIdPFIso"), photonIsoPF[2]);
     //cout << "PH " << photonIsoPF[0].isValid() << endl;
-    if (debug) cout<<"Photons.isValid() = "<<Photons.isValid()<<endl;
-    if (debug) cout<<"Photons->size() = "<<Photons->size()<<endl;
+    if (cdebug) cout<<"Photons.isValid() = "<<Photons.isValid()<<endl;
+    if (cdebug) cout<<"Photons->size() = "<<Photons->size()<<endl;
     NumAll = Photons->size();
     if(Photons.isValid() && Photons->size() > 0) {
         //edm::Handle<GsfElectronCollection> Electrons;
@@ -2256,7 +2256,7 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
     }
     all_photon_count->Fill(NumAll);
     good_photon_count->Fill(NumGood);
-    if (debug) cout<<"num good photons = "<<NumGood<<endl;
+    if (cdebug) cout<<"num good photons = "<<NumGood<<endl;
     if(NumGood >= cPhotonNum) { return (true); }
 
     return (false);
@@ -2350,7 +2350,7 @@ bool RootMaker::AddAllConversions(const edm::Event &iEvent) {
     return (true);
 }
 bool RootMaker::AddTaus(const edm::Event &iEvent) {
-    if (debug) cout<<"AddTaus..."<<endl;
+    if (cdebug) cout<<"AddTaus..."<<endl;
     int NumAll = 0;
     int NumGood = 0;
     //edm::Handle<PFTauCollection> Taus;
@@ -2360,8 +2360,8 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
     //edm::Handle<pat::JetCollection> ak4pfJets;
     //iEvent.getByLabel(edm::InputTag("patJetsAK4PF"), ak4pfJets);
     iEvent.getByToken(jetsToken_, Jets);
-    if (debug) cout<<"Taus.isValid() = "<<Taus.isValid()<<endl;
-    if (debug) cout<<"Taus->size() = "<<Taus->size()<<endl;
+    if (cdebug) cout<<"Taus.isValid() = "<<Taus.isValid()<<endl;
+    if (cdebug) cout<<"Taus->size() = "<<Taus->size()<<endl;
     NumAll = Taus->size();
     if(Taus.isValid()) {
 /*
@@ -2514,7 +2514,7 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
     }
     all_tau_count->Fill(NumAll);
     good_tau_count->Fill(NumGood);
-    if (debug) cout<<"num good tau = "<<NumGood<<endl;
+    if (cdebug) cout<<"num good tau = "<<NumGood<<endl;
     if(NumGood >= cTauNum) { return (true); }
     return (false);
 }
@@ -2692,7 +2692,7 @@ cout<<"AddAK4JPTJets..."<<endl;
 */
 
 bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-    if (debug) cout<<"AddAK4PFCHSJets..."<<endl;
+    if (cdebug) cout<<"AddAK4PFCHSJets..."<<endl;
     int NumAll = 0;
     int NumGood = 0;
     //edm::Handle<pat::JetCollection> ak4pfJets;
@@ -2700,8 +2700,8 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
     iEvent.getByToken(jetsToken_, Jets);
     edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
     iEvent.getByLabel("AK4byValAlgo", jetMCFlHandle);
-    if (debug) cout<<"Jets.isValid() = "<<Jets.isValid()<<endl;
-    if (debug) cout<<"Jets->size() = "<<Jets->size()<<endl;
+    if (cdebug) cout<<"Jets.isValid() = "<<Jets.isValid()<<endl;
+    if (cdebug) cout<<"Jets->size() = "<<Jets->size()<<endl;
     NumAll = Jets->size();
     if(Jets.isValid()) {
         all_jet_count->Fill(Jets->size());
@@ -2799,7 +2799,7 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
     }
     all_jet_count->Fill(NumAll);
     good_jet_count->Fill(NumGood);
-    if (debug) cout<<"num good jets = "<<NumGood<<endl;
+    if (cdebug) cout<<"num good jets = "<<NumGood<<endl;
     if(NumGood >= cAK4PFCHSNum) { return (true); }
     return (false);
     //return (true);
@@ -3264,7 +3264,7 @@ RootMaker::JetShape RootMaker::getJetShape(const PFJet &jet) {
 
 
 bool RootMaker::AddElectrons(const edm::Event &iEvent) {
-    if (debug) cout<<"AddElectrons..."<<endl;
+    if (cdebug) cout<<"AddElectrons..."<<endl;
     int NumAll = 0;
     int NumGood = 0;
 
@@ -3294,10 +3294,10 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     iEvent.getByLabel("eidLooseMC", eIDValueMapLoose);
     const edm::ValueMap<float> &eIDLoosemap = * eIDValueMapLoose;
 */
-    if (debug) cout<<"Conversions.isValid() = "<<Conversions.isValid()<<endl;
-    if (debug) cout<<"Conversions->size() = "<<Conversions->size()<<endl;
-    if (debug) cout<<"Electrons.isValid() = "<<Electrons.isValid()<<endl;
-    if (debug) cout<<"Electrons->size() = "<<Electrons->size()<<endl;
+    if (cdebug) cout<<"Conversions.isValid() = "<<Conversions.isValid()<<endl;
+    if (cdebug) cout<<"Conversions->size() = "<<Conversions->size()<<endl;
+    if (cdebug) cout<<"Electrons.isValid() = "<<Electrons.isValid()<<endl;
+    if (cdebug) cout<<"Electrons->size() = "<<Electrons->size()<<endl;
     NumAll = Electrons->size();
     if(Electrons.isValid()) {
         all_electron_count->Fill(Electrons->size());
@@ -3451,7 +3451,7 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     }
     all_electron_count->Fill(NumAll);
     good_electron_count->Fill(NumGood);
-    if(debug) cout<<"num good electrons = "<<NumGood<<endl;
+    if(cdebug) cout<<"num good electrons = "<<NumGood<<endl;
     if(NumGood >= cElNum) { return (true); }
     return (false);
 }
