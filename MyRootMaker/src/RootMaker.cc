@@ -1222,23 +1222,14 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
     if(crecsupercluster) {
         bool error = false;
-        //edm::Handle<SuperClusterCollection> SCbarrel;
-        //iEvent.getByLabel(edm::InputTag("correctedHybridSuperClusters"), SCbarrel);
         iEvent.getByToken(superClustersToken_, SCbarrel);
         edm::Handle<SuperClusterCollection> SCendcap;
         iEvent.getByLabel(edm::InputTag("correctedMulti5x5SuperClustersWithPreshower"), SCendcap);
 
         edm::ESHandle<CaloGeometry> caloGeo;
-        //edm::Handle<EcalRecHitCollection> barrelHits;
-        //edm::Handle<EcalRecHitCollection> endcapHits;
-        //edm::Handle<EcalRecHitCollection> esHits;
 
         if(crecsuperclusterhit) {
             iSetup.get<CaloGeometryRecord>().get(caloGeo);
-
-            //iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsEB"), barrelHits);
-            //iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsEE"), endcapHits);
-            //iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsES"), esHits);
             iEvent.getByToken(ebRecHitsToken_, barrelHits);
             iEvent.getByToken(eeRecHitsToken_, endcapHits);
             iEvent.getByToken(esRecHitsToken_, esHits);
@@ -1459,10 +1450,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         }
 */
 
-        //edm::Handle<reco::PFMETCollection> pfMetType1;
-        //iEvent.getByLabel(edm::InputTag("pfType1CorrectedMet"), pfMetType1);
         iEvent.getByToken(metToken_, pfMetType1);
-        //iEvent.getByLabel(edm::InputTag("pfMetT1"), pfMetType1);
         if (cdebug) cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl;
         if(pfMetType1.isValid() && pfMetType1->size() > 0) {
             pfmettype1_ex = (*pfMetType1)[0].px();
@@ -1489,8 +1477,6 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     numpileupinteractionsplus = -1;
     numtruepileupinteractions = -1;
     if(cgen || cgenallparticles || cgenak4jets) {
-        //edm::Handle<GenEventInfoProduct> HEPMC;
-        //iEvent.getByLabel(edm::InputTag("generator"), HEPMC);
         iEvent.getByToken(genInfoToken_,HEPMC);
         if(HEPMC.isValid()) {
             genweight = HEPMC->weight();
@@ -1502,9 +1488,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         }
 
         edm::Handle<vector<PileupSummaryInfo> > PUInfo;
-        //iEvent.getByLabel(edm::InputTag("addPileupInfo"), PUInfo);
         iEvent.getByToken(puInfoToken_,PUInfo);
-
 
         if(PUInfo.isValid()) {
             for(vector<PileupSummaryInfo>::const_iterator PVI = PUInfo->begin(); PVI != PUInfo->end(); ++PVI) {
@@ -1598,9 +1582,9 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
             iEvent.getByLabel(edm::InputTag("genParticles"), GenParticles);
         }
 
+        if (cdebug) cout<<"GenParticles->size() = "<<GenParticles->size()<<endl;
         if(GenParticles.isValid()) {
             GenPartons.clear();
-            //cout << GenParticles->size() << endl;
             for(unsigned i = 0 ; i < GenParticles->size() ; i++) {
                 if((abs((*GenParticles)[i].pdgId()) <= 5 || (*GenParticles)[i].pdgId() == 21) && (*GenParticles)[i].pt() > 10.) {GenPartons.push_back((*GenParticles)[i]);}
                 bool fill = false;
@@ -1646,8 +1630,6 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     }
 
     if(cgenak4jets) {
-        //edm::Handle<GenJetCollection> GenAK4Jets;
-        //iEvent.getByLabel(edm::InputTag("ak4GenJets"), GenAK4Jets);
         iEvent.getByToken(genJetsToken_, GenAK4Jets);
         if(GenAK4Jets.isValid()) {
             for(GenJetCollection::const_iterator it = GenAK4Jets->begin() ; it != GenAK4Jets->end() ; ++it) {
@@ -1681,12 +1663,10 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
             }
         }
     }
-
     if(takeevent) {
         lumi_eventsfiltered++;
         tree->Fill();
     }
-
     if (cdebug) cout<<"end analyse..."<<endl;
 }
 
@@ -1804,8 +1784,6 @@ math::XYZPoint RootMaker::PositionOnECalSurface(TransientTrack &trTrack) {
 
 bool RootMaker::AddMuons(const edm::Event &iEvent) {
     int NumGood = 0;
-    //edm::Handle<MuonCollection> Muons;
-    //iEvent.getByLabel(edm::InputTag("muons"), Muons);
     iEvent.getByToken(muonsToken_, Muons);
     if (cdebug) cout<<"Muons.isValid() = "<<Muons.isValid()<<endl;
     if (cdebug) cout<<"Muons->size() = "<<Muons->size()<<endl;
@@ -2040,11 +2018,7 @@ UInt_t RootMaker::GetTrigger(const LeafCandidate &particle, vector<pair<unsigned
 }
 bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     if (cdebug) cout<<"begin AddPhotons..."<<endl;
-    int NumAll = 0;
     int NumGood = 0;
-    //edm::Handle<PhotonCollection> Photons;
-    //iEvent.getByLabel(edm::InputTag("photons"), Photons);
-    //iEvent.getByLabel(edm::InputTag("gedPhotons"), Photons);
     iEvent.getByToken(photonsToken_, Photons);
     //vector< edm::Handle< edm::ValueMap<double> > > photonIsoPF(3);
     //iEvent.getByLabel(edm::InputTag("phPFIsoValueCharged03PFIdPFIso"), photonIsoPF[0]);
@@ -2053,13 +2027,9 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
     //cout << "PH " << photonIsoPF[0].isValid() << endl;
     if (cdebug) cout<<"Photons.isValid() = "<<Photons.isValid()<<endl;
     if (cdebug) cout<<"Photons->size() = "<<Photons->size()<<endl;
-    NumAll = Photons->size();
+    all_photon_count->Fill(Photons->size());
     if(Photons.isValid() && Photons->size() > 0) {
-        //edm::Handle<GsfElectronCollection> Electrons;
-        //iEvent.getByLabel(edm::InputTag("gedGsfElectrons"), Electrons);
         iEvent.getByToken(electronsToken_, Electrons);
-        //edm::Handle<ConversionCollection> Conversions;
-        //iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
         iEvent.getByToken(conversionsToken_, Conversions);
         PFIsolationEstimator isolator;
         VertexRef myprimvertex(Vertices, 0);
@@ -2254,7 +2224,6 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
             }
         }
     }
-    all_photon_count->Fill(NumAll);
     good_photon_count->Fill(NumGood);
     if (cdebug) cout<<"num good photons = "<<NumGood<<endl;
     if(NumGood >= cPhotonNum) { return (true); }
@@ -2262,9 +2231,7 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
     return (false);
 }
 bool RootMaker::AddAllConversions(const edm::Event &iEvent) {
-    //edm::Handle<ConversionCollection> Conversions;
     iEvent.getByToken(conversionsToken_, Conversions);
-    //iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
     if(Conversions.isValid()) {
         for(unsigned i = 0 ; i < Conversions->size() ; i++) {
             allconversion_info[allconversion_count] = 0;
@@ -2351,18 +2318,14 @@ bool RootMaker::AddAllConversions(const edm::Event &iEvent) {
 }
 bool RootMaker::AddTaus(const edm::Event &iEvent) {
     if (cdebug) cout<<"AddTaus..."<<endl;
-    int NumAll = 0;
     int NumGood = 0;
-    //edm::Handle<PFTauCollection> Taus;
     iEvent.getByToken(tausToken_, Taus);
     ////iEvent.getByLabel(edm::InputTag("shrinkingConePFTauProducer"), Taus);
     //iEvent.getByLabel(edm::InputTag("hpsPFTauProducer"), Taus);
-    //edm::Handle<pat::JetCollection> ak4pfJets;
-    //iEvent.getByLabel(edm::InputTag("patJetsAK4PF"), ak4pfJets);
     iEvent.getByToken(jetsToken_, Jets);
     if (cdebug) cout<<"Taus.isValid() = "<<Taus.isValid()<<endl;
     if (cdebug) cout<<"Taus->size() = "<<Taus->size()<<endl;
-    NumAll = Taus->size();
+    all_tau_count->Fill(Taus->size());
     if(Taus.isValid()) {
 /*
         vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
@@ -2512,7 +2475,6 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
             }
         }
     }
-    all_tau_count->Fill(NumAll);
     good_tau_count->Fill(NumGood);
     if (cdebug) cout<<"num good tau = "<<NumGood<<endl;
     if(NumGood >= cTauNum) { return (true); }
