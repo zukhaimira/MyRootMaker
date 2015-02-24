@@ -198,11 +198,15 @@ std::vector<double> RootMaker::extract(const Collection &cands, Function func) {
 void RootMaker::beginJob() {
     cout<<"begin job... isMiniAOD = "<<cisMiniAOD<<endl;
     cout<<"debug = "<<cdebug<<endl;
+    
     edm::Service<TFileService> FS;
     tree = FS->make<TTree> ("AC1B", "AC1B", 1);
     drhist = FS->make<TH1D> ("drhist", "drhist", 10000, 0., 100.);
 
-    all_muon_count = FS->make<TH1F> ("all_muon_count", "all_muon_count", 30, 0., 30.);
+    all_muon_count_global = FS->make<TH1F> ("all_muon_count_global", "all_muon_count_global", 60, 0., 60.);
+    all_muon_count_standalone = FS->make<TH1F> ("all_muon_count_standalone", "all_muon_count_standalone", 60, 0., 60.);
+    all_muon_count_tracker = FS->make<TH1F> ("all_muon_count_tracker", "all_muon_count_tracker", 60, 0., 60.);
+    all_muon_count = FS->make<TH1F> ("all_muon_count", "all_muon_count", 60, 0., 60.);
     all_muon_pt = FS->make<TH1F> ("all_muon_pt", "all_muon_pt", 100, 0., 100.);
     all_muon_phi = FS->make<TH1F> ("all_muon_phi", "all_muon_phi", 80, -4., 4.);
     all_muon_eta = FS->make<TH1F> ("all_muon_eta", "all_muon_eta", 60, -3., 3.);
@@ -211,7 +215,6 @@ void RootMaker::beginJob() {
     good_muon_phi = FS->make<TH1F> ("good_muon_phi", "good_muon_phi", 80, -4., 4.);
     good_muon_eta = FS->make<TH1F> ("good_muon_eta", "good_muon_eta", 60, -3., 3.);
 
-    all_electron_count = FS->make<TH1F> ("all_electron_count", "all_electron_count", 30, 0., 30.);
     all_electron_pt = FS->make<TH1F> ("all_electron_pt", "all_electron_pt", 100, 0., 100.);
     all_electron_phi = FS->make<TH1F> ("all_electron_phi", "all_electron_phi", 80, -4., 4.);
     all_electron_eta = FS->make<TH1F> ("all_electron_eta", "all_electron_eta", 60, -3., 3.);
@@ -220,7 +223,6 @@ void RootMaker::beginJob() {
     good_electron_phi = FS->make<TH1F> ("good_electron_phi", "good_electron_phi", 80, -4., 4.);
     good_electron_eta = FS->make<TH1F> ("good_electron_eta", "good_electron_eta", 60, -3., 3.);
 
-    all_tau_count = FS->make<TH1F> ("all_tau_count", "all_tau_count", 30, 0., 30.);
     all_tau_pt = FS->make<TH1F> ("all_tau_pt", "all_tau_pt", 100, 0., 100.);
     all_tau_phi = FS->make<TH1F> ("all_tau_phi", "all_tau_phi", 80, -4., 4.);
     all_tau_eta = FS->make<TH1F> ("all_tau_eta", "all_tau_eta", 60, -3., 3.);
@@ -229,7 +231,6 @@ void RootMaker::beginJob() {
     good_tau_phi = FS->make<TH1F> ("good_tau_phi", "good_tau_phi", 80, -4., 4.);
     good_tau_eta = FS->make<TH1F> ("good_tau_eta", "good_tau_eta", 60, -4., 3.);
 
-    all_photon_count = FS->make<TH1F> ("all_photon_count", "all_photon_count", 30, 0., 30.);
     all_photon_pt = FS->make<TH1F> ("all_photon_pt", "all_photon_pt", 100, 0., 100.);
     all_photon_phi = FS->make<TH1F> ("all_photon_phi", "all_photon_phi", 80, -4., 4.);
     all_photon_eta = FS->make<TH1F> ("all_photon_eta", "all_photon_eta", 60, -3., 3.);
@@ -238,15 +239,17 @@ void RootMaker::beginJob() {
     good_photon_phi = FS->make<TH1F> ("good_photon_phi", "good_photon_phi", 80, -4., 4.);
     good_photon_eta = FS->make<TH1F> ("good_photon_eta", "good_photon_eta", 60, -3., 3.);
 
-    all_jet_count = FS->make<TH1F> ("all_jet_count", "all_jet_count", 100, 0., 200.);
+    all_jet_count = FS->make<TH1F> ("all_jet_count", "all_jet_count", 100, 0., 100.);
     all_jet_pt = FS->make<TH1F> ("all_jet_pt", "all_jet_pt", 100, 0., 100.);
     all_jet_phi = FS->make<TH1F> ("all_jet_phi", "all_jet_phi", 80, -4., 4.);
     all_jet_eta = FS->make<TH1F> ("all_jet_eta", "all_jet_eta", 60, -3., 3.);
     good_jet_count = FS->make<TH1F> ("good_jet_count", "good_jet_count", 100, 0., 100.);
+    good_jet_count_cpt20 = FS->make<TH1F> ("good_jet_count_cpt20", "good_jet_count_cpt20", 100, 0., 100.);
+    good_jet_count_cpt25 = FS->make<TH1F> ("good_jet_count_cpt25", "good_jet_count_cpt25", 100, 0., 100.);
+    good_jet_count_cpt30 = FS->make<TH1F> ("good_jet_count_cpt30", "good_jet_count_cpt30", 100, 0., 100.);
     good_jet_pt = FS->make<TH1F> ("good_jet_pt", "good_jet_pt", 100, 0., 100.);
     good_jet_phi = FS->make<TH1F> ("good_jet_phi", "good_jet_phi", 80, -4., 4.);
     good_jet_eta = FS->make<TH1F> ("good_jet_eta", "good_jet_eta", 60, -3., 3.);
-
 
     tree->Branch("errors", &errors, "errors/i");
     tree->Branch("event_nr", &event_nr, "event_nr/D");
@@ -1783,12 +1786,16 @@ math::XYZPoint RootMaker::PositionOnECalSurface(TransientTrack &trTrack) {
 }
 
 bool RootMaker::AddMuons(const edm::Event &iEvent) {
+    int NumAll = 0;
+    int NumTracker = 0;
+    int NumGlobal = 0;
+    int NumStandalone = 0;
     int NumGood = 0;
     iEvent.getByToken(muonsToken_, Muons);
     if (cdebug) cout<<"Muons.isValid() = "<<Muons.isValid()<<endl;
     if (cdebug) cout<<"Muons->size() = "<<Muons->size()<<endl;
+    NumAll = Muons->size();
     if(Muons.isValid()) {
-        all_muon_count->Fill(Muons->size());
         for(unsigned i = 0 ; i < Muons->size() ; i++) {
             const Muon &themu = (*Muons)[i];
             all_muon_pt->Fill(themu.pt());
@@ -1973,8 +1980,15 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
                 MuVector.push_back(TLorentzVector(muon_px[i], muon_py[i], muon_pz[i], energy));
 
             }
+        if (themu.isGlobalMuon()) NumGlobal++;
+        if (themu.isStandAloneMuon()) NumStandalone++;
+        if (themu.isTrackerMuon()) NumTracker++;
         }
     }
+    all_muon_count_global->Fill(NumGlobal);
+    all_muon_count_standalone->Fill(NumStandalone);
+    all_muon_count_tracker->Fill(NumTracker);
+    all_muon_count->Fill(NumAll);
     good_muon_count->Fill(NumGood);
     if (cdebug) cout<<"num good muon = "<<NumGood<<endl;
     if(NumGood >= cMuNum) { return (true); }
@@ -2027,7 +2041,6 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
     //cout << "PH " << photonIsoPF[0].isValid() << endl;
     if (cdebug) cout<<"Photons.isValid() = "<<Photons.isValid()<<endl;
     if (cdebug) cout<<"Photons->size() = "<<Photons->size()<<endl;
-    all_photon_count->Fill(Photons->size());
     if(Photons.isValid() && Photons->size() > 0) {
         iEvent.getByToken(electronsToken_, Electrons);
         iEvent.getByToken(conversionsToken_, Conversions);
@@ -2041,9 +2054,11 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
         SuperClusterFootprintRemoval remover(iEvent, iSetup);
         for(size_t n = 0 ; n < Photons->size() ; n++) {
             const Photon &theph = (*Photons)[n];
-            all_photon_pt->Fill(theph.pt());
-            all_photon_phi->Fill(theph.phi());
-            all_photon_eta->Fill(theph.eta());
+            if (theph.pt() >= 12.) {
+                all_photon_pt->Fill(theph.pt());
+                all_photon_phi->Fill(theph.phi());
+                all_photon_eta->Fill(theph.eta());
+            }
             pat::PhotonRef refph(Photons, n);
             if(theph.pt() > cPhotonFilterPtMin && TMath::Abs(theph.eta()) < cPhotonFilterEtaMax) {
                 photon_px[photon_count] = theph.px();
@@ -2325,7 +2340,6 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
     iEvent.getByToken(jetsToken_, Jets);
     if (cdebug) cout<<"Taus.isValid() = "<<Taus.isValid()<<endl;
     if (cdebug) cout<<"Taus->size() = "<<Taus->size()<<endl;
-    all_tau_count->Fill(Taus->size());
     if(Taus.isValid()) {
 /*
         vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
@@ -2424,10 +2438,6 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
             for ( std::vector<reco::PFCandidatePtr>::const_iterator tauSignalPFCand = tauSignalPFCands.begin();
             tauSignalPFCand != tauSignalPFCands.end(); ++tauSignalPFCand ) {
                 track = (*tauSignalPFCand)->trackRef();
-
-            //for(unsigned n = 0 ; n < (*Taus)[i].signalPFCands().size() ; n++) {
-            //    PFCandidateRef cand = (*Taus)[i].signalPFCands()[n];
-            //    track = cand->trackRef();
                 if(!track.isNull()) {
                     edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
                     iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
@@ -2657,6 +2667,9 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
     if (cdebug) cout<<"AddAK4PFCHSJets..."<<endl;
     int NumAll = 0;
     int NumGood = 0;
+    int NumGood20 = 0;
+    int NumGood25 = 0;
+    int NumGood30 = 0;
     //edm::Handle<pat::JetCollection> ak4pfJets;
     //iEvent.getByLabel(edm::InputTag("selectedPatJetsPFlow"), ak4pfJets);
     iEvent.getByToken(jetsToken_, Jets);
@@ -2666,12 +2679,13 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
     if (cdebug) cout<<"Jets->size() = "<<Jets->size()<<endl;
     NumAll = Jets->size();
     if(Jets.isValid()) {
-        all_jet_count->Fill(Jets->size());
         for(unsigned i = 0 ; i < Jets->size() ; i++) {
             pat::Jet corjet((*Jets)[i]);
-            all_jet_pt->Fill(corjet.pt());
-            all_jet_phi->Fill(corjet.phi());
-            all_jet_eta->Fill(corjet.eta());
+            if (corjet.pt() >= 20.) {
+                all_jet_pt->Fill(corjet.pt());
+                all_jet_phi->Fill(corjet.phi());
+                all_jet_eta->Fill(corjet.eta());
+            }
             if(corjet.pt() >= cAK4PFCHSFilterPtMin) {
                 ak4pfchsjet_e[ak4pfchsjet_count] = corjet.energy();
                 ak4pfchsjet_px[ak4pfchsjet_count] = corjet.px();
@@ -2700,7 +2714,9 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                 ak4pfchsjet_energycorrunc[ak4pfchsjet_count] = -1;
                 ak4pfchsjet_energycorrl7uds[ak4pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
                 ak4pfchsjet_energycorrl7bottom[ak4pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
-/*
+
+
+//note
                 JetShape shape = getJetShape(corjet);
                 ak4pfchsjet_chargeda[ak4pfchsjet_count] = shape.chargeda;
                 ak4pfchsjet_chargedb[ak4pfchsjet_count] = shape.chargedb;
@@ -2709,7 +2725,7 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                 ak4pfchsjet_alla[ak4pfchsjet_count] = shape.alla;
                 ak4pfchsjet_allb[ak4pfchsjet_count] = shape.allb;
                 ak4pfchsjet_chargedfractionmv[ak4pfchsjet_count] = shape.chargedfractionmv;
-*/
+
                 ak4pfchsjet_mcflavour[ak4pfchsjet_count] = 0;
                 if(jetMCFlHandle.isValid()) {
                     const JetFlavourMatchingCollection &jetMCFl = * (jetMCFlHandle.product());
@@ -2757,14 +2773,19 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                     good_jet_eta->Fill(corjet.eta());
                 }
             }
+        if (corjet.pt() >= 20.) NumGood20++;
+        if (corjet.pt() >= 25.) NumGood25++;
+        if (corjet.pt() >= 30.) NumGood30++;
         }
     }
+    if (cdebug) cout<<"num good jets = "<<NumGood<<endl;
     all_jet_count->Fill(NumAll);
     good_jet_count->Fill(NumGood);
-    if (cdebug) cout<<"num good jets = "<<NumGood<<endl;
+    good_jet_count_cpt20->Fill(NumGood20);
+    good_jet_count_cpt25->Fill(NumGood25);
+    good_jet_count_cpt30->Fill(NumGood30);
     if(NumGood >= cAK4PFCHSNum) { return (true); }
     return (false);
-    //return (true);
 }
 
 /*
@@ -2886,6 +2907,7 @@ return true;
 */
 
 RootMaker::JetShape RootMaker::getJetShape(const pat::Jet &jet) {
+    if (cdebug) cout<<"getJetShape pat::Jet"<<endl;
     using namespace TMath;
     RootMaker::JetShape res;
     float chargedetaeta1 = 0.;
@@ -2908,23 +2930,23 @@ RootMaker::JetShape RootMaker::getJetShape(const pat::Jet &jet) {
     float allphiphi2 = 0.;
     float allptsum = 0.;
 
-    vector<PFCandidatePtr> constituents(jet.getPFConstituents());
-    for(size_t i = 0 ; i < constituents.size() ; ++i) {
-        const PFCandidate &con = * (constituents[i]);
+    for (unsigned int id = 0, nd = jet.numberOfDaughters(); id < nd; ++id) {
+        const pat::PackedCandidate &con = dynamic_cast<const pat::PackedCandidate &>(*jet.daughter(id));
+
         float deta = jet.eta() - con.eta();
         float dphi = jet.phi() - con.phi();
 
         if(dphi > 4.*atan(1.)) { dphi = dphi-8.*atan(1.); }
         if(dphi < -1.*4.*atan(1.)) { dphi = dphi+8.*atan(1.); }
 
-        if(con.trackRef().isNonnull()) {
+        if (con.charge() != 0) {
             chargedptsum += con.pt();
             chargedetaeta1 += deta*con.pt();
             chargedetaeta2 += deta*deta*con.pt();
             chargedetaphi += deta*dphi*con.pt();
             chargedphiphi1 += dphi*con.pt();
             chargedphiphi2 += dphi*dphi*con.pt();
-            int vertex = getPrimVertex(* (con.trackRef()));
+            int vertex = getPrimVertex(& (con));
             if(vertex == 0 || vertex == -1) {
                 chargedptsummv += con.pt();
             }
@@ -3017,7 +3039,9 @@ RootMaker::JetShape RootMaker::getJetShape(const pat::Jet &jet) {
     return (res);
 }
 
+/*
 RootMaker::JetShape RootMaker::getJetShape(const PFJet &jet) {
+cout<<"getJetShape PFJet &jet"<<endl;
     using namespace TMath;
     RootMaker::JetShape res;
     float chargedetaeta1 = 0.;
@@ -3149,6 +3173,7 @@ RootMaker::JetShape RootMaker::getJetShape(const PFJet &jet) {
     return (res);
 
 }
+*/
 // duplicate of above funtion
 //bool RootMaker::AddAK4PFJets(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 //  int NumGood = 0;
@@ -3227,7 +3252,6 @@ RootMaker::JetShape RootMaker::getJetShape(const PFJet &jet) {
 
 bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     if (cdebug) cout<<"AddElectrons..."<<endl;
-    int NumAll = 0;
     int NumGood = 0;
 
 //    if(crecelectrontrigger) {
@@ -3260,9 +3284,7 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     if (cdebug) cout<<"Conversions->size() = "<<Conversions->size()<<endl;
     if (cdebug) cout<<"Electrons.isValid() = "<<Electrons.isValid()<<endl;
     if (cdebug) cout<<"Electrons->size() = "<<Electrons->size()<<endl;
-    NumAll = Electrons->size();
     if(Electrons.isValid()) {
-        all_electron_count->Fill(Electrons->size());
         //for(GsfElectronCollection::const_iterator itel = Electrons->begin() ; itel != Electrons->end() ; ++itel)
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
             //const GsfElectron& theel = *itel;
@@ -3360,13 +3382,20 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
                 electron_dz[electron_count]           = gsfTr_e->dz(pv_position);
                 electron_dzerr[electron_count]           = gsfTr_e->dzError();
                 electron_vtx[electron_count] = -2;
-                TrackRef closesttrack = theel.closestTrack();
 /*
+cout<<"about to get closest track"<<endl;
+                TrackRef closesttrack = theel.closestTrack();
+// NOTE
+                cout<<"closesttrack.isNonnull() = "<<closesttrack.isNonnull()<<endl;
                 if(closesttrack.isNonnull()) {
-                    int numvtx = getPrimVertex(*closesttrack);
-                    electron_vtx[electron_count] = numvtx;
+                    //int numvtx = getPrimVertex(*closesttrack);
+                    int numvtx = 1;
+                    //electron_vtx[electron_count] = numvtx;
+cout<<"about to transient track"<<endl;
                     TransientTrack TTrackCL = TTrackBuilder->build(closesttrack);
+cout<<"2 transient track"<<endl;
                     TrajectoryStateClosestToPoint TTrackStateCL;
+cout<<"transient track"<<endl;
                     if(numvtx < 0) {
                         TTrackStateCL = TTrackCL.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
                     } else {
@@ -3377,6 +3406,7 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
                     electron_closestpointz[electron_count] = TTrackStateCL.position().z();
                 }
 */
+                
                 electron_trigger[electron_count] = GetTrigger(theel, electrontriggers);
 // https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2
 /*
@@ -3411,7 +3441,6 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
             }
         }
     }
-    all_electron_count->Fill(NumAll);
     good_electron_count->Fill(NumGood);
     if(cdebug) cout<<"num good electrons = "<<NumGood<<endl;
     if(NumGood >= cElNum) { return (true); }
@@ -3438,9 +3467,38 @@ Int_t RootMaker::getSuperClusterPh(const SuperClusterRef &A) {
     return (-1);
 }
 
+// for miniAOD, where trackRef is not available
+Int_t RootMaker::getPrimVertex(const pat::PackedCandidate *con) {
+    if(Vertices.isValid()) {
+        if (con->fromPV() == 0) { return  1; }
+        if (con->fromPV() == 1) { return  1; }
+        if (con->fromPV() == 2) { return -1; }
+        if (con->fromPV() == 3) { return  0; }
+    }
+/*
+// dau.dz(vertex.position())
+    if(Vertices.isValid()) {
+cout<<"Vertices->size() = "<<Vertices->size()<<endl;
+        for(unsigned i = 0 ; i < Vertices->size(); i++) {
+            // for a certain vertex, see if my track matches any of the tracks from the vertex. if it does,
+            // return the number of the vertex that it matches. if it matches none of them, or matches the PV, chargedptsummv += con.pt()
+            if((*Vertices)[i].isValid() && !(*Vertices)[i].isFake()) {
+//cout<<"con->dxy((*Vertices)[i].position()) = "<<con->dxy((*Vertices)[i].position())<<endl;
+cout<<"con->dz((*Vertices)[i].position())  = "<<con->dz((*Vertices)[i].position())<<endl;
+cout<<"con->fromPV()  = "<<con->fromPV()<<endl;
+                if(con->dxy((*Vertices)[i].position()) < 0.01 &&  con->dz((*Vertices)[i].position()) < 0.01)  { return (i); }
+            }
+        }
+    }
+  */
+    return (-1);
+}
+
 Int_t RootMaker::getPrimVertex(const Track &trk) {
     if(Vertices.isValid()) {
         for(unsigned i = 0 ; i < Vertices->size(); i++) {
+            // for a certain vertex, see if my track matches any of the tracks from the vertex. if it does,
+            // return the number of the vertex that it matches. if it matches none of them, or matches the PV, chargedptsummv += con.pt()
             if((*Vertices)[i].isValid() && !(*Vertices)[i].isFake()) {
                 for(Vertex::trackRef_iterator it = (*Vertices)[i].tracks_begin() ; it != (*Vertices)[i].tracks_end() ; ++it) {
                     if(trk.px() - (*it)->px() < 0.01 && trk.py() - (*it)->py() < 0.01 && trk.pz() - (*it)->pz() < 0.01)  { return (i); }

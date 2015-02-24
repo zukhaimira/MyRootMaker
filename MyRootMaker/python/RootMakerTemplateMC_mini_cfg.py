@@ -80,7 +80,7 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
 
     RecMuon = cms.untracked.bool(True),
     RecMuonPtMin = cms.untracked.double(20),
-#    RecMuonTrackIso = cms.untracked.double(1000000),
+    RecMuonTrackIso = cms.untracked.double(1000000),
     RecMuonEtaMax = cms.untracked.double(2.5),
     RecMuonNum = cms.untracked.int32(1000),
     
@@ -110,7 +110,7 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
 
     RecElectron = cms.untracked.bool(True),
     RecElectronPtMin = cms.untracked.double(20.),
-#    RecElectronTrackIso = cms.untracked.double(1000000.),
+    RecElectronTrackIso = cms.untracked.double(1000000.),
     RecElectronEta = cms.untracked.double(2.5),
     RecElectronNum = cms.untracked.int32(100000),
     RecElectronFilterPtMin = cms.untracked.double(20.),

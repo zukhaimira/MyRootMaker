@@ -83,6 +83,7 @@
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
@@ -101,6 +102,7 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -318,8 +320,8 @@ private:
         float allb;
         float chargedfractionmv;
     };
-    JetShape getJetShape(const PFJet &jet);
     JetShape getJetShape(const pat::Jet &jet);
+    //JetShape getJetShape(const PFJet &jet);
     UInt_t GenParticleInfo(const GenParticle *particle);
     UInt_t GetTrigger(const LeafCandidate &particle, vector<pair<unsigned, int> > &triggers);
     UInt_t FindGenParticle(const Candidate *particle);
@@ -328,6 +330,7 @@ private:
     math::XYZPoint PositionOnECalSurface(reco::TransientTrack &);
     Int_t getSuperClusterPh(const SuperClusterRef &A);
     Int_t getSuperClusterEl(const SuperClusterRef &A);
+    Int_t getPrimVertex(const pat::PackedCandidate *con);
     Int_t getPrimVertex(const Track &trk);
     //Int_t getSuperCluster(const Candidate& A);
 
@@ -336,6 +339,9 @@ private:
     TTree *runtree;
     TH1D *drhist;
 
+    TH1F *all_muon_count_global;
+    TH1F *all_muon_count_standalone;
+    TH1F *all_muon_count_tracker;
     TH1F *all_muon_count;
     TH1F *all_muon_pt;
     TH1F *all_muon_phi;
@@ -345,7 +351,6 @@ private:
     TH1F *good_muon_phi;
     TH1F *good_muon_eta;
 
-    TH1F *all_electron_count;
     TH1F *all_electron_pt;
     TH1F *all_electron_phi;
     TH1F *all_electron_eta;
@@ -354,7 +359,6 @@ private:
     TH1F *good_electron_phi;
     TH1F *good_electron_eta;
 
-    TH1F *all_tau_count;
     TH1F *all_tau_pt;
     TH1F *all_tau_phi;
     TH1F *all_tau_eta;
@@ -363,7 +367,6 @@ private:
     TH1F *good_tau_phi;
     TH1F *good_tau_eta;
 
-    TH1F *all_photon_count;
     TH1F *all_photon_pt;
     TH1F *all_photon_phi;
     TH1F *all_photon_eta;
@@ -377,6 +380,9 @@ private:
     TH1F *all_jet_phi;
     TH1F *all_jet_eta;
     TH1F *good_jet_count;
+    TH1F *good_jet_count_cpt20;
+    TH1F *good_jet_count_cpt25;
+    TH1F *good_jet_count_cpt30;
     TH1F *good_jet_pt;
     TH1F *good_jet_phi;
     TH1F *good_jet_eta;
