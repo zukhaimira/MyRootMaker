@@ -150,6 +150,10 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
+
 
 #include "EgammaAnalysis/ElectronTools/src/PFIsolationEstimator.cc"
 #include "EgammaAnalysis/ElectronTools/src/SuperClusterHelper.cc"
@@ -198,6 +202,7 @@ private:
     virtual void endLuminosityBlock(const edm::LuminosityBlock &iLumiBlock, const edm::EventSetup &iSetup);
     virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
 
+    edm::EDGetTokenT<MuonCollection> muonsToken_;
 
     edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebRecHitsToken_;
     edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeRecHitsToken_;
@@ -251,6 +256,9 @@ private:
     TTree *runtree;
     TH1D *drhist;
 
+    TH1F *all_muon_count_global;
+    TH1F *all_muon_count_standalone;
+    TH1F *all_muon_count_tracker;
     TH1F *all_muon_count;
     TH1F *all_muon_pt;
     TH1F *all_muon_phi;
@@ -291,14 +299,16 @@ private:
     TH1F *all_jet_pt;
     TH1F *all_jet_phi;
     TH1F *all_jet_eta;
-    TH1F *good_jet_count;
+    TH1F *good_jet_count_cpt20;
+    TH1F *good_jet_count_cpt25;
+    TH1F *good_jet_count_cpt30;
     TH1F *good_jet_pt;
     TH1F *good_jet_phi;
     TH1F *good_jet_eta;
 
     //Configuration
-    bool isMiniAOD;
-    bool debug;
+    bool cisMiniAOD;
+    bool cdebug;
     bool cgen;
     bool cgenallparticles;
     bool cgenak4jets;

@@ -4,8 +4,8 @@ from MyRootMaker.MyRootMaker.RootMakerTemplateMC_cfg import *
 # if using cmsRun, this is used for input
 process.source.fileNames = cms.untracked.vstring(
     'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/0456F76A-EA77-E411-81F8-0025B31E3D3C.root', # 2600 events
-    'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/10C19613-E176-E411-92F7-F04DA23BBCCA.root', # 4200 events
-    'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/1CA79CF9-F876-E411-BD55-001E67396E05.root' # 6400 events
+    #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/10C19613-E176-E411-92F7-F04DA23BBCCA.root', # 4200 events
+    #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/1CA79CF9-F876-E411-BD55-001E67396E05.root' # 6400 events
     #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/DYJetsToEEMuMu_M-120To200_13TeV-madgraph/AODSIM/PU20bx25_PHYS14_25_V1-v2/10000/062D6736-9F7C-E411-B200-E0CB4E19F9BD.root'
 )
 

@@ -167,8 +167,8 @@ process.pfPileUp.checkClosestZVertex = False
 #
 #from RecoJets.JetProducers.puJetIDAlgo_cff import * 
 #from RecoJets.JetProducers.puJetIDParams_cfi import * 
-from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdProducer, _stdalgos_4x, _stdalgos_5x, _stdalgos, cutbased, _chsalgos_4x, _chsalgos_5x, _chsalgos 
-from RecoJets.JetProducers.PileupJetID_cfi import * 
+from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdProducer, _stdalgos_5x, _stdalgos, cutbased, _chsalgos_5x, _chsalgos 
+#from RecoJets.JetProducers.PileupJetID_cfi import * 
 #process.load("RecoJets.JetProducers.PileupJetID_cfi")
 #process.load("RecoJets.JetProducers.puJetIDAlgo_cff")
 
@@ -258,6 +258,7 @@ process.jetpuid_step = cms.Path(process.recoPuJetIdSequence)
 ######ROOTMAKER 
 process.makeroottree = cms.EDAnalyzer("RootMaker",
 
+    muons = cms.InputTag("muons"),
     ebRecHits = cms.InputTag("reducedEcalRecHitsEB"),
     eeRecHits = cms.InputTag("reducedEcalRecHitsEB"),
     esRecHits = cms.InputTag("reducedEcalRecHitsES"),
