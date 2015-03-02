@@ -10,11 +10,58 @@ typedef ROOT::Math::SVector<double, 3> SVector3;
 RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
 
     // tokens
-    muonsToken_(consumes<MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))), // "muons"
+    verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+    conversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("conversions"))),
+    ak4pfchsJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfchsjets"))),
+    genParticlesToken_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genParticles"))),
+    genJetsToken_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJets"))),
+    beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+    superClustersToken_(consumes<vector<reco::SuperCluster> >(iConfig.getParameter<edm::InputTag>("superClusters"))),
+    genInfoToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genInfo"))),
+    puInfoToken_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("puInfo"))),
 
-    ebRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("ebRecHits"))),
-    eeRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("eeRecHits"))),
-    esRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("esRecHits"))),
+    ebeeClustersToken_(consumes<vector<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("ebeeClusters"))),
+    esClustersToken_(consumes<vector<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("esClusters"))),
+
+    ebRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("barrelHits"))),
+    eeRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("endcapHits"))),
+    esRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("esHits"))),
+
+
+    // AOD consumes
+    recoTracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
+    recoMuonsToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+    recoElectronsToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+    recoPhotonsToken_(consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
+    recoTausToken_(consumes<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
+    ak4caloJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4calojets"))),
+    ak4jptJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4jptjets"))),
+    ak4pfJetsToken_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfjets"))),
+    recoPFCandsToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PfCands"))),
+    recoMetToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmet"))),
+    recoMetT1Token_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmetT1"))),
+    recoMetT1T0Token_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmetT1T0"))),
+
+
+
+    // miniAOD consumes
+    lostTracksToken_(consumes<vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostTracks"))),
+    patMuonsToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+    patElectronsToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+    photonsToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
+    patTausToken_(consumes<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
+    packedPFCandsToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPfCands"))),
+    patMetToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
+    gedGsfElectronCoresToken_(consumes<vector<reco::GsfElectronCore> >(iConfig.getParameter<edm::InputTag>("gedGsfElectronCores"))),
+    gedPhotonCoresToken_(consumes<vector<reco::PhotonCore> >(iConfig.getParameter<edm::InputTag>("gedPhotonCores"))),
+
+
+
+
+
+
+
+
 
     cisMiniAOD(iConfig.getUntrackedParameter<bool> ("isMiniAOD", false)),
     cdebug(iConfig.getUntrackedParameter<bool> ("debug", false)),
@@ -1759,6 +1806,8 @@ math::XYZPoint RootMaker::PositionOnECalSurface(TransientTrack &trTrack) {
 
 bool RootMaker::AddMuons(const edm::Event &iEvent) {
     if(cdebug) { cout<<"AddMuons..."<<endl; }
+    if (cisMiniAOD) using namespace pat;
+    if (!cisMiniAOD) using namespace reco;
     int NumAll = 0;
     int NumTracker = 0;
     int NumGlobal = 0;
