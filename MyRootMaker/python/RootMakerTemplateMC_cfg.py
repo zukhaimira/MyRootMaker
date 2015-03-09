@@ -19,10 +19,9 @@ process.MessageLogger.cerr.threshold = 'INFO'
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.source = cms.Source("PoolSource", 
-     fileNames = cms.untracked.vstring(
-#'/store/mc/Summer12_DR53X/T_t-channel_TuneZ2star_8TeV-powheg-tauola/AODSIM/PU_S10_START53_V7A-v3/00000/90B3B34B-B00F-E211-B13A-003048678E24.root'
-'/store/mc/Spring14dr/GluGluToHToMuMu_M-125_13TeV-powheg-pythia6/AODSIM/PU_S14_POSTLS170_V6-v1/00000/1E93B8DB-7CFD-E311-BFC7-7845C4FC346A.root'
-)
+    fileNames = cms.untracked.vstring(
+        '/store/mc/Spring14dr/GluGluToHToMuMu_M-125_13TeV-powheg-pythia6/AODSIM/PU_S14_POSTLS170_V6-v1/00000/1E93B8DB-7CFD-E311-BFC7-7845C4FC346A.root'
+    )
 #     noEventSort = cms.untracked.bool(True),
 #     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
@@ -32,28 +31,28 @@ process.maxEvents = cms.untracked.PSet(
 )
 # The Good vertices collection _____________________________________________||
 process.goodVertices = cms.EDFilter(
-                "VertexSelector",
-                filter = cms.bool(False),
-                src = cms.InputTag("offlinePrimaryVertices"),
-                cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
-                )
+    "VertexSelector",
+    filter = cms.bool(False),
+    src = cms.InputTag("offlinePrimaryVertices"),
+    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
+)
 process.vertex_step=cms.Path(process.goodVertices)
 #####Filter
 ## The good primary vertex filter ____________________________________________||
 process.primaryVertexFilter = cms.EDFilter(
-                "VertexSelector",
-                src = cms.InputTag("offlinePrimaryVertices"),
-                cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
-                filter = cms.bool(True)
-                )
+    "VertexSelector",
+    src = cms.InputTag("offlinePrimaryVertices"),
+    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+    filter = cms.bool(True)
+)
 ## The beam scraping filter __________________________________________________||
 process.noscraping = cms.EDFilter(
-                "FilterOutScraping",
-                applyfilter = cms.untracked.bool(True),
-                debugOn = cms.untracked.bool(False),
-                numtrack = cms.untracked.uint32(10),
-                thresh = cms.untracked.double(0.25)
-                )
+    "FilterOutScraping",
+    applyfilter = cms.untracked.bool(True),
+    debugOn = cms.untracked.bool(False),
+    numtrack = cms.untracked.uint32(10),
+    thresh = cms.untracked.double(0.25)
+)
 ## The iso-based HBHE noise filter ___________________________________________||
 process.load('CommonTools.RecoAlgos.HBHENoiseFilter_cfi')
 ## The CSC beam halo tight filter ____________________________________________||
@@ -86,6 +85,12 @@ process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJets.doRhoFastjet = True
 process.kt6PFJets.doAreaFastjet = True
 process.kt6PFJets.voronoiRfact = 0.9
+
+
+# rho value for isolation
+from RecoJets.JetProducers.kt4PFJets_cfi import *
+process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
 
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
@@ -148,7 +153,7 @@ postfix = "PFlow"
 #postfix = ""
 usePF2PAT(process,runPF2PAT=True,
     jetAlgo='AK4', runOnMC=True, postfix=postfix,
-    #jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),
+    #jetCorrections=('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),
     jetCorrections=('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'],'Type-1'),
     pvCollection=cms.InputTag('offlinePrimaryVertices')
 )
@@ -167,8 +172,8 @@ process.pfPileUp.checkClosestZVertex = False
 #
 #from RecoJets.JetProducers.puJetIDAlgo_cff import * 
 #from RecoJets.JetProducers.puJetIDParams_cfi import * 
-from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdProducer, _stdalgos_5x, _stdalgos, cutbased, _chsalgos_5x, _chsalgos 
-#from RecoJets.JetProducers.PileupJetID_cfi import * 
+from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdProducer, _stdalgos_4x, _stdalgos_5x, _stdalgos, cutbased, _chsalgos_4x, _chsalgos_5x, _chsalgos 
+from RecoJets.JetProducers.PileupJetID_cfi import * 
 #process.load("RecoJets.JetProducers.PileupJetID_cfi")
 #process.load("RecoJets.JetProducers.puJetIDAlgo_cff")
 
@@ -257,11 +262,8 @@ process.jetpuid_step = cms.Path(process.recoPuJetIdSequence)
 
 ######ROOTMAKER 
 process.makeroottree = cms.EDAnalyzer("RootMaker",
-
-    muons = cms.InputTag("muons"),
-    ebRecHits = cms.InputTag("reducedEcalRecHitsEB"),
-    eeRecHits = cms.InputTag("reducedEcalRecHitsEB"),
-    esRecHits = cms.InputTag("reducedEcalRecHitsES"),
+    debug = cms.untracked.bool(False),
+    isMiniAOD = cms.untracked.bool(False),
 
     GenAllParticles = cms.untracked.bool(False),
     GenSomeParticles = cms.untracked.bool(True),
@@ -269,7 +271,7 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     
     Trigger = cms.untracked.bool(True),
     HLTriggerSelection = cms.untracked.vstring(),
-    #TriggerProcess = cms.untracked.string('REDIGI311X'),
+    TriggerProcess = cms.untracked.string('HLT'), #REDIGI311X'),
     RecPrimVertex = cms.untracked.bool(True),
     RecBeamSpot = cms.untracked.bool(True),
     
@@ -287,20 +289,20 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     RecSuperClusterHit = cms.untracked.bool(False),
     
     RecMuon = cms.untracked.bool(True),
-    RecMuonPtMin = cms.untracked.double(20),
+    RecMuonPtMin = cms.untracked.double(20.),
     RecMuonTrackIso = cms.untracked.double(1000000),
     RecMuonEtaMax = cms.untracked.double(2.5),
     RecMuonNum = cms.untracked.int32(1000),
     RecMuonHLTriggerMatching = cms.untracked.vstring(
-    'HLT_Mu17_Mu8_v.*:FilterTrue',
-    'HLT_Mu17_TkMu8_v.*:FilterTrue',
-    'HLT_Mu22_TkMu22_v.*:FilterTrue',
-    'HLT_Mu(8|17)_v.*',
-    'HLT_IsoMu(24|30)_v.*',
-    'HLT_IsoMu(24|30)_eta2p1_v.*',
-    'HLT_Mu40_v.*',
-    'HLT_Mu50_eta2p1_v.*',
-    'HLT_Mu40_eta2p1_v.*'
+        'HLT_Mu17_Mu8_v.*:FilterTrue',
+        'HLT_Mu17_TkMu8_v.*:FilterTrue',
+        'HLT_Mu22_TkMu22_v.*:FilterTrue',
+        'HLT_Mu(8|17)_v.*',
+        'HLT_IsoMu(24|30)_v.*',
+        'HLT_IsoMu(24|30)_eta2p1_v.*',
+        'HLT_Mu40_v.*',
+        'HLT_Mu50_eta2p1_v.*',
+        'HLT_Mu40_eta2p1_v.*'
     ),
     #RecMassMuMuMin = cms.untracked.double(2.6),
     #RecMassMuMuMax = cms.untracked.double(3.5),
@@ -314,11 +316,11 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     
     RecElectron = cms.untracked.bool(True),
     RecElectronHLTriggerMatching = cms.untracked.vstring(
-    'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v.*:FilterTrue',
-    'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v.*:FilterTrue',
-    'HLT_Ele27_WP80_v.*',
-    'HLT_Ele80_CaloIdVT_TrkIdT_v.*',
-    'HLT_Ele80_CaloIdVT_GsfTrkIdT_v.*'
+        'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v.*:FilterTrue',
+        'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v.*:FilterTrue',
+        'HLT_Ele27_WP80_v.*',
+        'HLT_Ele80_CaloIdVT_TrkIdT_v.*',
+        'HLT_Ele80_CaloIdVT_GsfTrkIdT_v.*'
     ),
     RecElectronPtMin = cms.untracked.double(20.),
     RecElectronTrackIso = cms.untracked.double(1000000.),
@@ -326,35 +328,35 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     RecElectronNum = cms.untracked.int32(100000),
     RecElectronFilterPtMin = cms.untracked.double(20.),
     
-    RecTau = cms.untracked.bool(False),
+    RecTau = cms.untracked.bool(True),
     RecTauHLTriggerMatching = cms.untracked.vstring(),
     RecTauDiscriminators = cms.untracked.vstring(
-    'hpsPFTauDiscriminationByDecayModeFinding',
-    'hpsPFTauDiscriminationByLooseElectronRejection',
-    'hpsPFTauDiscriminationByLooseIsolation',
-    'hpsPFTauDiscriminationByLooseMuonRejection',
-    'hpsPFTauDiscriminationByMediumElectronRejection',
-    'hpsPFTauDiscriminationByMediumIsolation',
-    'hpsPFTauDiscriminationByTightElectronRejection',
-    'hpsPFTauDiscriminationByTightIsolation',
-    'hpsPFTauDiscriminationByTightMuonRejection',
-    'hpsPFTauDiscriminationByVLooseIsolation'
+        'hpsPFTauDiscriminationByDecayModeFinding',
+        'hpsPFTauDiscriminationByLooseElectronRejection',
+        'hpsPFTauDiscriminationByLooseIsolation',
+        'hpsPFTauDiscriminationByLooseMuonRejection',
+        'hpsPFTauDiscriminationByMediumElectronRejection',
+        'hpsPFTauDiscriminationByMediumIsolation',
+        'hpsPFTauDiscriminationByTightElectronRejection',
+        'hpsPFTauDiscriminationByTightIsolation',
+        'hpsPFTauDiscriminationByTightMuonRejection',
+        'hpsPFTauDiscriminationByVLooseIsolation'
     ),
     
     RecTauPtMin = cms.untracked.double(0.),
     RecTauEta = cms.untracked.double(0.),
-#    RecTauNum = cms.untracked.int32(100000),
+    RecTauNum = cms.untracked.int32(100000),
     
     RecAK4CaloJet = cms.untracked.bool(False),
     RecAK4CaloPtMin = cms.untracked.double(20.),
     RecAK4CaloEtaMax = cms.untracked.double(2.4),
-#    RecAK4CaloNum = cms.untracked.int32(100000),
+    RecAK4CaloNum = cms.untracked.int32(100000),
     RecAK4CaloFilterPtMin = cms.untracked.double(20.),
     
     RecAK4JPTJet = cms.untracked.bool(False),
     RecAK4JPTPtMin = cms.untracked.double(20.),
     RecAK4JPTEtaMax = cms.untracked.double(2.4),
-#    RecAK4JPTNum = cms.untracked.int32(100000),
+    RecAK4JPTNum = cms.untracked.int32(100000),
     RecAK4JPTFilterPtMin = cms.untracked.double(20.),
     
     #JetCorrection = cms.untracked.string('L1FastL2L3Residual'),#Data
@@ -364,34 +366,70 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     RecAK4PFJet = cms.untracked.bool(True),
     RecAK4PFPtMin = cms.untracked.double(20.),
     RecAK4PFEtaMax = cms.untracked.double(3.0),
-#    RecAK4PFNum = cms.untracked.int32(100000),
+    RecAK4PFNum = cms.untracked.int32(100000),
     RecAK4PFFilterPtMin = cms.untracked.double(20.),
     
     RecAK4PFCHSJet = cms.untracked.bool(True),
     RecAK4PFCHSPtMin = cms.untracked.double(20.),
     RecAK4PFCHSEtaMax = cms.untracked.double(3.0),
-#    RecAK4PFCHSNum = cms.untracked.int32(100000),
+    RecAK4PFCHSNum = cms.untracked.int32(100000),
     RecAK4PFCHSFilterPtMin = cms.untracked.double(20.),
     
-    RecSecVertices = cms.untracked.bool(False),
+    RecSecVertices = cms.untracked.bool(True),
     RecVertexTRKChi2 = cms.untracked.double(5),
     RecVertexTRKHitsMin = cms.untracked.int32(6),
     RecVertexChi2 = cms.untracked.double(3),
     RecVertexSig2D = cms.untracked.double(15),
     RecKaonMasswin = cms.untracked.double(0.05),
-    RecLambdaMasswin = cms.untracked.double(0.02)
-)
+    RecLambdaMasswin = cms.untracked.double(0.02),
 
-#process.genPlusSimParticles = cms.EDProducer("GenPlusSimParticleProducer",
-#src = cms.InputTag("g4SimHits"),
-#setStatus = cms.int32(8),
-#filter = cms.vstring("pt > 0.0"),
-#genParticles = cms.InputTag("genParticles")
-#)
+    # INPUT TAGS ##################################################
+    dEdxharmonic2 = cms.InputTag("dEdxharmonic2"),
+    l1trigger = cms.InputTag("gtDigis"),
+    hltrigger = cms.InputTag("TriggerResults","", TriggerProcess),
+    hltriggerevent = cms.InputTag("hltTriggerSummaryAOD", "", TriggerProcess),
+    metFilterBits = cms.InputTag("TriggerResults", "", "PAT"),
+    lostTracks = cms.InputTag("lostTracks", "", "PAT"), # mini only
+    generalTracks = cms.InputTag("generalTracks"), # AOD only
+    unpackedTracks = cms.InputTag("unpackedTracksAndVertices"), # mini only
+    vertices = cms.InputTag("offlinePrimaryVertices"),
+    secondaryVertices = cms.InputTag("slimmedSecondaryVertices", "", "PAT"),
+    beamSpot = cms.InputTag("offlineBeamSpot", "", "RECO"),
+    muons = cms.InputTag("muons"),
+    electrons = cms.InputTag("gedGsfElectrons"),
+    photons = cms.InputTag("gedPhotons"),
+    taus = cms.InputTag("hpsPFTauProducer"),
+    taujets = cms.InputTag("patJetsAK4PF"),
+    ak4calojets = cms.InputTag("patJetsAK4Calo"), # AOD only
+    ak4jptjets = cms.InputTag("patJetsAK4JPT"), # AOD only
+    ak4pfjets = cms.InputTag("ak4PFJets"), # AOD only
+    ak4pfchsjets = cms.InputTag("selectedPatJetsPFlow"),
+    jetsAK8 = cms.InputTag("slimmedJetsAK8"), # mini only
+    mets = cms.InputTag("slimmedMETs"), # mini only
+    pfmet = cms.InputTag("pfMet"), # AOD only
+    pfmett1 = cms.InputTag("pfMetT1"), # AOD only
+    pfmett1t0 = cms.InputTag("pfType0Type1CorrectedMet"), # AOD only
+    packedGenParticles = cms.InputTag("packedGenParticles"), # mini only
+    genSimParticles = cms.InputTag("genPlusSimParticles"), 
+    genParticles = cms.InputTag("genParticles"), 
+    genJets = cms.InputTag("ak4GenJets"),
+    genInfo = cms.InputTag("generator", "", "SIM"),
+    puInfo = cms.InputTag("addPileupInfo", "", "HLT"),
+    PfCands = cms.InputTag("particleFlow"), # AOD only
+    packedPfCands = cms.InputTag("packedPFCandidates"), # mini only
+    barrelHits = cms.InputTag("reducedEcalRecHitsEB"),
+    endcapHits = cms.InputTag("reducedEcalRecHitsEE"),
+    esHits = cms.InputTag("reducedEcalRecHitsES"),
+    superClusters = cms.InputTag("correctedHybridSuperClusters"),
+    ebeeClusters = cms.InputTag("reducedEgamma", "reducedEBEEClusters", "PAT"), # mini only?
+    esClusters = cms.InputTag("reducedEgamma", "reducedESClusters", "PAT"), # mini only?
+    conversions = cms.InputTag("allConversions"),
+    gedGsfElectronCores = cms.InputTag("reducedEgamma", "reducedGedGsfElectronCores", "PAT"), # mini only
+    gedPhotonCores = cms.InputTag("reducedEgamma", "reducedGedPhotonCores", "PAT"), # mini only
+)
 
 process.TFileService = cms.Service("TFileService",
-	fileName = cms.string('AC1B_test.root')
+	fileName = cms.string('AC1B_tree.root')
 )
-
 process.roottree_step = cms.EndPath(process.makeroottree)
 

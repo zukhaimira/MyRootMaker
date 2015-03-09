@@ -163,6 +163,7 @@
 
 using namespace std;
 using namespace reco;
+using namespace pat;
 
 #define M_trackmaxcount 500
 #define M_superclustermaxcount 1000
@@ -202,23 +203,75 @@ private:
     virtual void endLuminosityBlock(const edm::LuminosityBlock &iLumiBlock, const edm::EventSetup &iSetup);
     virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
 
-    edm::EDGetTokenT<MuonCollection> muonsToken_;
+    // tokens
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1TriggerToken_;
+    edm::EDGetTokenT<edm::ValueMap<DeDxData>> dharmonicToken_;
+    edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
 
-    edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebRecHitsToken_;
-    edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeRecHitsToken_;
-    edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > esRecHitsToken_;
+      edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken_;
+      edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken_;
+
+    edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
+    edm::EDGetTokenT<pat::JetCollection> ak4pfchsJetsToken_;
+    edm::EDGetTokenT<reco::GenParticleCollection> genSimParticlesToken_;
+    edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
+    edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+    edm::EDGetTokenT<reco::SuperClusterCollection> superClustersToken_;
+    edm::EDGetTokenT<GenEventInfoProduct> genInfoToken_;
+    edm::EDGetTokenT<std::vector<PileupSummaryInfo>> puInfoToken_;
+    edm::EDGetTokenT<reco::CaloClusterCollection> ebeeClustersToken_;
+    edm::EDGetTokenT<reco::CaloClusterCollection> esClustersToken_;
+    edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit>>> ebRecHitsToken_;
+    edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit>>> eeRecHitsToken_;
+    edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit>>> esRecHitsToken_;
+    // AOD tokens
+    edm::EDGetTokenT<reco::TrackCollection> recoTracksToken_;
+    edm::EDGetTokenT<reco::MuonCollection> recoMuonsToken_;
+    edm::EDGetTokenT<reco::GsfElectronCollection> recoElectronsToken_;
+    edm::EDGetTokenT<reco::PhotonCollection> recoPhotonsToken_;
+    edm::EDGetTokenT<reco::PFTauCollection> recoTausToken_;
+    edm::EDGetTokenT<pat::JetCollection> tauJetsToken_;
+    edm::EDGetTokenT<pat::JetCollection> ak4caloJetsToken_;
+    edm::EDGetTokenT<pat::JetCollection> ak4jptJetsToken_;
+    edm::EDGetTokenT<reco::PFJetCollection> ak4pfJetsToken_;
+    edm::EDGetTokenT<reco::PFCandidateCollection> recoPFCandsToken_;
+    edm::EDGetTokenT<reco::PFMETCollection> recoMetToken_;
+    edm::EDGetTokenT<reco::PFMETCollection> recoMetT1Token_;
+    edm::EDGetTokenT<reco::PFMETCollection> recoMetT1T0Token_;
+    // miniAOD tokens
+    edm::EDGetTokenT<pat::PackedCandidateCollection> lostTracksToken_;
+    edm::EDGetTokenT<reco::TrackCollection> unpackedTracksToken_;
+    edm::EDGetTokenT<pat::MuonCollection> patMuonsToken_;
+    edm::EDGetTokenT<pat::ElectronCollection> patElectronsToken_;
+    edm::EDGetTokenT<pat::PhotonCollection> patPhotonsToken_;
+    edm::EDGetTokenT<pat::TauCollection> patTausToken_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection> packedPFCandsToken_;
+    edm::EDGetTokenT<pat::METCollection> patMetToken_;
+    edm::EDGetTokenT<double> rhoToken_;
+    edm::EDGetTokenT<vector<reco::GsfElectronCore>> gedGsfElectronCoresToken_;
+    edm::EDGetTokenT<vector<reco::PhotonCore>> gedPhotonCoresToken_;
+
+
+
 
     edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebRecHits;
     edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeRecHits;
     edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > esRecHits;
     edm::Handle<VertexCollection> Vertices;
+    edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
+    edm::Handle<L1GlobalTriggerReadoutRecord> L1trigger;
 
     bool AddTracks(const edm::Event &iEvent);
     bool AddElectrons(const edm::Event &iEvent);
+    bool AddPatElectrons(const edm::Event &iEvent);
     bool AddMuons(const edm::Event &iEvent);
+    bool AddPatMuons(const edm::Event &iEvent);
     bool AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+    bool AddPatPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     bool AddAllConversions(const edm::Event &iEvent);
     bool AddTaus(const edm::Event &iEvent);
+    bool AddPatTaus(const edm::Event &iEvent);
     bool AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     bool AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     bool AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
@@ -240,6 +293,7 @@ private:
     };
     JetShape getJetShape(const PFJet &jet);
     JetShape getJetShape(const pat::Jet &jet);
+    JetShape getSlimmedJetShape(const pat::Jet &jet);
     UInt_t GenParticleInfo(const GenParticle *particle);
     UInt_t GetTrigger(const LeafCandidate &particle, vector<pair<unsigned, int> > &triggers);
     UInt_t FindGenParticle(const Candidate *particle);
@@ -248,6 +302,7 @@ private:
     math::XYZPoint PositionOnECalSurface(reco::TransientTrack &);
     Int_t getSuperClusterPh(const SuperClusterRef &A);
     Int_t getSuperClusterEl(const SuperClusterRef &A);
+    Int_t getPrimVertex(const pat::PackedCandidate *con);
     Int_t getPrimVertex(const Track &trk);
     //Int_t getSuperCluster(const Candidate& A);
 
@@ -267,6 +322,10 @@ private:
     TH1F *good_muon_pt;
     TH1F *good_muon_phi;
     TH1F *good_muon_eta;
+    TH1F *good_matched_muon_count;
+    TH1F *good_matched_muon_pt;
+    TH1F *good_matched_muon_phi;
+    TH1F *good_matched_muon_eta;
 
     TH1F *all_electron_count;
     TH1F *all_electron_pt;
@@ -276,6 +335,10 @@ private:
     TH1F *good_electron_pt;
     TH1F *good_electron_phi;
     TH1F *good_electron_eta;
+    TH1F *good_matched_electron_count;
+    TH1F *good_matched_electron_pt;
+    TH1F *good_matched_electron_phi;
+    TH1F *good_matched_electron_eta;
 
     TH1F *all_tau_count;
     TH1F *all_tau_pt;
@@ -531,6 +594,16 @@ private:
     Float_t muon_pterror[M_muonmaxcount];
     Float_t muon_chi2[M_muonmaxcount];
     Float_t muon_ndof[M_muonmaxcount];
+
+    Int_t muon_is_tracker[M_muonmaxcount];
+    Int_t muon_is_global[M_muonmaxcount];
+    Int_t muon_is_standalone[M_muonmaxcount];
+
+    Int_t muon_has_gen_particle[M_muonmaxcount];
+    Int_t muon_gen_particle_pdgid[M_muonmaxcount];
+    Int_t muon_has_gen_mother[M_muonmaxcount];
+    Int_t muon_gen_mother_pdgid[M_muonmaxcount];
+
     Int_t muon_innertrack_vtx[M_muonmaxcount];
     Float_t muon_innertrack_px[M_muonmaxcount];
     Float_t muon_innertrack_py[M_muonmaxcount];
@@ -701,6 +774,10 @@ private:
     Int_t ak4pfchsjet_mcflavour[M_jetmaxcount];
 
     UInt_t electron_count;
+
+//  std::vector<Int_t>   passVetoId_;     
+//  std::vector<Int_t>   passTightId_;   
+
     Int_t electron_vtx[M_electronmaxcount];
     Float_t electron_px[M_electronmaxcount];
     Float_t electron_py[M_electronmaxcount];
@@ -711,6 +788,16 @@ private:
     Float_t electron_correctedecalenergy[M_electronmaxcount];
     Float_t electron_trackchi2[M_electronmaxcount];
     Float_t electron_trackndof[M_electronmaxcount];
+
+    Int_t electron_is_veto[M_electronmaxcount];
+    Int_t electron_is_loose[M_electronmaxcount];
+    Int_t electron_is_tight[M_electronmaxcount];
+
+    Int_t electron_has_gen_particle[M_electronmaxcount];
+    Int_t electron_gen_particle_pdgid[M_electronmaxcount];
+    Int_t electron_has_gen_mother[M_electronmaxcount];
+    Int_t electron_gen_mother_pdgid[M_electronmaxcount];
+
     Float_t electron_outerx[M_electronmaxcount];
     Float_t electron_outery[M_electronmaxcount];
     Float_t electron_outerz[M_electronmaxcount];

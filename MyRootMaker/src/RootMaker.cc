@@ -10,10 +10,18 @@ typedef ROOT::Math::SVector<double, 3> SVector3;
 RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
 
     // tokens
+    l1TriggerToken_(consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("l1trigger"))),
+    dharmonicToken_(consumes<edm::ValueMap<DeDxData>>(iConfig.getParameter<edm::InputTag>("dEdxharmonic2"))),
     verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+
+//  electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
+//  electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),
+
     conversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("conversions"))),
     ak4pfchsJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfchsjets"))),
-    genParticlesToken_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genParticles"))),
+    genSimParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genSimParticles"))),
+    genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
+    //genParticlesToken_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genParticles"))),
     genJetsToken_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJets"))),
     beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
     superClustersToken_(consumes<vector<reco::SuperCluster> >(iConfig.getParameter<edm::InputTag>("superClusters"))),
@@ -28,32 +36,35 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     esRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("esHits"))),
 
 
-    // AOD consumes
-    recoTracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
-    recoMuonsToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-    recoElectronsToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
-    recoPhotonsToken_(consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
-    recoTausToken_(consumes<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
-    ak4caloJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4calojets"))),
-    ak4jptJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4jptjets"))),
-    ak4pfJetsToken_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfjets"))),
-    recoPFCandsToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PfCands"))),
-    recoMetToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmet"))),
-    recoMetT1Token_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmetT1"))),
-    recoMetT1T0Token_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmetT1T0"))),
+    // AOD mayConsume
+    recoTracksToken_(mayConsume<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
+    recoMuonsToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+    recoElectronsToken_(mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+    recoPhotonsToken_(mayConsume<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
+    recoTausToken_(mayConsume<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
+    tauJetsToken_(mayConsume<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("taujets"))),
+    ak4caloJetsToken_(mayConsume<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4calojets"))),
+    ak4jptJetsToken_(mayConsume<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4jptjets"))),
+    ak4pfJetsToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfjets"))),
+    recoPFCandsToken_(mayConsume<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PfCands"))),
+    recoMetToken_(mayConsume<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmet"))),
+    recoMetT1Token_(mayConsume<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmett1"))),
+    recoMetT1T0Token_(mayConsume<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmett1t0"))),
 
 
 
-    // miniAOD consumes
-    lostTracksToken_(consumes<vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostTracks"))),
-    patMuonsToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-    patElectronsToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
-    photonsToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
-    patTausToken_(consumes<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
-    packedPFCandsToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPfCands"))),
-    patMetToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
-    gedGsfElectronCoresToken_(consumes<vector<reco::GsfElectronCore> >(iConfig.getParameter<edm::InputTag>("gedGsfElectronCores"))),
-    gedPhotonCoresToken_(consumes<vector<reco::PhotonCore> >(iConfig.getParameter<edm::InputTag>("gedPhotonCores"))),
+    // miniAOD mayConsume
+    lostTracksToken_(mayConsume<vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostTracks"))),
+    unpackedTracksToken_(mayConsume<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("unpackedTracks"))),
+    patMuonsToken_(mayConsume<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+    patElectronsToken_(mayConsume<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+    patPhotonsToken_(mayConsume<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
+    patTausToken_(mayConsume<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
+    packedPFCandsToken_(mayConsume<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPfCands"))),
+    patMetToken_(mayConsume<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
+    rhoToken_(mayConsume<double>(iConfig.getParameter<edm::InputTag>("rhoAll"))),
+    gedGsfElectronCoresToken_(mayConsume<vector<reco::GsfElectronCore> >(iConfig.getParameter<edm::InputTag>("gedGsfElectronCores"))),
+    gedPhotonCoresToken_(mayConsume<vector<reco::PhotonCore> >(iConfig.getParameter<edm::InputTag>("gedPhotonCores"))),
 
 
 
@@ -213,49 +224,57 @@ void RootMaker::beginJob() {
     all_muon_count_standalone = FS->make<TH1F> ("all_muon_count_standalone", "all_muon_count_standalone", 60, 0., 60.);
     all_muon_count_tracker = FS->make<TH1F> ("all_muon_count_tracker", "all_muon_count_tracker", 60, 0., 60.);
     all_muon_count = FS->make<TH1F> ("all_muon_count", "all_muon_count", 60, 0., 60.);
-    all_muon_pt = FS->make<TH1F> ("all_muon_pt", "all_muon_pt", 100, 0., 100.);
+    all_muon_pt = FS->make<TH1F> ("all_muon_pt", "all_muon_pt", 250, 0., 500.);
     all_muon_phi = FS->make<TH1F> ("all_muon_phi", "all_muon_phi", 80, -4., 4.);
     all_muon_eta = FS->make<TH1F> ("all_muon_eta", "all_muon_eta", 60, -3., 3.);
     good_muon_count = FS->make<TH1F> ("good_muon_count", "good_muon_count", 20, 0., 20.);
-    good_muon_pt = FS->make<TH1F> ("good_muon_pt", "good_muon_pt", 100, 0., 100.);
+    good_muon_pt = FS->make<TH1F> ("good_muon_pt", "good_muon_pt", 250, 0., 500.);
     good_muon_phi = FS->make<TH1F> ("good_muon_phi", "good_muon_phi", 80, -4., 4.);
     good_muon_eta = FS->make<TH1F> ("good_muon_eta", "good_muon_eta", 60, -3., 3.);
+    good_matched_muon_count = FS->make<TH1F> ("good_matched_muon_count", "good_matched_muon_count", 20, 0., 20.);
+    good_matched_muon_pt = FS->make<TH1F> ("good_matched_muon_pt", "good_matched_muon_pt", 250, 0., 500.);
+    good_matched_muon_phi = FS->make<TH1F> ("good_matched_muon_phi", "good_matched_muon_phi", 80, -4., 4.);
+    good_matched_muon_eta = FS->make<TH1F> ("good_matched_muon_eta", "good_matched_muon_eta", 60, -3., 3.);
 
     all_electron_count = FS->make<TH1F> ("all_electron_count", "all_electron_count", 30, 0., 30.);
-    all_electron_pt = FS->make<TH1F> ("all_electron_pt", "all_electron_pt", 100, 0., 100.);
+    all_electron_pt = FS->make<TH1F> ("all_electron_pt", "all_electron_pt", 250, 0., 500.);
     all_electron_phi = FS->make<TH1F> ("all_electron_phi", "all_electron_phi", 80, -4., 4.);
     all_electron_eta = FS->make<TH1F> ("all_electron_eta", "all_electron_eta", 60, -3., 3.);
     good_electron_count = FS->make<TH1F> ("good_electron_count", "good_electron_count", 20, 0., 20.);
-    good_electron_pt = FS->make<TH1F> ("good_electron_pt", "good_electron_pt", 100, 0., 100.);
+    good_electron_pt = FS->make<TH1F> ("good_electron_pt", "good_electron_pt", 250, 0., 500.);
     good_electron_phi = FS->make<TH1F> ("good_electron_phi", "good_electron_phi", 80, -4., 4.);
     good_electron_eta = FS->make<TH1F> ("good_electron_eta", "good_electron_eta", 60, -3., 3.);
+    good_matched_electron_count = FS->make<TH1F> ("good_matched_electron_count", "good_matched_electron_count", 20, 0., 20.);
+    good_matched_electron_pt = FS->make<TH1F> ("good_matched_electron_pt", "good_matched_electron_pt", 250, 0., 500.);
+    good_matched_electron_phi = FS->make<TH1F> ("good_matched_electron_phi", "good_matched_electron_phi", 80, -4., 4.);
+    good_matched_electron_eta = FS->make<TH1F> ("good_matched_electron_eta", "good_matched_electron_eta", 60, -3., 3.);
 
     all_tau_count = FS->make<TH1F> ("all_tau_count", "all_tau_count", 30, 0., 30.);
-    all_tau_pt = FS->make<TH1F> ("all_tau_pt", "all_tau_pt", 100, 0., 100.);
+    all_tau_pt = FS->make<TH1F> ("all_tau_pt", "all_tau_pt", 250, 0., 500.);
     all_tau_phi = FS->make<TH1F> ("all_tau_phi", "all_tau_phi", 80, -4., 4.);
     all_tau_eta = FS->make<TH1F> ("all_tau_eta", "all_tau_eta", 60, -3., 3.);
     good_tau_count = FS->make<TH1F> ("good_tau_count", "good_tau_count", 20, 0., 20.);
-    good_tau_pt = FS->make<TH1F> ("good_tau_pt", "good_tau_pt", 100, 0., 100.);
+    good_tau_pt = FS->make<TH1F> ("good_tau_pt", "good_tau_pt", 250, 0., 500.);
     good_tau_phi = FS->make<TH1F> ("good_tau_phi", "good_tau_phi", 80, -4., 4.);
     good_tau_eta = FS->make<TH1F> ("good_tau_eta", "good_tau_eta", 60, -3., 3.);
 
     all_photon_count = FS->make<TH1F> ("all_photon_count", "all_photon_count", 30, 0., 30.);
-    all_photon_pt = FS->make<TH1F> ("all_photon_pt", "all_photon_pt", 100, 0., 100.);
+    all_photon_pt = FS->make<TH1F> ("all_photon_pt", "all_photon_pt", 250, 0., 500.);
     all_photon_phi = FS->make<TH1F> ("all_photon_phi", "all_photon_phi", 80, -4., 4.);
     all_photon_eta = FS->make<TH1F> ("all_photon_eta", "all_photon_eta", 60, -3., 3.);
     good_photon_count = FS->make<TH1F> ("good_photon_count", "good_photon_count", 20, 0., 20.);
-    good_photon_pt = FS->make<TH1F> ("good_photon_pt", "good_photon_pt", 100, 0., 100.);
+    good_photon_pt = FS->make<TH1F> ("good_photon_pt", "good_photon_pt", 250, 0., 500.);
     good_photon_phi = FS->make<TH1F> ("good_photon_phi", "good_photon_phi", 80, -4., 4.);
     good_photon_eta = FS->make<TH1F> ("good_photon_eta", "good_photon_eta", 60, -3., 3.);
 
     all_jet_count = FS->make<TH1F> ("all_jet_count", "all_jet_count", 200, 0., 200.);
-    all_jet_pt = FS->make<TH1F> ("all_jet_pt", "all_jet_pt", 100, 0., 100.);
+    all_jet_pt = FS->make<TH1F> ("all_jet_pt", "all_jet_pt", 250, 0., 500.);
     all_jet_phi = FS->make<TH1F> ("all_jet_phi", "all_jet_phi", 80, -4., 4.);
     all_jet_eta = FS->make<TH1F> ("all_jet_eta", "all_jet_eta", 60, -3., 3.);
-    good_jet_count_cpt20 = FS->make<TH1F> ("good_jet_count_cpt20", "good_jet_count_cpt20", 100, 0., 100.);
-    good_jet_count_cpt25 = FS->make<TH1F> ("good_jet_count_cpt25", "good_jet_count_cpt25", 100, 0., 100.);
-    good_jet_count_cpt30 = FS->make<TH1F> ("good_jet_count_cpt30", "good_jet_count_cpt30", 100, 0., 100.);
-    good_jet_pt = FS->make<TH1F> ("good_jet_pt", "good_jet_pt", 100, 0., 100.);
+    good_jet_count_cpt20 = FS->make<TH1F> ("good_jet_count_cpt20", "good_jet_count_cpt20", 250, 0., 500.);
+    good_jet_count_cpt25 = FS->make<TH1F> ("good_jet_count_cpt25", "good_jet_count_cpt25", 250, 0., 500.);
+    good_jet_count_cpt30 = FS->make<TH1F> ("good_jet_count_cpt30", "good_jet_count_cpt30", 250, 0., 500.);
+    good_jet_pt = FS->make<TH1F> ("good_jet_pt", "good_jet_pt", 250, 0., 500.);
     good_jet_phi = FS->make<TH1F> ("good_jet_phi", "good_jet_phi", 80, -4., 4.);
     good_jet_eta = FS->make<TH1F> ("good_jet_eta", "good_jet_eta", 60, -3., 3.);
 
@@ -362,7 +381,16 @@ void RootMaker::beginJob() {
     tree->Branch("muon_eta", muon_eta, "muon_eta[muon_count]/F");
     tree->Branch("muon_pterror", muon_pterror, "muon_pterror[muon_count]/F");
     tree->Branch("muon_chi2", muon_chi2, "muon_chi2[muon_count]/F");
-    tree->Branch("muon_ndof", muon_ndof, "muon_ndof[muon_count]/F");
+
+    tree->Branch("muon_is_tracker", muon_is_tracker, "muon_is_tracker[muon_count]/I");
+    tree->Branch("muon_is_global", muon_is_global, "muon_is_global[muon_count]/I");
+    tree->Branch("muon_is_standalone", muon_is_standalone, "muon_is_standalone[muon_count]/I");
+
+    tree->Branch("muon_has_gen_particle", muon_has_gen_particle, "muon_has_gen_particle[muon_count]/I");
+    tree->Branch("muon_gen_particle_pdgid", muon_gen_particle_pdgid, "muon_gen_particle_pdgid[muon_count]/I");
+    tree->Branch("muon_has_gen_mother", muon_has_gen_mother, "muon_has_gen_mother[muon_count]/I");
+    tree->Branch("muon_gen_mother_pdgid", muon_gen_mother_pdgid, "muon_gen_mother_pdgid[muon_count]/I");
+
     tree->Branch("muon_innertrack_vtx", muon_innertrack_vtx, "muon_innertrack_vtx[muon_count]/I");
     tree->Branch("muon_innertrack_px", muon_innertrack_px, "muon_innertrack_px[muon_count]/F");
     tree->Branch("muon_innertrack_py", muon_innertrack_py, "muon_innertrack_py[muon_count]/F");
@@ -543,6 +571,18 @@ void RootMaker::beginJob() {
     tree->Branch("electron_correctedecalenergy", electron_correctedecalenergy, "electron_correctedecalenergy[electron_count]/F");
     tree->Branch("electron_trackchi2", electron_trackchi2, "electron_trackchi2[electron_count]/F");
     tree->Branch("electron_trackndof", electron_trackndof, "electron_trackndof[electron_count]/F");
+
+
+    tree->Branch("electron_is_veto", electron_is_veto, "electron_is_veto[electron_count]/I");
+    tree->Branch("electron_is_loose", electron_is_loose, "electron_is_loose[electron_count]/I");
+    tree->Branch("electron_is_tight", electron_is_tight, "electron_is_tight[electron_count]/I");
+
+    tree->Branch("electron_has_gen_particle", electron_has_gen_particle, "electron_has_gen_particle[electron_count]/I");
+    tree->Branch("electron_gen_particle_pdgid", electron_gen_particle_pdgid, "electron_gen_particle_pdgid[electron_count]/I");
+    tree->Branch("electron_has_gen_mother", electron_has_gen_mother, "electron_has_gen_mother[electron_count]/I");
+    tree->Branch("electron_gen_mother_pdgid", electron_gen_mother_pdgid, "electron_gen_mother_pdgid[electron_count]/I");
+
+
     tree->Branch("electron_outerx", electron_outerx, "electron_outerx[electron_count]/F");
     tree->Branch("electron_outery", electron_outery, "electron_outery[electron_count]/F");
     tree->Branch("electron_outerz", electron_outerz, "electron_outerz[electron_count]/F");
@@ -1041,13 +1081,24 @@ void RootMaker::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
             L1GtUtils::TriggerCategory trigCategory;
             const vector<pair<bool, string> > l1seed = HLTConfiguration.hltL1GTSeeds(i);
             if(l1seed.size() == 1) {
-                cout << HLTConfiguration.triggerName(i) << " " << l1seed[0].second << " " << trigCategory << " " << l1bit << " " << (l1GtPfAlgo.product()->gtPrescaleFactors())[j][l1bit] <<endl;
+                //if (cdebug) {
+                //    cout<<"HLTConfiguration.triggerName("<<i<<") = "<< HLTConfiguration.triggerName(i)<<endl;
+                //    cout<<"l1seed[0].second = "<<l1seed[0].second<<endl;
+                //    cout<<"trigCategory = "<<trigCategory<<endl;
+                //    cout<<"l1bit = "<<l1bit <<endl;
+                //    cout<<"(l1GtPfAlgo.product()->gtPrescaleFactors())["<<j<<"][l1bit] = "<<(l1GtPfAlgo.product()->gtPrescaleFactors())[j][l1bit]<<"\n"<<endl;
+                //}
                 l1info.l1AlgoTechTrigBitNumber(l1seed[0].second, trigCategory, l1bit);
                 l1prescale = (l1GtPfAlgo.product()->gtPrescaleFactors())[j][l1bit];
             }
             run_hltprescaletables[i+HLTConfiguration.size()*j] = HLTConfiguration.prescaleValue(j, HLTConfiguration.triggerName(i));
             run_hltl1prescaletables[i+HLTConfiguration.size()*j] = l1prescale;
-            cout << HLTConfiguration.triggerName(i) << " " << j << " " << run_hltl1prescaletables[i+HLTConfiguration.size()*j] << " " << run_hltprescaletables[i+HLTConfiguration.size()*j] <<endl;
+            //if (cdebug) {
+            //    cout<<"HLTConfiguration.triggerName("<<i<<") = "<< HLTConfiguration.triggerName(i)<<endl;
+            //    cout<<"j = "<<j<<endl;
+            //    cout<<"run_hltl1prescaletables[i+HLTConfiguration.size()*j] = "<<run_hltl1prescaletables[i+HLTConfiguration.size()*j]<<endl;
+            //    cout<<"run_hltprescaletables[i+HLTConfiguration.size()*j] = "<<run_hltprescaletables[i+HLTConfiguration.size()*j]<<"\n"<<endl;
+            //}
         }
     }
     if(cdebug) { cout<<"runtree->Fill();"<<endl; }
@@ -1128,8 +1179,10 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     event_timemicrosec = iEvent.time().microsecondOffset();
     event_luminosityblock = iEvent.getLuminosityBlock().luminosityBlock();
     //L1TriggerBits
-    edm::Handle<L1GlobalTriggerReadoutRecord> L1trigger;
-    iEvent.getByLabel(edm::InputTag("gtDigis"), L1trigger);
+    //
+    //edm::Handle<L1GlobalTriggerReadoutRecord> L1trigger;
+    iEvent.getByToken(l1TriggerToken_, L1trigger);
+
     const TechnicalTriggerWord &L1triggerbits = L1trigger->technicalTriggerWord();
     for(int i  = 0  ; i < 8 ; i++) {trigger_level1bits[i] = 0;}
     for(unsigned i = 0 ; i < min(unsigned(L1triggerbits.size()), unsigned(64)) ; i++) {trigger_level1bits[i/8] |= (Byte_t)L1triggerbits[i] << (i%8);}
@@ -1140,11 +1193,19 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     lumi_l1techprescaletable = (L1trigger->gtFdlWord()).gtPrescaleFactorIndexTech();
     lumi_l1algoprescaletable = (L1trigger->gtFdlWord()).gtPrescaleFactorIndexAlgo();
     lumi_hltprescaletable = HLTConfiguration.prescaleSet(iEvent, iSetup);
-    //cout << lumi_l1techprescaletable << " " << lumi_l1algoprescaletable << " " << lumi_hltprescaletable << " " <<  HLTConfiguration.prescaleValues(iEvent, iSetup,"HLT_Mu17_Mu8_v16").first << " " << HLTConfiguration.prescaleValues(iEvent, iSetup,"HLT_Mu17_Mu8_v16").second << endl;
+    //if (cdebug) {
+    //    cout<<"lumi_l1techprescaletable = "<<lumi_l1techprescaletable<<endl;
+    //    cout<<"lumi_l1algoprescaletable = "<<lumi_l1algoprescaletable<<endl;
+    //    cout<<"lumi_hltprescaletable = "<<lumi_hltprescaletable<<endl;
+    //    //cout<<"HLTConfiguration.prescaleValues(iEvent, iSetup,\"HLT_Mu17_Mu8_v16\").first = "<<HLTConfiguration.prescaleValues(iEvent, iSetup,"HLT_Mu17_Mu8_v16").first<<endl;
+    //    //cout<<"HLTConfiguration.prescaleValues(iEvent, iSetup,\"HLT_Mu17_Mu8_v16\").second"<<HLTConfiguration.prescaleValues(iEvent, iSetup,"HLT_Mu17_Mu8_v16").second<<"\n"<<endl;
+    //}
 
     //HLTriggerResults
     iEvent.getByLabel(edm::InputTag("TriggerResults", "", cTriggerProcess), HLTrigger);
-    for(int i = 0  ; i < 128 ; i++) {trigger_HLT[i] = 0;}
+    for(int i = 0  ; i < 128 ; i++) {
+        trigger_HLT[i] = 0;
+    }
 
     for(unsigned i = 0 ; i < min(unsigned(HLTrigger->size()), unsigned(1024)) ; i++) {
         trigger_HLT[i/8] |= (Byte_t)HLTrigger->accept(i) << (i%8);
@@ -1154,6 +1215,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     }
     //TriggerEvent for matching
     iEvent.getByLabel(edm::InputTag("hltTriggerSummaryAOD", "", cTriggerProcess), HLTriggerEvent);
+    if (!cisMiniAOD) iEvent.getByLabel(edm::InputTag("hltTriggerSummaryAOD", "", cTriggerProcess), HLTriggerEvent);
     //cout<<"PASSED! hlt"<<endl;
     if(HLTriggerIndexSelection.size() == 0 || !ctrigger) {
         takeevent = true;
@@ -1162,7 +1224,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(!takeevent) { return; }
 
     if(crecprimvertex) {
-        iEvent.getByLabel(edm::InputTag("offlinePrimaryVertices"), Vertices);
+        iEvent.getByToken(verticesToken_, Vertices);
 
         if(Vertices.isValid()) {
             for(unsigned i = 0 ; i < Vertices->size(); i++) {
@@ -1204,7 +1266,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
     if(cbeamspot) {
         edm::Handle<BeamSpot> TheBeamSpot;
-        iEvent.getByLabel(edm::InputTag("offlineBeamSpot"), TheBeamSpot);
+        iEvent.getByToken(beamSpotToken_, TheBeamSpot);
         if(TheBeamSpot.isValid()) {
             beamspot_x = TheBeamSpot->x0();
             beamspot_y = TheBeamSpot->y0();
@@ -1238,9 +1300,11 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(crecsupercluster) {
         bool error = false;
         edm::Handle<SuperClusterCollection> SCbarrel;
-        iEvent.getByLabel(edm::InputTag("correctedHybridSuperClusters"), SCbarrel);
+        // (edm::InputTag("correctedHybridSuperClusters"), SCbarrel);
+        iEvent.getByToken(superClustersToken_, SCbarrel);
         edm::Handle<SuperClusterCollection> SCendcap;
-        iEvent.getByLabel(edm::InputTag("correctedMulti5x5SuperClustersWithPreshower"), SCendcap);
+        // (edm::InputTag("correctedMulti5x5SuperClustersWithPreshower"), SCendcap);
+        iEvent.getByToken(superClustersToken_, SCendcap);
 
         edm::ESHandle<CaloGeometry> caloGeo;
         edm::Handle<EcalRecHitCollection> barrelHits;
@@ -1248,9 +1312,9 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         edm::Handle<EcalRecHitCollection> esHits;
         if(crecsuperclusterhit) {
             iSetup.get<CaloGeometryRecord>().get(caloGeo);
-            iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsEB"), barrelHits);
-            iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsEE"), endcapHits);
-            iEvent.getByLabel(edm::InputTag("reducedEcalRecHitsES"), esHits);
+            iEvent.getByToken(ebRecHitsToken_, barrelHits);
+            iEvent.getByToken(eeRecHitsToken_, endcapHits);
+            iEvent.getByToken(esRecHitsToken_, esHits);
         }
         if(SCbarrel.isValid()) {
             for(SuperClusterCollection::const_iterator itsceb = SCbarrel->begin() ; itsceb != SCbarrel->end() ; ++itsceb) {
@@ -1381,29 +1445,40 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
     takeevent = false;
 
-    cout<<"take event"<<endl;
     if(crectrack) {
         takeevent = AddTracks(iEvent) || takeevent;
     }
-    if(crecmuon) {
+    if(crecmuon && !cisMiniAOD) {
         takeevent = AddMuons(iEvent) || takeevent;
     }
-    if(crecelectron) {
+    if(crecmuon && cisMiniAOD) {
+        takeevent = AddPatMuons(iEvent) || takeevent;
+    }
+    if(crecelectron && !cisMiniAOD) {
         takeevent = AddElectrons(iEvent) || takeevent;
     }
-    if(crecphoton) {
+    if(crecelectron && cisMiniAOD) {
+        takeevent = AddPatElectrons(iEvent) || takeevent;
+    }
+    if(crecphoton && !cisMiniAOD) {
         takeevent = AddPhotons(iEvent, iSetup) || takeevent;
     }
-    if(crectau) {
+    if(crecphoton && cisMiniAOD) {
+        takeevent = AddPatPhotons(iEvent, iSetup) || takeevent;
+    }
+    if(crectau && !cisMiniAOD) {
         takeevent = AddTaus(iEvent) || takeevent;
     }
-    if(crecak4calojet) {
+    if(crectau && cisMiniAOD) {
+        takeevent = AddPatTaus(iEvent) || takeevent;
+    }
+    if(crecak4calojet && !cisMiniAOD) {
         takeevent = AddAK4CaloJets(iEvent, iSetup) || takeevent;
     }
-    if(crecak4jptjet) {
+    if(crecak4jptjet && !cisMiniAOD) {
         takeevent = AddAK4JPTJets(iEvent, iSetup) || takeevent;
     }
-    if(crecak4pfjet) {
+    if(crecak4pfjet && !cisMiniAOD) {
         takeevent = AddAK4PFJets(iEvent, iSetup) || takeevent;
     }
     if(crecak4pfchsjet) {
@@ -1418,15 +1493,21 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
     if(!takeevent) { return; }
 
-    edm::Handle<double> rho;
-    iEvent.getByLabel(edm::InputTag("kt6PFJets", "rho", "ROOTMAKER"), rho);
-    //edm::Handle<double> rho2;
-    //iEvent.getByLabel(edm::InputTag("kt6PFJets", "rho", "RECO"), rho2);
-    //cout << *rho << " " << *rho2 << endl;
-    ak4pfjet_rho = *rho;
-    edm::Handle<double> sigma;
-    iEvent.getByLabel(edm::InputTag("kt6PFJets", "sigma", "ROOTMAKER"), sigma);
-    ak4pfjet_sigma = *sigma;
+    if (cisMiniAOD) {
+        edm::Handle<double> rho;
+        iEvent.getByToken(rhoToken_, rho);
+        ak4pfjet_rho = *rho;
+    } else if (!cisMiniAOD) {
+        edm::Handle<double> rho;
+        iEvent.getByLabel(edm::InputTag("kt6PFJets", "rho", "ROOTMAKER"), rho);
+        //edm::Handle<double> rho2;
+        //iEvent.getByLabel(edm::InputTag("kt6PFJets", "rho", "RECO"), rho2);
+        //cout << *rho << " " << *rho2 << endl;
+        ak4pfjet_rho = *rho;
+        edm::Handle<double> sigma;
+        iEvent.getByLabel(edm::InputTag("kt6PFJets", "sigma", "ROOTMAKER"), sigma);
+        ak4pfjet_sigma = *sigma;
+    }
 
     if(cMassMuMuMax != cMassMuMuMin) {
         takeevent = false;
@@ -1454,35 +1535,44 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
 
     if(crecpfmet) {
-        edm::Handle<reco::PFMETCollection> pfMet;
-        iEvent.getByLabel(edm::InputTag("pfMet"), pfMet);
-        if(pfMet.isValid()==0) { cout<<"pfMet.isValid() = "<<pfMet.isValid()<<endl; }
-        if(pfMet.isValid() && pfMet->size() > 0) {
-            pfmet_ex = (*pfMet)[0].px();
-            pfmet_ey = (*pfMet)[0].py();
-        } else {
-            errors |= 1<<21;
-        }
-
-        edm::Handle<reco::PFMETCollection> pfMetType1;
-        //iEvent.getByLabel(edm::InputTag("pfType1CorrectedMet"), pfMetType1);
-        iEvent.getByLabel(edm::InputTag("pfMetT1"), pfMetType1);
-        if(pfMetType1.isValid()==0) { cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl; }
-        if(pfMetType1.isValid() && pfMetType1->size() > 0) {
-            pfmettype1_ex = (*pfMetType1)[0].px();
-            pfmettype1_ey = (*pfMetType1)[0].py();
-        } else {
-            errors |= 1<<24;
-        }
-
-        edm::Handle<reco::PFMETCollection> pfMetType0Type1;
-        iEvent.getByLabel(edm::InputTag("pfType0Type1CorrectedMet"), pfMetType0Type1);
-        if(pfMetType0Type1.isValid()==0) { cout<<"pfMetType0Type1.isValid() = "<<pfMetType0Type1.isValid()<<endl; }
-        if(pfMetType0Type1.isValid() && pfMetType0Type1->size() > 0) {
-            pfmettype0type1_ex = (*pfMetType0Type1)[0].px();
-            pfmettype0type1_ey = (*pfMetType0Type1)[0].py();
-        } else {
-            errors |= 1<<26;
+        if (cisMiniAOD) {
+            edm::Handle<pat::METCollection> pfMetType1;
+            iEvent.getByToken(patMetToken_, pfMetType1);
+            if(cdebug) { cout<<"mini pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl; }
+            if(pfMetType1.isValid() && pfMetType1->size() > 0) {
+                pfmettype1_ex = (*pfMetType1)[0].px();
+                pfmettype1_ey = (*pfMetType1)[0].py();
+            } else {
+                errors |= 1<<24;
+            }
+        } else if (!cisMiniAOD) {
+            edm::Handle<reco::PFMETCollection> pfMet;
+            iEvent.getByToken(recoMetToken_, pfMet);
+            if(cdebug) { cout<<"pfMet.isValid() = "<<pfMet.isValid()<<endl; }
+            if(pfMet.isValid() && pfMet->size() > 0) {
+                pfmet_ex = (*pfMet)[0].px();
+                pfmet_ey = (*pfMet)[0].py();
+            } else {
+                errors |= 1<<21;
+            }
+            edm::Handle<reco::PFMETCollection> pfMetType1;
+            iEvent.getByToken(recoMetT1Token_, pfMetType1);
+            if(cdebug) { cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl; }
+            if(pfMetType1.isValid() && pfMetType1->size() > 0) {
+                pfmettype1_ex = (*pfMetType1)[0].px();
+                pfmettype1_ey = (*pfMetType1)[0].py();
+            } else {
+                errors |= 1<<24;
+            }
+            edm::Handle<reco::PFMETCollection> pfMetType0Type1;
+            iEvent.getByToken(recoMetT1T0Token_, pfMetType0Type1);
+            if(cdebug) { cout<<"pfMetType0Type1.isValid() = "<<pfMetType0Type1.isValid()<<endl; }
+            if(pfMetType0Type1.isValid() && pfMetType0Type1->size() > 0) {
+                pfmettype0type1_ex = (*pfMetType0Type1)[0].px();
+                pfmettype0type1_ey = (*pfMetType0Type1)[0].py();
+            } else {
+                errors |= 1<<26;
+            }
         }
     }
 
@@ -1493,7 +1583,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     numtruepileupinteractions = -1;
     if(cgen || cgenallparticles || cgenak4jets) {
         edm::Handle<GenEventInfoProduct> HEPMC;
-        iEvent.getByLabel(edm::InputTag("generator"), HEPMC);
+        iEvent.getByToken(genInfoToken_, HEPMC);
         if(HEPMC.isValid()) {
             genweight = HEPMC->weight();
             genid1 = HEPMC->pdf()->id.first;
@@ -1504,7 +1594,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         }
 
         edm::Handle<vector<PileupSummaryInfo> > PUInfo;
-        iEvent.getByLabel(edm::InputTag("addPileupInfo"), PUInfo);
+        iEvent.getByToken(puInfoToken_, PUInfo);
 
         if(PUInfo.isValid()) {
             for(vector<PileupSummaryInfo>::const_iterator PVI = PUInfo->begin(); PVI != PUInfo->end(); ++PVI) {
@@ -1545,9 +1635,9 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
     if(cgenallparticles) {
         edm::Handle<GenParticleCollection> GenParticles;
-        iEvent.getByLabel(edm::InputTag("genPlusSimParticles"), GenParticles);
+        iEvent.getByToken(genSimParticlesToken_, GenParticles);
         if(!GenParticles.isValid()) {
-            iEvent.getByLabel(edm::InputTag("genParticles"), GenParticles);
+            iEvent.getByToken(genParticlesToken_, GenParticles);
         }
 
         if(GenParticles.isValid()) {
@@ -1593,14 +1683,14 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
     if(cgen) {
         edm::Handle<GenParticleCollection> GenParticles;
-        iEvent.getByLabel(edm::InputTag("genPlusSimParticles"), GenParticles);
+        iEvent.getByToken(genSimParticlesToken_, GenParticles);
         if(!GenParticles.isValid()) {
-            iEvent.getByLabel(edm::InputTag("genParticles"), GenParticles);
+            iEvent.getByToken(genParticlesToken_, GenParticles);
         }
 
         if(GenParticles.isValid()) {
             GenPartons.clear();
-            //cout << GenParticles->size() << endl;
+            if(cdebug) cout<<"GenParticles->size() = "<<GenParticles->size()<<endl;
             for(unsigned i = 0 ; i < GenParticles->size() ; i++) {
                 if((abs((*GenParticles)[i].pdgId()) <= 5 || (*GenParticles)[i].pdgId() == 21) && (*GenParticles)[i].pt() > 10.) {GenPartons.push_back((*GenParticles)[i]);}
                 bool fill = false;
@@ -1637,17 +1727,21 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
                     pair<Int_t, Int_t> motherinfo = HasAnyMother(& (*GenParticles)[i], testids);
                     genparticles_info[genparticles_count] = motherinfo.first;
                     genparticles_indirectmother[genparticles_count] = motherinfo.second;
-                    cout << (*GenParticles)[i].pdgId() << " " <<oct <<  genparticles_info[genparticles_count] << " " << dec << genparticles_indirectmother[genparticles_count] << endl;
+                    //if (cdebug) {
+                    //    cout<<"(*GenParticles)["<<i<<"].pdgId() = "<<(*GenParticles)[i].pdgId()<<endl;
+                    //    cout<<"genparticles_info[genparticles_count] = "<<genparticles_info[genparticles_count]<<endl;
+                    //    cout<<"genparticles_indirectmother[genparticles_count] = "<<genparticles_indirectmother[genparticles_count]<<"\n"<<endl;
+                    //}
                     genparticles_count++;
                 }
             }
-            cout << "Total: " << genparticles_count << endl;
+            if (cdebug) cout << "Total gen particles: " << genparticles_count << endl;
         }
     }
 
     if(cgenak4jets) {
         edm::Handle<GenJetCollection> GenAK4Jets;
-        iEvent.getByLabel(edm::InputTag("ak4GenJets"), GenAK4Jets);
+        iEvent.getByToken(genJetsToken_, GenAK4Jets);
         if(GenAK4Jets.isValid()) {
             for(GenJetCollection::const_iterator it = GenAK4Jets->begin() ; it != GenAK4Jets->end() ; ++it) {
                 if(it->pt() > 15.) {
@@ -1688,7 +1782,6 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 }
 
 pair<Int_t, Int_t> RootMaker::HasAnyMother(const GenParticle *particle, vector<int> ids) {
-    if(cdebug) { cout<<"HasAnyMother..."<<endl; }
     Int_t motherid = 0;
     vector<unsigned> bknummother;
     vector<const GenParticle *> bkparticle;
@@ -1729,7 +1822,6 @@ pair<Int_t, Int_t> RootMaker::HasAnyMother(const GenParticle *particle, vector<i
 }
 
 Int_t RootMaker::HasAnyMother(const GenParticle *particle, int id) {
-    if(cdebug) { cout<<"HasAnyMother..."<<endl; }
     vector<unsigned> bknummother;
     vector<const GenParticle *> bkparticle;
     bknummother.reserve(10);
@@ -1770,7 +1862,7 @@ void RootMaker::endJob() {
 }
 
 UInt_t RootMaker::FindGenParticle(const Candidate *particle) {
-    if(cdebug) { cout<<"FindGenParticle..."<<endl; }
+    //if(cdebug) cout<<"FindGenParticle..."<<endl;
     for(unsigned i = 0 ; i < genallparticles_count ; i++) {
         if(particle->pdgId() == genallparticles_pdgid[i] &&
                 particle->status() == genallparticles_status[i] &&
@@ -1806,24 +1898,19 @@ math::XYZPoint RootMaker::PositionOnECalSurface(TransientTrack &trTrack) {
 
 bool RootMaker::AddMuons(const edm::Event &iEvent) {
     if(cdebug) { cout<<"AddMuons..."<<endl; }
-    if (cisMiniAOD) using namespace pat;
-    if (!cisMiniAOD) using namespace reco;
     int NumAll = 0;
     int NumTracker = 0;
     int NumGlobal = 0;
     int NumStandalone = 0;
     int NumGood = 0;
-    //edm::Handle<pat::MuonCollection> Muons;
-    //iEvent.getByLabel(edm::InputTag("patMuons"), Muons);
-    edm::Handle<MuonCollection> Muons;
-    //iEvent.getByLabel(edm::InputTag("muons"), Muons);
-    iEvent.getByToken(muonsToken_, Muons);
+    edm::Handle<reco::MuonCollection> Muons;
+    iEvent.getByToken(recoMuonsToken_, Muons);
     if(cdebug) { cout<<"Muons.isValid() = "<<Muons.isValid()<<endl; }
     if(cdebug) { cout<<"Muons->size() = "<<Muons->size()<<endl; }
     NumAll = Muons->size();
     if(Muons.isValid()) {
         for(unsigned i = 0 ; i < Muons->size() ; i++) {
-            const Muon &themu = (*Muons)[i];
+            const reco::Muon &themu = (*Muons)[i];
             all_muon_pt->Fill(themu.pt());
             all_muon_phi->Fill(themu.phi());
             all_muon_eta->Fill(themu.eta());
@@ -1849,6 +1936,7 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
             muon_isolationr3ecal[muon_count]   = themu.isolationR03().emEt;
             muon_isolationr3hcal[muon_count]   = themu.isolationR03().hadEt;
 
+            if (cdebug) cout<<"themu.isPFIsolationValid() = "<<endl;
             if(themu.isPFIsolationValid()) {
 
                 const reco::MuonPFIsolation pfisor03 = themu.pfIsolationR03();
@@ -1909,16 +1997,8 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
                 if(isGoodMuon(themu, TMOneStationAngTight)) {muon_trackermuonquality[muon_count] |= 1 << 21;}
                 if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtLoose)) {muon_trackermuonquality[muon_count] |= 1 << 22;}
                 if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtTight)) {muon_trackermuonquality[muon_count] |= 1 << 23;}
-                //if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<0) {muon_trackermuonquality[muon_count] |= 1 << 24;}
-                //if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<1) {muon_trackermuonquality[muon_count] |= 1 << 25;}
-                //if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<2) {muon_trackermuonquality[muon_count] |= 1 << 26;}
-                //if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<3) {muon_trackermuonquality[muon_count] |= 1 << 27;}
-                //if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<4) {muon_trackermuonquality[muon_count] |= 1 << 28;}
-                //if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<5) {muon_trackermuonquality[muon_count] |= 1 << 29;}
-                //if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<6) {muon_trackermuonquality[muon_count] |= 1 << 30;}
-                //if(themu.stationMask(Muon::SegmentAndTrackArbitration) & 1<<7) {muon_trackermuonquality[muon_count] |= 1 << 31;}
                 muon_numchambers[muon_count] = themu.numberOfChambers();
-                muon_numchamberswithsegments[muon_count] = themu.numberOfMatches(Muon::SegmentAndTrackArbitration);
+                muon_numchamberswithsegments[muon_count] = themu.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
                 muon_nummatchedstations[muon_count] = themu.numberOfMatchedStations();
             }
 
@@ -1941,7 +2021,7 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
                     TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(primvertex_x[numvtx], primvertex_y[numvtx], primvertex_z[numvtx]));
                 }
                 edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
-                iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+                iEvent.getByToken(dharmonicToken_, dEdxharmonic2);
 
                 muon_innertrack_vtx[muon_count] = numvtx;
                 muon_innertrack_px[muon_count] = innertrack->px();
@@ -2020,10 +2100,252 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
     return (false);
 }
 
+bool RootMaker::AddPatMuons(const edm::Event &iEvent) {
+    if(cdebug) cout<<"AddPatMuons..."<<endl;
+    int NumAll = 0;
+    int NumTracker = 0;
+    int NumGlobal = 0;
+    int NumStandalone = 0;
+    int NumGood = 0;
+    int NumMatched = 0;
+    edm::Handle<pat::MuonCollection> Muons;
+    iEvent.getByToken(patMuonsToken_, Muons);
+    if(cdebug) cout<<"pat Muons.isValid() = "<<Muons.isValid()<<endl;
+    if(cdebug) cout<<"pat Muons->size() = "<<Muons->size()<<endl;
+    NumAll = Muons->size();
+    if(Muons.isValid()) {
+        for(unsigned i = 0 ; i < Muons->size() ; i++) {
+            const pat::Muon &themu = (*Muons)[i];
+            all_muon_pt->Fill(themu.pt());
+            all_muon_phi->Fill(themu.phi());
+            all_muon_eta->Fill(themu.eta());
+            muon_px[muon_count] = themu.px();
+            muon_py[muon_count] = themu.py();
+            muon_pz[muon_count] = themu.pz();
+            muon_pt[muon_count] = themu.pt();
+            muon_phi[muon_count] = themu.phi();
+            muon_eta[muon_count] = themu.eta();
+            if(themu.globalTrack().isNonnull()) {
+                muon_pterror[muon_count] = themu.globalTrack()->ptError();
+                muon_chi2[muon_count] = themu.globalTrack()->chi2();
+                muon_ndof[muon_count] = themu.globalTrack()->ndof();
+                muon_numvalidmuonhits[muon_count] = themu.globalTrack()->hitPattern().numberOfValidMuonHits();
+            } else {
+                muon_pterror[muon_count] = -1.;
+                muon_chi2[muon_count] = -1.;
+                muon_ndof[muon_count] = 0;
+                muon_numvalidmuonhits[muon_count] = -1.;
+            }
+            muon_isolationr3track[muon_count]  = themu.isolationR03().sumPt;
+            muon_isolationr3ntrack[muon_count] = themu.isolationR03().nTracks;
+            muon_isolationr3ecal[muon_count]   = themu.isolationR03().emEt;
+            muon_isolationr3hcal[muon_count]   = themu.isolationR03().hadEt;
+
+            if (cdebug) cout<<"themu.isPFIsolationValid() = "<<themu.isPFIsolationValid()<<endl;
+            if(themu.isPFIsolationValid()) {
+                const reco::MuonPFIsolation pfisor03 = themu.pfIsolationR03();
+                const reco::MuonPFIsolation pfisor04 = themu.pfIsolationR04();
+                muon_pfisolationr3_sumchargedhadronpt[muon_count] = pfisor03.sumChargedHadronPt;
+                muon_pfisolationr3_sumchargedparticlept[muon_count] = pfisor03.sumChargedParticlePt;
+                muon_pfisolationr3_sumneutralhadronet[muon_count] = pfisor03.sumNeutralHadronEt;
+                muon_pfisolationr3_sumphotonet[muon_count] = pfisor03.sumPhotonEt;
+                muon_pfisolationr3_sumneutralhadronethighthreshold[muon_count] = pfisor03.sumNeutralHadronEtHighThreshold;
+                muon_pfisolationr3_sumphotonethighthreshold[muon_count] = pfisor03.sumPhotonEtHighThreshold;
+                muon_pfisolationr3_sumpupt[muon_count] = pfisor03.sumPUPt;
+                muon_pfisolationr4_sumchargedhadronpt[muon_count] = pfisor04.sumChargedHadronPt;
+                muon_pfisolationr4_sumchargedparticlept[muon_count] = pfisor04.sumChargedParticlePt;
+                muon_pfisolationr4_sumneutralhadronet[muon_count] = pfisor04.sumNeutralHadronEt;
+                muon_pfisolationr4_sumphotonet[muon_count] = pfisor04.sumPhotonEt;
+                muon_pfisolationr4_sumneutralhadronethighthreshold[muon_count] = pfisor04.sumNeutralHadronEtHighThreshold;
+                muon_pfisolationr4_sumphotonethighthreshold[muon_count] = pfisor04.sumPhotonEtHighThreshold;
+                muon_pfisolationr4_sumpupt[muon_count] = pfisor04.sumPUPt;
+            }
+            muon_ecalenergy[muon_count] = themu.calEnergy().em;
+            muon_hcalenergy[muon_count] = themu.calEnergy().had;
+            muon_charge[muon_count] = themu.charge();
+            muon_type[muon_count] = 0;
+            muon_trackermuonquality[muon_count] = 0;
+            if(themu.isGlobalMuon()) {muon_type[muon_count] |= 1 << 0;}
+            if(themu.isTrackerMuon()) {muon_type[muon_count] |= 1 << 1;}
+            if(themu.isStandAloneMuon()) {muon_type[muon_count] |= 1 << 2;}
+            if(themu.isCaloMuon()) {muon_type[muon_count] |= 1 << 3;}
+            if(themu.isPFMuon()) {muon_type[muon_count] |= 1 << 6;}
+
+            {
+                using namespace muon;
+                if(isGoodMuon(themu, All)) {muon_trackermuonquality[muon_count] |= 1 << 0;}
+                if(isGoodMuon(themu, AllGlobalMuons)) {muon_trackermuonquality[muon_count] |= 1 << 1;}
+                if(isGoodMuon(themu, AllStandAloneMuons)) {muon_trackermuonquality[muon_count] |= 1 << 2;}
+                if(isGoodMuon(themu, AllTrackerMuons)) {muon_trackermuonquality[muon_count] |= 1 << 3;}
+                if(isGoodMuon(themu, TrackerMuonArbitrated)) {muon_trackermuonquality[muon_count] |= 1 << 4;}
+                if(isGoodMuon(themu, AllArbitrated)) {muon_trackermuonquality[muon_count] |= 1 << 5;}
+                if(isGoodMuon(themu, GlobalMuonPromptTight)) {muon_trackermuonquality[muon_count] |= 1 << 6;}
+                if(isGoodMuon(themu, TMLastStationLoose)) {muon_trackermuonquality[muon_count] |= 1 << 7;}
+                if(isGoodMuon(themu, TMLastStationTight)) {muon_trackermuonquality[muon_count] |= 1 << 8;}
+                if(isGoodMuon(themu, TM2DCompatibilityLoose)) {muon_trackermuonquality[muon_count] |= 1 << 9;}
+                if(isGoodMuon(themu, TM2DCompatibilityTight)) {muon_trackermuonquality[muon_count] |= 1 << 10;}
+                if(isGoodMuon(themu, TMOneStationLoose)) {muon_trackermuonquality[muon_count] |= 1 << 11;}
+                if(isGoodMuon(themu, TMOneStationTight)) {muon_trackermuonquality[muon_count] |= 1 << 12;}
+                if(isGoodMuon(themu, TMLastStationOptimizedLowPtLoose)) {muon_trackermuonquality[muon_count] |= 1 << 13;}
+                if(isGoodMuon(themu, TMLastStationOptimizedLowPtTight)) {muon_trackermuonquality[muon_count] |= 1 << 14;}
+                if(isGoodMuon(themu, GMTkChiCompatibility)) {muon_trackermuonquality[muon_count] |= 1 << 15;}
+                if(isGoodMuon(themu, GMStaChiCompatibility)) {muon_trackermuonquality[muon_count] |= 1 << 16;}
+                if(isGoodMuon(themu, GMTkKinkTight)) {muon_trackermuonquality[muon_count] |= 1 << 17;}
+                if(isGoodMuon(themu, TMLastStationAngLoose)) {muon_trackermuonquality[muon_count] |= 1 << 18;}
+                if(isGoodMuon(themu, TMLastStationAngTight)) {muon_trackermuonquality[muon_count] |= 1 << 19;}
+                if(isGoodMuon(themu, TMOneStationAngLoose)) {muon_trackermuonquality[muon_count] |= 1 << 20;}
+                if(isGoodMuon(themu, TMOneStationAngTight)) {muon_trackermuonquality[muon_count] |= 1 << 21;}
+                if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtLoose)) {muon_trackermuonquality[muon_count] |= 1 << 22;}
+                if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtTight)) {muon_trackermuonquality[muon_count] |= 1 << 23;}
+                muon_numchambers[muon_count] = themu.numberOfChambers();
+                muon_numchamberswithsegments[muon_count] = themu.numberOfMatches(pat::Muon::SegmentAndTrackArbitration);
+                muon_nummatchedstations[muon_count] = themu.numberOfMatchedStations();
+            }
+
+            if(themu.time().direction() == 1) {
+                muon_trackermuonquality[muon_count] |= 1<<30;
+            } else if(themu.time().direction() == -1) {
+                muon_trackermuonquality[muon_count] |= 1<<31;
+            }
+
+            TrackRef innertrack = themu.innerTrack();
+
+            if (!(innertrack.isNonnull())) {
+                cout<<"muon innertrack = NULL"<<endl;
+                if (themu.genParticle()) {
+                    if (abs(themu.genParticle()->pdgId()) == 13) cout<<"    gen muon  = TRUE\n"<<endl;
+                    if (abs(themu.genParticle()->pdgId()) != 13) cout<<"    gen muon  = FALSE\n"<<endl;
+                } else {
+                    cout<<"    no gen muon\n"<<endl;
+                }
+            }
+
+            if(innertrack.isNonnull()) {
+                muon_type[muon_count] |= 1 << 4;
+                int numvtx = getPrimVertex(*innertrack);
+                TransientTrack TTrack = TTrackBuilder->build(innertrack);
+                TrajectoryStateClosestToPoint TTrackState;
+                if(numvtx == -1) {
+                    TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
+                } else {
+                    TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(primvertex_x[numvtx], primvertex_y[numvtx], primvertex_z[numvtx]));
+                }
+                edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
+                iEvent.getByToken(dharmonicToken_, dEdxharmonic2);
+
+                muon_innertrack_vtx[muon_count] = numvtx;
+                muon_innertrack_px[muon_count] = innertrack->px();
+                muon_innertrack_py[muon_count] = innertrack->py();
+                muon_innertrack_pz[muon_count] = innertrack->pz();
+                muon_innertrack_closestpointx[muon_count] = TTrackState.position().x();
+                muon_innertrack_closestpointy[muon_count] = TTrackState.position().y();
+                muon_innertrack_closestpointz[muon_count] = TTrackState.position().z();
+                muon_innertrack_dxy[muon_count]    = innertrack->dxy(pv_position);
+                muon_innertrack_dxyerr[muon_count] = innertrack->dxyError();
+                muon_innertrack_dz[muon_count]     = innertrack->dz(pv_position);
+                muon_innertrack_dzerr[muon_count]  = innertrack->dzError();
+                muon_innertrack_chi2[muon_count]   = innertrack->chi2();
+                muon_innertrack_ndof[muon_count]   = innertrack->ndof();
+                muon_innertrack_charge[muon_count] = innertrack->charge();
+                muon_innertrack_nhits[muon_count] = innertrack->numberOfValidHits();
+                muon_innertrack_nmissinghits[muon_count] = innertrack->numberOfLostHits();
+                muon_innertrack_npixelhits[muon_count] = innertrack->hitPattern().numberOfValidPixelHits();
+                muon_innertrack_npixellayers[muon_count] = innertrack->hitPattern().pixelLayersWithMeasurement();
+                muon_innertrack_nstriplayers[muon_count] = innertrack->hitPattern().stripLayersWithMeasurement();
+                if(dEdxharmonic2.isValid()) {
+                    muon_innertrack_dedxharmonic2[muon_count] = (*dEdxharmonic2)[innertrack].dEdx();
+                } else {
+                    muon_innertrack_dedxharmonic2[muon_count] = -1.;
+                }
+                math::XYZPoint ecalPos = PositionOnECalSurface(TTrack);
+                muon_innertrack_outerx[muon_count] = ecalPos.x();
+                muon_innertrack_outery[muon_count] = ecalPos.y();
+                muon_innertrack_outerz[muon_count] = ecalPos.z();
+            }
+
+            TrackRef muontrack = themu.outerTrack();
+
+            if(muontrack.isNonnull()) {
+                muon_type[muon_count] |= 1 << 5;
+                muon_outertrack_px[muon_count] = muontrack->px();
+                muon_outertrack_py[muon_count] = muontrack->py();
+                muon_outertrack_pz[muon_count] = muontrack->pz();
+                muon_outertrack_hits[muon_count] = muontrack->numberOfValidHits();
+                muon_outertrack_missinghits[muon_count] = muontrack->numberOfLostHits();
+                muon_outertrack_chi2[muon_count] = muontrack->chi2();
+                muon_outertrack_ndof[muon_count] = muontrack->ndof();
+            }
+
+            muon_trigger[muon_count] = GetTrigger(themu, muontriggers);
+            muon_count++;
+            if(muon_count == M_muonmaxcount) {
+                cerr << "number of muon > M_muonmaxcount. They are missing." << endl;
+                errors |= 1<<0;
+                break;
+            }
+            if(themu.isGlobalMuon() && themu.isTrackerMuon() && themu.pt() >= cMuPtMin && fabs(themu.eta()) <= cMuEtaMax && themu.isolationR03().sumPt/themu.pt() <= cMuTrackIso) {
+                NumGood++;
+                good_muon_pt->Fill(themu.pt());
+                good_muon_phi->Fill(themu.phi());
+                good_muon_eta->Fill(themu.eta());
+                double energy = sqrt(pow(muon_px[i],2) + pow(muon_py[i],2) + pow(muon_pz[i],2));
+                MuVector.push_back(TLorentzVector(muon_px[i], muon_py[i], muon_pz[i], energy));
+                if (themu.genParticle()) {
+                    if (abs(themu.genParticle()->pdgId() == 13)) {
+                        NumMatched++;
+                        good_matched_muon_pt->Fill(themu.pt());
+                        good_matched_muon_phi->Fill(themu.phi());
+                        good_matched_muon_eta->Fill(themu.eta());
+                    }
+                }
+                // fill baby trees
+                muon_has_gen_particle[muon_count] = 0;
+                muon_gen_particle_pdgid[muon_count] = 0;
+                muon_has_gen_mother[muon_count] = 0;
+                muon_gen_mother_pdgid[muon_count] = 0;
+                if (themu.genParticle()) { 
+                    muon_has_gen_particle[muon_count] = 1;
+                    muon_gen_particle_pdgid[muon_count] = themu.genParticle()->pdgId();
+                    if (themu.genParticle()->mother()) {
+                        muon_has_gen_mother[muon_count] = 1;
+                        muon_gen_mother_pdgid[muon_count] = themu.genParticle()->mother()->pdgId();
+                    } 
+                }
+                // end baby trees
+                muon_is_tracker[muon_count] = 0;
+                muon_is_global[muon_count] = 0;
+                muon_is_standalone[muon_count] = 0;
+                if (themu.isGlobalMuon()) {
+                    NumGlobal++;
+                    muon_is_global[muon_count] = 1;
+                }
+                if (themu.isStandAloneMuon()) {
+                    NumStandalone++;
+                    muon_is_standalone[muon_count] = 1;
+                }
+                if (themu.isTrackerMuon()) {
+                    NumTracker++;
+                    muon_is_tracker[muon_count] = 1;
+                }
+            }
+        }
+    }
+    all_muon_count_global->Fill(NumGlobal);
+    all_muon_count_standalone->Fill(NumStandalone);
+    all_muon_count_tracker->Fill(NumTracker);
+    all_muon_count->Fill(NumAll);
+    good_muon_count->Fill(NumGood);
+    good_matched_muon_count->Fill(NumMatched);
+    if(NumGood >= cMuNum) { return (true); }
+    return (false);
+}
+
+
 UInt_t RootMaker::GetTrigger(const LeafCandidate &particle, vector<pair<unsigned, int> > &triggers) {
     if(cdebug) { cout<<"GetTrigger..."<<endl; }
     UInt_t result = 0;
-
+    if (cdebug) cout<<"HLTrigger.isValid() = "<<HLTrigger.isValid()<<endl;
+    if (cdebug) cout<<"HLTriggerEvent.isValid() = "<<HLTriggerEvent.isValid()<<endl;
     if(HLTrigger.isValid() && HLTriggerEvent.isValid()) {
         const trigger::TriggerObjectCollection &TOC(HLTriggerEvent->getObjects());
         for(unsigned n = 0 ; n < triggers.size() ; n++) {
@@ -2056,44 +2378,37 @@ UInt_t RootMaker::GetTrigger(const LeafCandidate &particle, vector<pair<unsigned
     }
     return (result);
 }
+
 bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     if(cdebug) { cout<<"AddPhotons..."<<endl; }
     int NumAll = 0;
     int NumGood = 0;
-    edm::Handle<PhotonCollection> Photons;
-    //iEvent.getByLabel(edm::InputTag("photons"), Photons);
-    iEvent.getByLabel(edm::InputTag("gedPhotons"), Photons);
-
-    //vector< edm::Handle< edm::ValueMap<double> > > photonIsoPF(3);
-    //iEvent.getByLabel(edm::InputTag("phPFIsoValueCharged03PFIdPFIso"), photonIsoPF[0]);
-    //iEvent.getByLabel(edm::InputTag("phPFIsoValueGamma03PFIdPFIso"), photonIsoPF[1]);
-    //iEvent.getByLabel(edm::InputTag("phPFIsoValueNeutral03PFIdPFIso"), photonIsoPF[2]);
-    //cout << "PH " << photonIsoPF[0].isValid() << endl;
+    edm::Handle<reco::PhotonCollection> Photons;
+    iEvent.getByToken(recoPhotonsToken_, Photons);
     if(cdebug) { cout<<"Photons.isValid() = "<<Photons.isValid()<<endl; }
     if(cdebug) { cout<<"Photons->size() = "<<Photons->size()<<endl; }
     NumAll = Photons->size();
     if(Photons.isValid() && Photons->size() > 0) {
-        edm::Handle<GsfElectronCollection> Electrons;
-        //iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
-        iEvent.getByLabel(edm::InputTag("gedGsfElectrons"), Electrons);
-        edm::Handle<ConversionCollection> Conversions;
-        iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+        edm::Handle<reco::GsfElectronCollection> Electrons;
+        iEvent.getByToken(recoElectronsToken_, Electrons);
+        edm::Handle<reco::ConversionCollection> Conversions;
+        iEvent.getByToken(conversionsToken_, Conversions);
+
         PFIsolationEstimator isolator;
         VertexRef myprimvertex(Vertices, 0);
-        edm::Handle<PFCandidateCollection> PFCandidates;
-        iEvent.getByLabel(edm::InputTag("particleFlow"), PFCandidates);
+        edm::Handle<reco::PFCandidateCollection> PFCandidates;
+        iEvent.getByToken(recoPFCandsToken_, PFCandidates);
         isolator.initializePhotonIsolation(kTRUE);
 
         EcalClusterLazyTools lazyTools(iEvent, iSetup, ebRecHitsToken_, eeRecHitsToken_);
-
         SuperClusterFootprintRemoval remover(iEvent, iSetup);
 
         for(size_t n = 0 ; n < Photons->size() ; n++) {
-            const Photon &theph = (*Photons)[n];
+            const reco::Photon &theph = (*Photons)[n];
             all_photon_pt->Fill(theph.pt());
             all_photon_phi->Fill(theph.phi());
             all_photon_eta->Fill(theph.eta());
-            PhotonRef refph(Photons, n);
+            reco::PhotonRef refph(Photons, n);
             if(theph.pt() > cPhotonFilterPtMin && TMath::Abs(theph.eta()) < cPhotonFilterEtaMax) {
                 photon_px[photon_count] = theph.px();
                 photon_py[photon_count] = theph.py();
@@ -2277,10 +2592,229 @@ bool RootMaker::AddPhotons(const edm::Event &iEvent, const edm::EventSetup &iSet
 
     return (false);
 }
+
+bool RootMaker::AddPatPhotons(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+    if(cdebug) { cout<<"AddPatPhotons..."<<endl; }
+    int NumAll = 0;
+    int NumGood = 0;
+    edm::Handle<pat::PhotonCollection> Photons;
+    iEvent.getByToken(patPhotonsToken_, Photons);
+    if(cdebug) { cout<<"pat Photons.isValid() = "<<Photons.isValid()<<endl; }
+    if(cdebug) { cout<<"pat Photons->size() = "<<Photons->size()<<endl; }
+    NumAll = Photons->size();
+    if(Photons.isValid() && Photons->size() > 0) {
+        edm::Handle<pat::ElectronCollection> Electrons;
+        iEvent.getByToken(patElectronsToken_, Electrons);
+        edm::Handle<reco::ConversionCollection> Conversions;
+        iEvent.getByToken(conversionsToken_, Conversions);
+
+        PFIsolationEstimator isolator;
+        VertexRef myprimvertex(Vertices, 0);
+        edm::Handle<pat::PackedCandidateCollection> PFCandidates;
+        iEvent.getByToken(packedPFCandsToken_, PFCandidates);
+        isolator.initializePhotonIsolation(kTRUE);
+
+        EcalClusterLazyTools lazyTools(iEvent, iSetup, ebRecHitsToken_, eeRecHitsToken_);
+
+        SuperClusterFootprintRemoval remover(iEvent, iSetup);
+
+        for(size_t n = 0 ; n < Photons->size() ; n++) {
+            const pat::Photon &theph = (*Photons)[n];
+            all_photon_pt->Fill(theph.pt());
+            all_photon_phi->Fill(theph.phi());
+            all_photon_eta->Fill(theph.eta());
+            pat::PhotonRef refph(Photons, n);
+            if(theph.pt() > cPhotonFilterPtMin && TMath::Abs(theph.eta()) < cPhotonFilterEtaMax) {
+                photon_px[photon_count] = theph.px();
+                photon_py[photon_count] = theph.py();
+                photon_pz[photon_count] = theph.pz();
+                photon_pt[photon_count] = theph.pt();
+                photon_phi[photon_count] = theph.phi();
+                photon_eta[photon_count] = theph.eta();
+                photon_e1x5[photon_count] = theph.e1x5();
+                photon_e2x5[photon_count] = theph.e2x5();
+                photon_e3x3[photon_count] = theph.e3x3();
+                photon_e5x5[photon_count] = theph.e5x5();
+                photon_maxenergyxtal[photon_count] = theph.maxEnergyXtal();
+                photon_sigmaietaieta[photon_count] = theph.sigmaIetaIeta();
+                vector<float> localcovariances = lazyTools.localCovariances(* (theph.superCluster()->seed()));
+                photon_sigmaiphiiphi[photon_count] = TMath::Sqrt(localcovariances[2]);
+                photon_sigmaietaiphi[photon_count] = TMath::Sqrt(localcovariances[1]);
+                photon_ehcaloverecaldepth1[photon_count] = theph.hadronicDepth1OverEm();
+                photon_ehcaloverecaldepth2[photon_count] = theph.hadronicDepth2OverEm();
+                photon_ehcaltoweroverecaldepth1[photon_count] = theph.hadTowDepth1OverEm();
+                photon_ehcaltoweroverecaldepth2[photon_count] = theph.hadTowDepth2OverEm();
+                photon_isolationr3track[photon_count] = theph.trkSumPtSolidConeDR03();
+                photon_isolationr3trackhollow[photon_count] = theph.trkSumPtHollowConeDR03();
+                photon_isolationr3ecal[photon_count] = theph.ecalRecHitSumEtConeDR03();
+                photon_isolationr3hcal[photon_count] = theph.hcalTowerSumEtConeDR03();
+                photon_isolationr3ntrack[photon_count] = theph.nTrkSolidConeDR03();
+                photon_isolationr3ntrackhollow[photon_count] = theph.nTrkHollowConeDR03();
+                photon_isolationr4track[photon_count] = theph.trkSumPtSolidConeDR04();
+                photon_isolationr4trackhollow[photon_count] = theph.trkSumPtHollowConeDR04();
+                photon_isolationr4ecal[photon_count] = theph.ecalRecHitSumEtConeDR04();
+                photon_isolationr4hcal[photon_count] = theph.hcalTowerSumEtConeDR04();
+                photon_isolationr4ntrack[photon_count] = theph.nTrkSolidConeDR04();
+                photon_isolationr4ntrackhollow[photon_count] = theph.nTrkHollowConeDR04();
+
+/*
+                isolator.setConeSize(0.3);
+                isolator.fGetIsolation(&theph, PFCandidates.product(), myprimvertex, Vertices);
+                photon_isolationpfr3charged[photon_count] = isolator.getIsolationCharged();
+                photon_isolationpfr3photon[photon_count] = isolator.getIsolationPhoton();
+                photon_isolationpfr3neutral[photon_count] = isolator.getIsolationNeutral();
+                isolator.setConeSize(0.4);
+                isolator.fGetIsolation(&theph, PFCandidates.product(), myprimvertex, Vertices);
+                photon_isolationpfr4charged[photon_count] = isolator.getIsolationCharged();
+                photon_isolationpfr4photon[photon_count] = isolator.getIsolationPhoton();
+                photon_isolationpfr4neutral[photon_count] = isolator.getIsolationNeutral();
+
+                //Iso R4 with SC footprint removal https://twiki.cern.ch/twiki/bin/viewauth/CMS/SuperClusterFootprintRemoval
+                //photon_isolationpfr4noscfootprintcharged[photon_count] = remover.PFIsolation("charged", theph.superCluster(), 0);
+                //photon_isolationpfr4noscfootprintphoton[photon_count] = remover.PFIsolation("photon", theph.superCluster());
+                //photon_isolationpfr4noscfootprintneutral[photon_count] = remover.PFIsolation("neutral", theph.superCluster());
+
+                PFIsolation_struct tempPFIso_photon = remover.PFIsolation(theph.superCluster(), edm::Ptr<reco::Vertex> (Vertices, 0));
+                photon_isolationpfr4noscfootprintcharged[photon_count] = tempPFIso_photon.chargediso_primvtx;
+                photon_isolationpfr4noscfootprintphoton[photon_count]  = tempPFIso_photon.photoniso;
+                photon_isolationpfr4noscfootprintneutral[photon_count] = tempPFIso_photon.neutraliso;
+*/
+                //	photon_isolationpfr3charged[photon_count] = (*(photonIsoPF[0]))[refph];
+                //	photon_isolationpfr3photon[photon_count] = (*(photonIsoPF[1]))[refph];
+                //	photon_isolationpfr3neutral[photon_count] = (*(photonIsoPF[2]))[refph];
+                photon_isolationpfr3charged[photon_count] = theph.chargedHadronIso();
+                photon_isolationpfr3photon[photon_count] = theph.photonIso();
+                photon_isolationpfr3neutral[photon_count] = theph.neutralHadronIso();
+                photon_supercluster_e[photon_count] = theph.superCluster()->energy();
+                photon_supercluster_x[photon_count] = theph.superCluster()->x();
+                photon_supercluster_y[photon_count] = theph.superCluster()->y();
+                photon_supercluster_z[photon_count] = theph.superCluster()->z();
+                photon_supercluster_rawe[photon_count] = theph.superCluster()->rawEnergy();
+                photon_supercluster_phiwidth[photon_count] = theph.superCluster()->phiWidth();
+                photon_supercluster_etawidth[photon_count] = theph.superCluster()->etaWidth();
+                photon_supercluster_nbasiccluster[photon_count] = theph.superCluster()->clustersSize();
+
+                photon_info[photon_count] = 0;
+                photon_info[photon_count] |= theph.isPhoton() << 0;
+                photon_info[photon_count] |= theph.hasConversionTracks() << 1;
+                photon_info[photon_count] |= theph.hasPixelSeed() << 2;
+                //photon_info[photon_count] |= ConversionTools::hasMatchedPromptElectron(theph.superCluster(), Electrons, Conversions, bs_position) << 3;
+                photon_info[photon_count] |= theph.isPFlowPhoton() << 4;
+                photon_gapinfo[photon_count] = 0;
+                photon_gapinfo[photon_count] |= theph.isEB() << 0;
+                photon_gapinfo[photon_count] |= theph.isEE() << 1;
+                photon_gapinfo[photon_count] |= theph.isEBGap() << 2;
+                photon_gapinfo[photon_count] |= theph.isEBEtaGap() << 3;
+                photon_gapinfo[photon_count] |= theph.isEBPhiGap() << 4;
+                photon_gapinfo[photon_count] |= theph.isEEGap() << 5;
+                photon_gapinfo[photon_count] |= theph.isEERingGap() << 6;
+                photon_gapinfo[photon_count] |= theph.isEEDeeGap() << 7;
+                photon_gapinfo[photon_count] |= theph.isEBEEGap() << 8;
+                photon_conversionbegin[photon_count] = conversion_count;
+                photon_trigger[photon_count] = GetTrigger(theph, photontriggers);
+/*
+                ConversionRefVector conversions = theph.conversions();
+                for(unsigned j = 0 ; j < conversions.size() ; j++) {
+                    ConversionRef currconv = conversions[j];
+
+                    conversion_info[conversion_count] = 0;
+                    conversion_info[conversion_count] |= currconv->isConverted() << 0;
+                    conversion_info[conversion_count] |= currconv->conversionVertex().isValid() << 1;
+                    conversion_vx[conversion_count] = currconv->conversionVertex().x();
+                    conversion_vy[conversion_count] = currconv->conversionVertex().y();
+                    conversion_vz[conversion_count] = currconv->conversionVertex().z();
+                    conversion_chi2[conversion_count] = currconv->conversionVertex().chi2();
+                    conversion_ndof[conversion_count] = currconv->conversionVertex().ndof();
+                    conversion_cov[conversion_count][0] = currconv->conversionVertex().covariance(0,0);
+                    conversion_cov[conversion_count][1] = currconv->conversionVertex().covariance(0,1);
+                    conversion_cov[conversion_count][2] = currconv->conversionVertex().covariance(0,2);
+                    conversion_cov[conversion_count][3] = currconv->conversionVertex().covariance(1,1);
+                    conversion_cov[conversion_count][4] = currconv->conversionVertex().covariance(1,2);
+                    conversion_cov[conversion_count][5] = currconv->conversionVertex().covariance(2,2);
+                    conversion_mvaout[conversion_count] = currconv->MVAout();
+
+                    conversion_trackndof[conversion_count][0] = -1.;
+                    conversion_trackndof[conversion_count][1] = -1.;
+                    if(currconv->nTracks() == 2) {
+                        edm::RefToBase<Track> trA  = currconv->tracks()[0];
+                        TransientTrack SVTTrackA = TTrackBuilder->build(*trA);
+                        TrajectoryStateClosestToPoint TTrackStateA = SVTTrackA.trajectoryStateClosestToPoint(GlobalPoint(currconv->conversionVertex().x(), currconv->conversionVertex().y(), currconv->conversionVertex().z()));
+                        edm::RefToBase<Track> trB  = currconv->tracks()[1];
+                        TransientTrack SVTTrackB = TTrackBuilder->build(*trB);
+                        TrajectoryStateClosestToPoint TTrackStateB = SVTTrackB.trajectoryStateClosestToPoint(GlobalPoint(currconv->conversionVertex().x(), currconv->conversionVertex().y(), currconv->conversionVertex().z()));
+
+                        if(TTrackStateB.isValid() && TTrackStateA.isValid()) {
+
+                            conversion_trackecalpointx[conversion_count][0] = currconv->ecalImpactPosition()[0].X();
+                            conversion_trackecalpointy[conversion_count][0] = currconv->ecalImpactPosition()[0].Y();
+                            conversion_trackecalpointz[conversion_count][0] = currconv->ecalImpactPosition()[0].Z();
+                            conversion_trackpx[conversion_count][0] = TTrackStateA.momentum().x();
+                            conversion_trackpy[conversion_count][0] = TTrackStateA.momentum().y();
+                            conversion_trackpz[conversion_count][0] = TTrackStateA.momentum().z();
+                            conversion_trackclosestpointx[conversion_count][0] =  TTrackStateA.position().x();
+                            conversion_trackclosestpointy[conversion_count][0] =  TTrackStateA.position().y();
+                            conversion_trackclosestpointz[conversion_count][0] =  TTrackStateA.position().z();
+                            conversion_trackchi2[conversion_count][0] = currconv->tracks()[0]->chi2();
+                            conversion_trackndof[conversion_count][0] = currconv->tracks()[0]->ndof();
+                            conversion_trackdxy[conversion_count][0] = TTrackStateA.perigeeParameters().transverseImpactParameter();
+                            conversion_trackdxyerr[conversion_count][0] = TTrackStateA.perigeeError().transverseImpactParameterError();
+                            conversion_trackdz[conversion_count][0] = TTrackStateA.perigeeParameters().longitudinalImpactParameter();
+                            conversion_trackdzerr[conversion_count][0] = TTrackStateA.perigeeError().longitudinalImpactParameterError();
+                            conversion_trackcharge[conversion_count][0] = currconv->tracks()[0]->charge();
+                            conversion_tracknhits[conversion_count][0] = currconv->tracks()[0]->numberOfValidHits();
+                            conversion_tracknmissinghits[conversion_count][0] = currconv->tracks()[0]->numberOfLostHits();
+                            conversion_tracknpixelhits[conversion_count][0] = currconv->tracks()[0]->hitPattern().numberOfValidPixelHits();
+                            conversion_tracknpixellayers[conversion_count][0] = currconv->tracks()[0]->hitPattern().pixelLayersWithMeasurement();
+                            conversion_tracknstriplayers[conversion_count][0] = currconv->tracks()[0]->hitPattern().stripLayersWithMeasurement();
+                            conversion_trackecalpointx[conversion_count][1] = currconv->ecalImpactPosition()[1].X();
+                            conversion_trackecalpointy[conversion_count][1] = currconv->ecalImpactPosition()[1].Y();
+                            conversion_trackecalpointz[conversion_count][1] = currconv->ecalImpactPosition()[1].Z();
+                            conversion_trackpx[conversion_count][1] = TTrackStateB.momentum().x();
+                            conversion_trackpy[conversion_count][1] = TTrackStateB.momentum().y();
+                            conversion_trackpz[conversion_count][1] = TTrackStateB.momentum().z();
+                            conversion_trackclosestpointx[conversion_count][1] =  TTrackStateB.position().x();
+                            conversion_trackclosestpointy[conversion_count][1] =  TTrackStateB.position().y();
+                            conversion_trackclosestpointz[conversion_count][1] =  TTrackStateB.position().z();
+                            conversion_trackchi2[conversion_count][1] = currconv->tracks()[1]->chi2();
+                            conversion_trackndof[conversion_count][1] = currconv->tracks()[1]->ndof();
+                            conversion_trackdxy[conversion_count][1] = TTrackStateB.perigeeParameters().transverseImpactParameter();
+                            conversion_trackdxyerr[conversion_count][1] = TTrackStateB.perigeeError().transverseImpactParameterError();
+                            conversion_trackdz[conversion_count][1] = TTrackStateB.perigeeParameters().longitudinalImpactParameter();
+                            conversion_trackdzerr[conversion_count][1] = TTrackStateB.perigeeError().longitudinalImpactParameterError();
+                            conversion_trackcharge[conversion_count][1] = currconv->tracks()[1]->charge();
+                            conversion_tracknhits[conversion_count][1] = currconv->tracks()[1]->numberOfValidHits();
+                            conversion_tracknmissinghits[conversion_count][1] = currconv->tracks()[1]->numberOfLostHits();
+                            conversion_tracknpixelhits[conversion_count][1] = currconv->tracks()[1]->hitPattern().numberOfValidPixelHits();
+                            conversion_tracknpixellayers[conversion_count][1] = currconv->tracks()[1]->hitPattern().pixelLayersWithMeasurement();
+                            conversion_tracknstriplayers[conversion_count][1] = currconv->tracks()[1]->hitPattern().stripLayersWithMeasurement();
+                        }
+                    }
+                    conversion_count++;
+                    if(conversion_count == M_conversionmaxcount) {cerr << "number of conversions > M_conversionmaxcount. They are missing." << endl; errors |= 1<<4; break;}
+                }
+*/
+                photon_count++;
+                if(photon_count == M_photonmaxcount || conversion_count == M_conversionmaxcount) {cerr << "number of photon > M_photonmaxcount. They are missing." << endl; errors |= 1<<3; break;}
+                if(theph.pt() >= cPhotonPtMin && fabs(theph.eta()) <= cPhotonEtaMax) {
+                    NumGood++;
+                    if (theph.pt() >= 14.) good_photon_pt->Fill(theph.pt());
+                    good_photon_phi->Fill(theph.phi());
+                    good_photon_eta->Fill(theph.eta());
+                }
+            }
+        }
+    }
+    all_photon_count->Fill(NumAll);
+    good_photon_count->Fill(NumGood);
+    if(NumGood >= cPhotonNum) { return (true); }
+
+    return (false);
+}
+
 bool RootMaker::AddAllConversions(const edm::Event &iEvent) {
     if(cdebug) { cout<<"AddAllConversions..."<<endl; }
     edm::Handle<ConversionCollection> Conversions;
-    iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+    iEvent.getByToken(conversionsToken_, Conversions);
     if(cdebug) { cout<<"Conversions.isValid() = "<<Conversions.isValid()<<endl; }
     if(Conversions.isValid()) {
         for(unsigned i = 0 ; i < Conversions->size() ; i++) {
@@ -2366,15 +2900,15 @@ bool RootMaker::AddAllConversions(const edm::Event &iEvent) {
     }
     return (true);
 }
+
 bool RootMaker::AddTaus(const edm::Event &iEvent) {
     if(cdebug) { cout<<"AddTaus..."<<endl; }
     int NumAll = 0;
     int NumGood = 0;
     edm::Handle<PFTauCollection> Taus;
-    //iEvent.getByLabel(edm::InputTag("shrinkingConePFTauProducer"), Taus);
-    iEvent.getByLabel(edm::InputTag("hpsPFTauProducer"), Taus);
+    iEvent.getByToken(recoTausToken_, Taus);
     edm::Handle<pat::JetCollection> ak4pfJets;
-    iEvent.getByLabel(edm::InputTag("patJetsAK4PF"), ak4pfJets);
+    iEvent.getByToken(tauJetsToken_, ak4pfJets);
     if(cdebug) { cout<<"Taus.isValid() = "<<Taus.isValid()<<endl; }
     if(cdebug) { cout<<"Taus->size() = "<<Taus->size()<<endl; }
     NumAll = Taus->size();
@@ -2457,8 +2991,155 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
             for(std::vector<reco::PFCandidatePtr>::const_iterator tauSignalPFCand = tauSignalPFCands.begin(); tauSignalPFCand != tauSignalPFCands.end(); ++tauSignalPFCand) {
                 track = (*tauSignalPFCand)->trackRef();
                 if(!track.isNull()) {
-                    edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
-                    iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+                    iEvent.getByToken(dharmonicToken_, dEdxharmonic2);
+                    TransientTrack TTrack = TTrackBuilder->build(track);
+                    TrajectoryStateClosestToPoint TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
+                    tau_charged_px[tau_charged_count] = TTrackState.momentum().x();
+                    tau_charged_py[tau_charged_count] = TTrackState.momentum().y();
+                    tau_charged_pz[tau_charged_count] = TTrackState.momentum().z();
+                    tau_charged_closestpointx[tau_charged_count] = TTrackState.position().x();
+                    tau_charged_closestpointy[tau_charged_count] = TTrackState.position().y();
+                    tau_charged_closestpointz[tau_charged_count] = TTrackState.position().z();
+                    tau_charged_dxy[tau_charged_count]    = TTrackState.perigeeParameters().transverseImpactParameter();
+                    tau_charged_dxyerr[tau_charged_count] = TTrackState.perigeeError().transverseImpactParameterError();
+                    tau_charged_dz[tau_charged_count]     = TTrackState.perigeeParameters().longitudinalImpactParameter();
+                    tau_charged_dzerr[tau_charged_count]  = TTrackState.perigeeError().longitudinalImpactParameterError();
+                    tau_charged_chi2[tau_charged_count]   = track->chi2();
+                    tau_charged_ndof[tau_charged_count]   = track->ndof();
+                    tau_charged_charge[tau_charged_count] = track->charge();
+                    tau_charged_nhits[tau_charged_count] = track->numberOfValidHits();
+                    tau_charged_nmissinghits[tau_charged_count] = track->numberOfLostHits();
+                    tau_charged_npixelhits[tau_charged_count] = track->hitPattern().numberOfValidPixelHits();
+                    tau_charged_npixellayers[tau_charged_count] = track->hitPattern().pixelLayersWithMeasurement();
+                    tau_charged_nstriplayers[tau_charged_count] = track->hitPattern().stripLayersWithMeasurement();
+                    if(dEdxharmonic2.isValid()) {
+                        tau_charged_dedxharmonic2[tau_charged_count] = (*dEdxharmonic2)[track].dEdx();
+                    } else {
+                        tau_charged_dedxharmonic2[tau_charged_count] = -1.;
+                    }
+                    math::XYZPoint ecalPos = PositionOnECalSurface(TTrack);
+                    tau_charged_outerx[tau_charged_count] = ecalPos.x();
+                    tau_charged_outery[tau_charged_count] = ecalPos.y();
+                    tau_charged_outerz[tau_charged_count] = ecalPos.z();
+                    tau_charged_count++;
+                    if(tau_charged_count == M_taumaxcount*10) { break; }
+                }
+            }
+
+            tau_count++;
+
+            if(tau_count == M_taumaxcount || tau_charged_count == M_taumaxcount*10) {cerr << "number of taus > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
+            if((*Taus)[i].pt() >= cTauPtMin && fabs((*Taus)[i].eta()) < cTauEtaMax) {
+                NumGood++;
+                good_tau_pt->Fill((*Taus)[i].pt());
+                good_tau_phi->Fill((*Taus)[i].phi());
+                good_tau_eta->Fill((*Taus)[i].eta());
+            }
+        }
+    }
+    all_tau_count->Fill(NumAll);
+    good_tau_count->Fill(NumGood);
+    if(NumGood >= cTauNum) { return (true); }
+    return (false);
+}
+
+bool RootMaker::AddPatTaus(const edm::Event &iEvent) {
+    if(cdebug) { cout<<"AddPatTaus..."<<endl; }
+    int NumAll = 0;
+    int NumGood = 0;
+    edm::Handle<pat::TauCollection> Taus;
+    iEvent.getByToken(patTausToken_, Taus);
+    edm::Handle<pat::JetCollection> ak4pfchsJets;
+    iEvent.getByToken(tauJetsToken_, ak4pfchsJets);
+    if(cdebug) { cout<<"pat Taus.isValid() = "<<Taus.isValid()<<endl; }
+    if(cdebug) { cout<<"pat Taus->size() = "<<Taus->size()<<endl; }
+    NumAll = Taus->size();
+    if(Taus.isValid()) {
+/*
+        vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
+        for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++) {
+            iEvent.getByLabel(cTauDiscriminators[n].c_str(), PFTauDiscriminatiors[n]);
+        }
+        edm::Handle<PFTauDiscriminator> hpsPFTauDiscriminationByLooseIsolation;
+        iEvent.getByLabel("hpsPFTauDiscriminationByLooseIsolation", hpsPFTauDiscriminationByLooseIsolation);
+*/
+        for(unsigned i = 0 ; i < Taus->size() ; i++) {
+/*
+            int numtrack = (*Taus)[i].signalPFChargedHadrCands().size();
+            PFTauRef tauCandidate(Taus, i);
+            if((*hpsPFTauDiscriminationByLooseIsolation)[tauCandidate] < 0.5 || !(numtrack == 3 || numtrack == 1)) { continue; }
+            tau_dishps[tau_count] = 0;
+            for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++) {
+                if((*PFTauDiscriminatiors[n])[tauCandidate] > 0.5) { tau_dishps[tau_count] |= 1<<n; }
+            }
+*/
+            all_tau_pt->Fill((*Taus)[i].pt());
+            all_tau_phi->Fill((*Taus)[i].phi());
+            all_tau_eta->Fill((*Taus)[i].eta());
+            tau_px[tau_count] = (*Taus)[i].px();
+            tau_py[tau_count] = (*Taus)[i].py();
+            tau_pz[tau_count] = (*Taus)[i].pz();
+            tau_pt[tau_count] = (*Taus)[i].pt();
+            tau_phi[tau_count] = (*Taus)[i].phi();
+            tau_eta[tau_count] = (*Taus)[i].eta();
+/*
+            if ((*Taus)[i].isPFTau()) {
+                tau_emfraction[tau_count] = (*Taus)[i].emFraction();
+                tau_hcaltotoverplead[tau_count] = (*Taus)[i].hcalTotOverPLead();
+                tau_hcal3x3overplead[tau_count] = (*Taus)[i].hcalMaxOverPLead();
+                tau_ecalstripsumeoverplead[tau_count] = (*Taus)[i].hcal3x3OverPLead();
+                tau_bremsrecoveryeoverplead[tau_count] = (*Taus)[i].ecalStripSumEOverPLead();
+                tau_calocomp[tau_count] = (*Taus)[i].caloComp();
+                tau_segcomp[tau_count] = (*Taus)[i].segComp();
+
+                tau_charge[tau_count] = (*Taus)[i].charge();
+                tau_chargedbegin[tau_count] = tau_charged_count;
+                PFJetRef thejet = (*Taus)[i].pfJetRef();
+                bool jetfound = false;
+                if(ak4pfchsJets.isValid()) {
+                    jetfound = true;
+                    tau_ak4pfjet_e[tau_count] = thejet->energy();
+                    tau_ak4pfjet_px[tau_count] = thejet->px();
+                    tau_ak4pfjet_py[tau_count] = thejet->py();
+                    tau_ak4pfjet_pz[tau_count] = thejet->pz();
+                    tau_ak4pfjet_hadronicenergy[tau_count] = thejet->chargedHadronEnergy() + thejet->neutralHadronEnergy();
+                    tau_ak4pfjet_chargedhadronicenergy[tau_count] = thejet->chargedHadronEnergy();
+                    tau_ak4pfjet_emenergy[tau_count] = thejet->chargedEmEnergy() + thejet->neutralEmEnergy();
+                    tau_ak4pfjet_chargedemenergy[tau_count] = thejet->chargedEmEnergy();
+                    tau_ak4pfjet_chargedmulti[tau_count] = thejet->chargedMultiplicity();
+                    tau_ak4pfjet_neutralmulti[tau_count] = thejet->neutralMultiplicity();
+                    tau_ak4pfjet_trigger[tau_count] = GetTrigger(*thejet, jettriggers);
+                    break;
+                }
+                if(!jetfound) {
+                    tau_ak4pfjet_e[tau_count] = -1.;
+                }
+            }
+*/
+            tau_isolationchargednum[tau_count] = 0;
+            tau_isolationchargedpt[tau_count] = 0.;
+            tau_isolationneutralsnum[tau_count] = 0;
+            tau_isolationneutralspt[tau_count] = 0.;
+            tau_isolationgammanum[tau_count] = (*Taus)[i].isolationPFGammaCands().size();
+/*
+            tau_isolationgammapt[tau_count] = (*Taus)[i].isolationPFGammaCandsEtSum();
+            tau_isolationchargednum[tau_count]  = (*Taus)[i].isolationPFChargedHadrCands().size();
+            tau_isolationchargedpt[tau_count]   = (*Taus)[i].isolationPFChargedHadrCandsPtSum();
+            tau_isolationneutralsnum[tau_count] = (*Taus)[i].isolationPFNeutrHadrCands().size();
+
+            std::vector<double> isocands = extract((*Taus)[i].isolationPFNeutrHadrCands(),std::mem_fun_ref(&PFCandidate::pt));
+            BOOST_FOREACH(double pt, isocands) {
+                tau_isolationneutralspt[tau_count] += pt;
+            }
+*/
+            tau_trigger[tau_count] = GetTrigger((*Taus)[i], tautriggers);
+            TrackRef track;
+
+            const std::vector<reco::PFCandidatePtr> &tauSignalPFCands = (*Taus)[i].signalPFCands();
+            for(std::vector<reco::PFCandidatePtr>::const_iterator tauSignalPFCand = tauSignalPFCands.begin(); tauSignalPFCand != tauSignalPFCands.end(); ++tauSignalPFCand) {
+                track = (*tauSignalPFCand)->trackRef();
+                if(!track.isNull()) {
+                    iEvent.getByToken(dharmonicToken_, dEdxharmonic2);
                     TransientTrack TTrack = TTrackBuilder->build(track);
                     TrajectoryStateClosestToPoint TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
                     tau_charged_px[tau_charged_count] = TTrackState.momentum().x();
@@ -2514,9 +3195,8 @@ bool RootMaker::AddTracks(const edm::Event &iEvent) {
     if(cdebug) { cout<<"AddTracks..."<<endl; }
     int NumGood = 0;
     edm::Handle<TrackCollection> Tracks;
-    iEvent.getByLabel(edm::InputTag("generalTracks"), Tracks);
-    edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
-    iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+    iEvent.getByToken(recoTracksToken_, Tracks);
+    iEvent.getByToken(dharmonicToken_, dEdxharmonic2);
     if(cdebug) { cout<<"Tracks.isValid() = "<<Tracks.isValid()<<endl; }
     if(Tracks.isValid()) {
         for(unsigned i = 0 ; i < Tracks->size() ; i++) {
@@ -2581,7 +3261,7 @@ bool RootMaker::AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &
     if(cdebug) { cout<<"AddAK4CaloJets..."<<endl; }
     int NumGood = 0;
     edm::Handle<pat::JetCollection> ak4caloJets;
-    iEvent.getByLabel(edm::InputTag("patJetsAK4Calo"), ak4caloJets);
+    iEvent.getByToken(ak4caloJetsToken_, ak4caloJets);
     if(cdebug) { cout<<"ak4caloJets.isValid() = "<<ak4caloJets.isValid()<<endl; }
     if(ak4caloJets.isValid()) {
         for(unsigned i = 0 ; i < ak4caloJets->size() ; i++) {
@@ -2631,7 +3311,7 @@ bool RootMaker::AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &i
     if(cdebug) { cout<<"AddAK4JPTJets..."<<endl; }
     int NumGood = 0;
     edm::Handle<pat::JetCollection> ak4jptJets;
-    iEvent.getByLabel(edm::InputTag("patJetsAK4JPT"), ak4jptJets);
+    iEvent.getByToken(ak4jptJetsToken_, ak4jptJets);
     if(cdebug) { cout<<"ak4jptJets.isValid() = "<<ak4jptJets.isValid()<<endl; }
     if(ak4jptJets.isValid()) {
         for(unsigned i = 0 ; i < ak4jptJets->size() ; i++) {
@@ -2684,7 +3364,7 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
     int NumGood25 = 0;
     int NumGood30 = 0;
     edm::Handle<pat::JetCollection> ak4pfJets;
-    iEvent.getByLabel(edm::InputTag("selectedPatJetsPFlow"), ak4pfJets);
+    iEvent.getByToken(ak4pfchsJetsToken_, ak4pfJets);
     edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
     iEvent.getByLabel("AK4byValAlgo", jetMCFlHandle);
     if(cdebug) { cout<<"chs ak4pfJets.isValid() = "<<ak4pfJets.isValid()<<endl; }
@@ -2693,9 +3373,11 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
     if(ak4pfJets.isValid()) {
         for(unsigned i = 0 ; i < ak4pfJets->size() ; i++) {
             pat::Jet corjet((*ak4pfJets)[i]);
-            all_jet_pt->Fill(corjet.pt());
-            all_jet_phi->Fill(corjet.phi());
-            all_jet_eta->Fill(corjet.eta());
+            if (corjet.pt() >= 20.) {
+                all_jet_pt->Fill(corjet.pt());
+                all_jet_phi->Fill(corjet.phi());
+                all_jet_eta->Fill(corjet.eta());
+            }
             if(corjet.pt() >= cAK4PFCHSFilterPtMin) {
                 ak4pfchsjet_e[ak4pfchsjet_count] = corjet.energy();
                 ak4pfchsjet_px[ak4pfchsjet_count] = corjet.px();
@@ -2724,7 +3406,9 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                 ak4pfchsjet_energycorrl7uds[ak4pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
                 ak4pfchsjet_energycorrl7bottom[ak4pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
 
-                JetShape shape = getJetShape(corjet);
+                JetShape shape;
+                if (!cisMiniAOD) shape = getJetShape(corjet);
+                if (cisMiniAOD) shape = getSlimmedJetShape(corjet);
                 ak4pfchsjet_chargeda[ak4pfchsjet_count] = shape.chargeda;
                 ak4pfchsjet_chargedb[ak4pfchsjet_count] = shape.chargedb;
                 ak4pfchsjet_neutrala[ak4pfchsjet_count] = shape.neutrala;
@@ -2753,7 +3437,6 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                     ak4pfchsjet_btag[ak4pfchsjet_count][n] = -1000000;
                     edm::Handle<JetTagCollection> bTagHandle;
                     iEvent.getByLabel(edm::InputTag(bdisclabel[n], "", "ROOTMAKER"), bTagHandle);
-                    //iEvent.getByLabel(bdisclabel[n], bTagHandle);
                     if(bTagHandle.isValid()) {
                         const JetTagCollection &bTags = * (bTagHandle.product());
                         double drmin = 0.5;
@@ -2802,7 +3485,7 @@ bool RootMaker::AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iS
     if(cdebug) { cout<<"AddAK4PFJets..."<<endl; }
     int NumGood = 0;
     edm::Handle<PFJetCollection> ak4pfJets;
-    iEvent.getByLabel(edm::InputTag("ak4PFJets"), ak4pfJets);
+    iEvent.getByToken(ak4pfJetsToken_, ak4pfJets);
     const JetCorrector *corrector = JetCorrector::getJetCorrector((string("ak4PF")+cJetCorrection).c_str(), iSetup);
     edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
     iSetup.get<JetCorrectionsRecord>().get("AK4PF",JetCorParColl);
@@ -3174,96 +3857,155 @@ RootMaker::JetShape RootMaker::getJetShape(const PFJet &jet) {
     return (res);
 
 }
-// duplicate of above funtion
-//bool RootMaker::AddAK4PFJets(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-//  int NumGood = 0;
-//  edm::Handle<PFJetCollection> ak4pfJets;
-//  iEvent.getByLabel(edm::InputTag("ak4PFJets"), ak4pfJets);
-//  if(ak4pfJets.isValid())
-//  {
-//  vector<edm::Handle<JetFloatAssociation::Container> > btag(bdisclabel.size());
-//  for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
-//  {
-//  iEvent.getByLabel(edm::InputTag(bdisclabel[n].c_str()), btag[n]);
-//  }
-//
-//  const JetCorrector* corrector;
-//  if(cdata)
-//  {
-//  corrector = JetCorrector::getJetCorrector("ak4PFL1L2L3Residual", iSetup);
-//  }
-//  else
-//  {
-//  corrector = JetCorrector::getJetCorrector("ak4PFL1L2L3", iSetup);
-//  }
-//
-//  for(unsigned i = 0 ; i < ak4pfJets->size() ; i++)
-//  {
-//  if((*ak4pfJets)[i].pt() >= cAK4PFFilterPtMin)
-//  {
-//  ak4pfjet_e[ak4pfjet_count] = (*ak4pfJets)[i].energy();
-//  ak4pfjet_px[ak4pfjet_count] = (*ak4pfJets)[i].px();
-//  ak4pfjet_py[ak4pfjet_count] = (*ak4pfJets)[i].py();
-//  ak4pfjet_pz[ak4pfjet_count] = (*ak4pfJets)[i].pz();
-//  ak4pfjet_hadronicenergy[ak4pfjet_count] = (*ak4pfJets)[i].chargedHadronEnergy() + (*ak4pfJets)[i].neutralHadronEnergy();
-//  ak4pfjet_chargedhadronicenergy[ak4pfjet_count] = (*ak4pfJets)[i].chargedHadronEnergy();
-//  ak4pfjet_emenergy[ak4pfjet_count] = (*ak4pfJets)[i].chargedEmEnergy() + (*ak4pfJets)[i].neutralEmEnergy();
-//  ak4pfjet_chargedemenergy[ak4pfjet_count] = (*ak4pfJets)[i].chargedEmEnergy();
-//  ak4pfjet_chargedmulti[ak4pfjet_count] = (*ak4pfJets)[i].chargedMultiplicity();
-//  ak4pfjet_neutralmulti[ak4pfjet_count] = (*ak4pfJets)[i].neutralMultiplicity();
-//  JetBaseRef jetRef(edm::Ref<PFJetCollection>(ak4pfJets, i));
-//  ak4pfjet_energycorr[ak4pfjet_count] = corrector->correction((*ak4pfJets)[i], jetRef, iEvent, iSetup);
-//  ak4pfjet_energycorrl7uds[ak4pfjet_count] = -1.;
-//  ak4pfjet_energycorrl7bottom[ak4pfjet_count] = -1.;
-//
-//  for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
-//  {
-//  if(btag[n].isValid())
-//  {
-////ak4pfjet_btag[ak4pfjet_count][n] = (*(btag[n]))[jetRef];
-////ak4pfjet_btag[ak4pfjet_count][n] = JetFloatAssociation::getValue(*(btag[n]), (*ak4pfJets)[i]);
-//cout << "btag1: " << n << " " << ak4pfjet_btag[ak4pfjet_count][n] << endl;
-//}
-//else
-//{
-//ak4pfjet_btag[ak4pfjet_count][n] = -1000;
-//}
-//}
-//
-//if(crecjettrigger)
-//{
-//ak4pfjet_trigger[i] = GetTrigger((*ak4pfJets)[i], jettriggers);
-//}
-//else
-//{
-//ak4pfjet_trigger[i] = 0;
-//}
-//ak4pfjet_count++;
-//if(ak4pfjet_count == M_jetmaxcount){cerr << "number of ak4pfjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<10; break;}
-//if((*ak4pfJets)[i].pt() >= cAK4PFPtMin && fabs((*ak4pfJets)[i].eta()) < cAK4PFEtaMax) NumGood++;
-//}
-//}
-//}
-//
-//if(NumGood >= cAK4PFNum) return(true);
-//return(false);
-//}
+
+RootMaker::JetShape RootMaker::getSlimmedJetShape(const pat::Jet &jet) {
+    if (cdebug) cout<<"getSlimmedJetShape pat::Jet"<<endl;
+    using namespace TMath;
+    RootMaker::JetShape res;
+    float chargedetaeta1 = 0.;
+    float chargedphiphi1 = 0.;
+    float chargedetaeta2 = 0.;
+    float chargedphiphi2 = 0.;
+    float chargedetaphi = 0.;
+    float chargedptsum = 0.;
+    float chargedptsummv = 0.;
+    float neutraletaeta1 = 0.;
+    float neutralphiphi1 = 0.;
+    float neutraletaeta2 = 0.;
+    float neutralphiphi2 = 0.;
+    float neutraletaphi = 0.;
+    float neutralptsum = 0.;
+    float alletaeta1 = 0.;
+    float alletaeta2 = 0.;
+    float alletaphi = 0.;
+    float allphiphi1 = 0.;
+    float allphiphi2 = 0.;
+    float allptsum = 0.;
+
+    for (unsigned int id = 0, nd = jet.numberOfDaughters(); id < nd; ++id) {
+        const pat::PackedCandidate &con = dynamic_cast<const pat::PackedCandidate &>(*jet.daughter(id));
+
+        float deta = jet.eta() - con.eta();
+        float dphi = jet.phi() - con.phi();
+
+        if(dphi > 4.*atan(1.)) { dphi = dphi-8.*atan(1.); }
+        if(dphi < -1.*4.*atan(1.)) { dphi = dphi+8.*atan(1.); }
+
+        if (con.charge() != 0) {
+            chargedptsum += con.pt();
+            chargedetaeta1 += deta*con.pt();
+            chargedetaeta2 += deta*deta*con.pt();
+            chargedetaphi += deta*dphi*con.pt();
+            chargedphiphi1 += dphi*con.pt();
+            chargedphiphi2 += dphi*dphi*con.pt();
+            int vertex = getPrimVertex(& (con));
+            if(vertex == 0 || vertex == -1) {
+                chargedptsummv += con.pt();
+            }
+        } else {
+            neutralptsum += con.pt();
+            neutraletaeta1 += deta*con.pt();
+            neutraletaeta2 += deta*deta*con.pt();
+            neutraletaphi += deta*dphi*con.pt();
+            neutralphiphi1 += dphi*con.pt();
+            neutralphiphi2 += dphi*dphi*con.pt();
+        }
+        allptsum += con.pt();
+        alletaeta1 += deta*con.pt();
+        alletaeta2 += deta*deta*con.pt();
+        alletaphi += deta*dphi*con.pt();
+        allphiphi1 += dphi*con.pt();
+        allphiphi2 += dphi*dphi*con.pt();
+    }
+    if(chargedptsum != 0) {
+        chargedetaeta1/=chargedptsum;
+        chargedetaeta2/=chargedptsum;
+        chargedetaphi/=chargedptsum;
+        chargedphiphi1/=chargedptsum;
+        chargedphiphi2/=chargedptsum;
+    } else {
+        chargedetaeta1 = 0.;
+        chargedetaeta2 = 0.;
+        chargedetaphi = 0.;
+        chargedphiphi1 = 0.;
+        chargedphiphi2 = 0.;
+    }
+    if(neutralptsum != 0) {
+        neutraletaeta1/=neutralptsum;
+        neutraletaeta2/=neutralptsum;
+        neutraletaphi/=neutralptsum;
+        neutralphiphi1/=neutralptsum;
+        neutralphiphi2/=neutralptsum;
+    } else {
+        neutraletaeta1 = 0.;
+        neutraletaeta2 = 0.;
+        neutraletaphi = 0.;
+        neutralphiphi1 = 0.;
+        neutralphiphi2 = 0.;
+    }
+    if(allptsum != 0) {
+        alletaeta1/=allptsum;
+        alletaeta2/=allptsum;
+        alletaphi/=allptsum;
+        allphiphi1/=allptsum;
+        allphiphi2/=allptsum;
+    } else {
+        alletaeta1 = 0.;
+        alletaeta2 = 0.;
+        alletaphi = 0.;
+        allphiphi1 = 0.;
+        allphiphi2 = 0.;
+    }
+
+    double chargedetavar = chargedetaeta2-chargedetaeta1*chargedetaeta1;
+    double chargedphivar = chargedphiphi2-chargedphiphi1*chargedphiphi1;
+    double chargedphidetacov = chargedetaphi - chargedetaeta1*chargedphiphi1;
+
+    double chargeddet = (chargedetavar-chargedphivar)* (chargedetavar-chargedphivar)+4*chargedphidetacov*chargedphidetacov;
+    double chargedx1 = (chargedetavar+chargedphivar+sqrt(chargeddet))/2.;
+    double chargedx2 = (chargedetavar+chargedphivar-sqrt(chargeddet))/2.;
+
+    double neutraletavar = neutraletaeta2-neutraletaeta1*neutraletaeta1;
+    double neutralphivar = neutralphiphi2-neutralphiphi1*neutralphiphi1;
+    double neutralphidetacov = neutraletaphi - neutraletaeta1*neutralphiphi1;
+
+    double neutraldet = (neutraletavar-neutralphivar)* (neutraletavar-neutralphivar)+4*neutralphidetacov*neutralphidetacov;
+    double neutralx1 = (neutraletavar+neutralphivar+sqrt(neutraldet))/2.;
+    double neutralx2 = (neutraletavar+neutralphivar-sqrt(neutraldet))/2.;
+
+    double alletavar = alletaeta2-alletaeta1*alletaeta1;
+    double allphivar = allphiphi2-allphiphi1*allphiphi1;
+    double allphidetacov = alletaphi - alletaeta1*allphiphi1;
+
+    double alldet = (alletavar-allphivar)* (alletavar-allphivar)+4*allphidetacov*allphidetacov;
+    double allx1 = (alletavar+allphivar+sqrt(alldet))/2.;
+    double allx2 = (alletavar+allphivar-sqrt(alldet))/2.;
+
+    res.chargeda = chargedx1;
+    res.chargedb = chargedx2;
+    res.neutrala = neutralx1;
+    res.neutralb = neutralx2;
+    res.alla = allx1;
+    res.allb = allx2;
+    res.chargedfractionmv = chargedptsummv/chargedptsum;
+    return (res);
+}
 
 
 bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     if(cdebug) { cout<<"AddElectrons..."<<endl; }
     int NumAll = 0;
     int NumGood = 0;
-    //if(crecelectrontrigger)
-    //{
-    //iEvent.getByLabel(edm::InputTag("l1extraParticles", "NonIsolated"), L1Electrons);
-    //iEvent.getByLabel(edm::InputTag("l1extraParticles", "Isolated"), L1ElectronsIso);
-    //}
-    edm::Handle<GsfElectronCollection> Electrons;
-    //iEvent.getByLabel(edm::InputTag("gsfElectrons"), Electrons);
-    iEvent.getByLabel(edm::InputTag("gedGsfElectrons"), Electrons);
-    edm::Handle<ConversionCollection> Conversions;
-    iEvent.getByLabel(edm::InputTag("allConversions"), Conversions);
+/*
+    if(crecelectrontrigger) {
+        iEvent.getByLabel(edm::InputTag("l1extraParticles", "NonIsolated"), L1Electrons);
+        iEvent.getByLabel(edm::InputTag("l1extraParticles", "Isolated"), L1ElectronsIso);
+    }
+*/
+    edm::Handle<reco::GsfElectronCollection> Electrons;
+    iEvent.getByToken(recoElectronsToken_, Electrons);
+    edm::Handle<reco::ConversionCollection> Conversions;
+    iEvent.getByToken(conversionsToken_, Conversions);
 
     vector< edm::Handle< edm::ValueMap<double> > > electronIsoPF(3);
 
@@ -3281,11 +4023,29 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     if(cdebug) { cout<<"Electrons.isValid() = "<<Electrons.isValid()<<endl; }
     if(cdebug) { cout<<"Electrons->size() = "<<Electrons->size()<<endl; }
     NumAll = Electrons->size();
+
+
+
+
+/*
+  edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
+  edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
+  iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
+  iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);
+*/
     if(Electrons.isValid()) {
         //for(GsfElectronCollection::const_iterator itel = Electrons->begin() ; itel != Electrons->end() ; ++itel)
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
             //const GsfElectron& theel = *itel;
             const GsfElectron &theel = (*Electrons)[n];
+/*
+    // Look up the ID decision for this electron in 
+    // the ValueMap object and store it
+    bool isPassVeto  = (*veto_id_decisions)[theel];
+    bool isPassTight = (*tight_id_decisions)[theel];
+    passVetoId_.push_back( isPassVeto );
+    passTightId_.push_back( isPassTight );
+*/
             all_electron_pt->Fill(theel.pt());
             all_electron_phi->Fill(theel.phi());
             all_electron_eta->Fill(theel.eta());
@@ -3346,7 +4106,7 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
                 electron_gapinfo[electron_count] |= theel.isEBEEGap() << 8;
 
                 edm::Handle<reco::TrackCollection> ctfTracks;
-                iEvent.getByLabel("generalTracks", ctfTracks);
+                iEvent.getByToken(recoTracksToken_, ctfTracks);
                 ConversionFinder convFinder;
                 ConversionInfo convInfo = convFinder.getConversionInfo(theel, ctfTracks, magneticField->inTesla(GlobalPoint(0.,0.,0.)).z());
 
@@ -3425,6 +4185,8 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
                     good_electron_pt->Fill(theel.pt());
                     good_electron_phi->Fill(theel.phi());
                     good_electron_eta->Fill(theel.eta());
+                    //
+                    good_electron_pt->Fill(theel.pt());
                 }
             }
         }
@@ -3435,8 +4197,258 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     return (false);
 }
 
+bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
+    if(cdebug) cout<<"AddPatElectrons..."<<endl;
+    int NumAll = 0;
+    int NumGood = 0;
+    int NumMatched = 0;
+/*
+    if(crecelectrontrigger) {
+        iEvent.getByLabel(edm::InputTag("l1extraParticles", "NonIsolated"), L1Electrons);
+        iEvent.getByLabel(edm::InputTag("l1extraParticles", "Isolated"), L1ElectronsIso);
+    }
+*/
+    edm::Handle<pat::ElectronCollection> Electrons;
+    iEvent.getByToken(patElectronsToken_, Electrons);
+    edm::Handle<reco::ConversionCollection> Conversions;
+    iEvent.getByToken(conversionsToken_, Conversions);
+/*
+    vector< edm::Handle< edm::ValueMap<double> > > electronIsoPF(3);
+
+    iEvent.getByLabel(edm::InputTag("elPFIsoValueCharged03PFIdPFIso"), electronIsoPF[0]);
+    iEvent.getByLabel(edm::InputTag("elPFIsoValueGamma03PFIdPFIso"), electronIsoPF[1]);
+    iEvent.getByLabel(edm::InputTag("elPFIsoValueNeutral03PFIdPFIso"), electronIsoPF[2]);
+
+    edm::Handle<edm::ValueMap<float> > eIDValueMapHyperTight1;
+    iEvent.getByLabel("eidHyperTight1MC", eIDValueMapHyperTight1);
+    const edm::ValueMap<float> &eIDHyperTight1map = * eIDValueMapHyperTight1;
+
+    edm::Handle<edm::ValueMap<float> > eIDValueMapLoose;
+    iEvent.getByLabel("eidLooseMC", eIDValueMapLoose);
+    const edm::ValueMap<float> &eIDLoosemap = * eIDValueMapLoose;
+*/
+
+    if(cdebug) cout<<"pat Electrons.isValid() = "<<Electrons.isValid()<<endl;
+    if(cdebug) cout<<"pat Electrons->size() = "<<Electrons->size()<<endl;
+    NumAll = Electrons->size();
+    if(Electrons.isValid()) {
+
+//  edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
+//  edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
+//  iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
+//  iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);
+
+        //for(GsfElectronCollection::const_iterator itel = Electrons->begin() ; itel != Electrons->end() ; ++itel)
+        for(size_t n = 0 ; n < Electrons->size() ; n++) {
+      //for(pat::ElectronCollection::const_iterator itel = Electrons->begin(); itel != Electrons->end(); itel++){
+            //const GsfElectron& theel = *itel;
+            //const pat::Electron &theel = *itel;
+            const pat::Electron &theel = (*Electrons)[n];
+
+    // Look up the ID decision for this electron in 
+    // the ValueMap object and store it. We need a Ptr object as the key.
+//    const Ptr<pat::Electron> elPtr(Electrons, itel - Electrons->begin() );
+//    bool isPassVeto  = (*veto_id_decisions)[ elPtr ];
+//    bool isPassTight = (*tight_id_decisions)[ elPtr ];
+//    passVetoId_.push_back( isPassVeto );
+//    passTightId_.push_back( isPassTight );
+
+            all_electron_pt->Fill(theel.pt());
+            all_electron_phi->Fill(theel.phi());
+            all_electron_eta->Fill(theel.eta());
+
+            pat::ElectronRef refel(Electrons, n);
+            //pat::ElectronRef refel(Electrons,  itel - Electrons->begin());
+            if(theel.pt() > cElFilterPtMin && TMath::Abs(theel.eta()) < cElFilterEtaMax) {
+                electron_px[electron_count] = theel.px();
+                electron_py[electron_count] = theel.py();
+                electron_pz[electron_count] = theel.pz();
+                electron_pt[electron_count] = theel.pt();
+                electron_phi[electron_count] = theel.phi();
+                electron_eta[electron_count] = theel.eta();
+                electron_correctedecalenergy[electron_count] = theel.ecalEnergy();
+                electron_charge[electron_count] = theel.charge();
+                electron_esuperclusterovertrack[electron_count] = theel.eSuperClusterOverP();
+                electron_eseedclusterovertrack[electron_count] = theel.eSeedClusterOverP();
+                electron_deltaetasuperclustertrack[electron_count] = theel.deltaEtaSuperClusterTrackAtVtx();
+                electron_deltaphisuperclustertrack[electron_count] = theel.deltaPhiSuperClusterTrackAtVtx();
+                electron_e1x5[electron_count] = theel.e1x5();
+                electron_e2x5[electron_count] = theel.e2x5Max();
+                electron_e5x5[electron_count] = theel.e5x5();
+                electron_r9[electron_count] = theel.r9();
+                electron_sigmaetaeta[electron_count] = theel.sigmaEtaEta();
+                electron_sigmaietaieta[electron_count] = theel.sigmaIetaIeta();
+                electron_sigmaiphiiphi[electron_count] = theel.sigmaIphiIphi();
+                electron_ehcaloverecaldepth1[electron_count] = theel.hcalDepth1OverEcal();
+                electron_ehcaloverecaldepth2[electron_count] = theel.hcalDepth2OverEcal();
+                electron_ehcaltoweroverecaldepth1[electron_count] = theel.hcalDepth1OverEcalBc();
+                electron_ehcaltoweroverecaldepth2[electron_count] = theel.hcalDepth2OverEcalBc();
+                electron_isolationr3track[electron_count] = theel.dr03TkSumPt();
+                electron_isolationr3ecal[electron_count] = theel.dr03EcalRecHitSumEt();
+                electron_isolationr3hcal[electron_count] = theel.dr03HcalTowerSumEt();
+                electron_isolationr4track[electron_count] = theel.dr04TkSumPt();
+                electron_isolationr4ecal[electron_count] = theel.dr04EcalRecHitSumEt();
+                electron_isolationr4hcal[electron_count] = theel.dr04HcalTowerSumEt();
+/*
+                electron_isolationpfr3charged[electron_count] = (* (electronIsoPF[0]))[refel];
+                electron_isolationpfr3photon[electron_count] = (* (electronIsoPF[1]))[refel];
+                electron_isolationpfr3neutral[electron_count] = (* (electronIsoPF[2]))[refel];
+                //electron_isolationpfr3charged[electron_count] = theel.pfIsolationVariables().chargedHadronIso;
+                //electron_isolationpfr3photon[electron_count] = theel.pfIsolationVariables().photonIso;
+                //electron_isolationpfr3neutral[electron_count] = theel.pfIsolationVariables().neutralHadronIso;
+*/
+                electron_info[electron_count] = 0;
+                electron_info[electron_count] |= theel.isElectron() << 0;
+                electron_info[electron_count] |= ConversionTools::hasMatchedConversion(theel, Conversions, bs_position) << 1;
+                electron_info[electron_count] |= theel.ecalDrivenSeed() << 2;
+                electron_info[electron_count] |= theel.trackerDrivenSeed() << 3;
+
+                electron_gapinfo[electron_count] = 0;
+                electron_gapinfo[electron_count] |= theel.isEB() << 0;
+                electron_gapinfo[electron_count] |= theel.isEE() << 1;
+                electron_gapinfo[electron_count] |= theel.isEBGap() << 2;
+                electron_gapinfo[electron_count] |= theel.isEBEtaGap() << 3;
+                electron_gapinfo[electron_count] |= theel.isEBPhiGap() << 4;
+                electron_gapinfo[electron_count] |= theel.isEEGap() << 5;
+                electron_gapinfo[electron_count] |= theel.isEERingGap() << 6;
+                electron_gapinfo[electron_count] |= theel.isEEDeeGap() << 7;
+                electron_gapinfo[electron_count] |= theel.isEBEEGap() << 8;
+
+// NOTE
+/*
+                edm::Handle<reco::TrackCollection> ctfTracks;
+                //iEvent.getByToken(recoTracksToken_, ctfTracks);
+                iEvent.getByToken(unpackedTracksToken_, ctfTracks);
+                ConversionFinder convFinder;
+                ConversionInfo convInfo = convFinder.getConversionInfo(theel, ctfTracks, magneticField->inTesla(GlobalPoint(0.,0.,0.)).z());
+                electron_convdist[electron_count] = convInfo.dist();
+                electron_convdcot[electron_count] = convInfo.dcot();
+                electron_convradius[electron_count] = convInfo.radiusOfConversion();
+                electron_fbrems[electron_count] = theel.fbrem();
+                electron_numbrems[electron_count] = theel.numberOfBrems();
+*/
+
+
+                reco::GsfTrackRef gsfTr_e = theel.gsfTrack();
+                TransientTrack TTrack = TTrackBuilder->build(gsfTr_e);
+                math::XYZPoint ecalPos = PositionOnECalSurface(TTrack);
+                electron_outerx[electron_count] = ecalPos.x();
+                electron_outery[electron_count] = ecalPos.y();
+                electron_outerz[electron_count] = ecalPos.z();
+                //TrajectoryStateClosestToPoint TTrackState = TTrack.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
+
+
+                electron_trackchi2[electron_count] = gsfTr_e->chi2();
+                electron_trackndof[electron_count] = gsfTr_e->ndof();
+
+                electron_nhits[electron_count]        = gsfTr_e->numberOfValidHits();
+                electron_nmissinghits[electron_count] = gsfTr_e->numberOfLostHits();
+                electron_npixelhits[electron_count]   = (gsfTr_e->hitPattern()).numberOfValidPixelHits();
+                electron_npixellayers[electron_count]   = (gsfTr_e->hitPattern()).pixelLayersWithMeasurement();
+                electron_nstriplayers[electron_count]   = (gsfTr_e->hitPattern()).stripLayersWithMeasurement();
+
+                //         electron_nhitsexpected[electron_count] = gsfTr_e->trackerExpectedHitsInner().numberOfHits();
+                electron_nhitsexpected[electron_count] = gsfTr_e->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+
+                electron_dxy[electron_count]           = gsfTr_e->dxy(pv_position);
+                electron_dxyerr[electron_count]           = gsfTr_e->dxyError();
+                electron_dz[electron_count]           = gsfTr_e->dz(pv_position);
+                electron_dzerr[electron_count]           = gsfTr_e->dzError();
+                electron_vtx[electron_count] = -2;
+
+// NOTE
+                //TrackRef closesttrack = theel.closestTrack();
+                TrackRef closesttrack = theel.closestCtfTrackRef();
+
+                if (!closesttrack.isNonnull()) {
+                    cout<<"elec closest track = NULL"<<endl;
+                    if (theel.genParticle()) {
+                        if (abs(theel.genParticle()->pdgId()) == 11) cout<<"    gen elec  = TRUE\n"<<endl;
+                        if (abs(theel.genParticle()->pdgId()) != 11) cout<<"    gen elec  = FALSE\n"<<endl;
+                    } else {
+                        cout<<"    no gen electron\n"<<endl;
+                    }
+                }
+                if(closesttrack.isNonnull()) {
+                    int numvtx = getPrimVertex(*closesttrack);
+                    electron_vtx[electron_count] = numvtx;
+                    TransientTrack TTrackCL = TTrackBuilder->build(closesttrack);
+                    TrajectoryStateClosestToPoint TTrackStateCL;
+                    if(numvtx < 0) {
+                        TTrackStateCL = TTrackCL.trajectoryStateClosestToPoint(GlobalPoint(pv_position.x(), pv_position.y(), pv_position.z()));
+                    } else {
+                        TTrackStateCL = TTrackCL.trajectoryStateClosestToPoint(GlobalPoint(primvertex_x[numvtx], primvertex_y[numvtx], primvertex_z[numvtx]));
+                    }
+                    electron_closestpointx[electron_count] = TTrackStateCL.position().x();
+                    electron_closestpointy[electron_count] = TTrackStateCL.position().y();
+                    electron_closestpointz[electron_count] = TTrackStateCL.position().z();
+                }
+
+
+                electron_trigger[electron_count] = GetTrigger(theel, electrontriggers);
+/*
+                edm::Ref<reco::GsfElectronCollection> electronRef(Electrons,n);
+                electron_eID[electron_count]=0;
+                electron_eID[electron_count] |= (Byte_t)eIDHyperTight1map[electronRef];
+                electron_eID[electron_count] |= ((Byte_t)eIDLoosemap[electronRef]<<4);
+*/
+                electron_supercluster_e[electron_count] = theel.superCluster()->energy();
+                electron_supercluster_x[electron_count] = theel.superCluster()->x();
+                electron_supercluster_y[electron_count] = theel.superCluster()->y();
+                electron_supercluster_z[electron_count] = theel.superCluster()->z();
+                electron_supercluster_rawe[electron_count] = theel.superCluster()->rawEnergy();
+                electron_supercluster_phiwidth[electron_count] = theel.superCluster()->phiWidth();
+                electron_supercluster_etawidth[electron_count] = theel.superCluster()->etaWidth();
+                electron_supercluster_nbasiccluster[electron_count] = theel.superCluster()->clustersSize();
+
+                electron_count++;
+                if(electron_count == M_electronmaxcount) {
+                    cerr << "number of electron > M_electronmaxcount. They are missing." << endl;
+                    errors |= 1<<1;
+                    break;
+                }
+                if(theel.pt() >= cElPtMin && fabs(theel.eta()) <= cElEtaMax && theel.dr03TkSumPt()/theel.pt() <= cElTrackIso) {
+                    NumGood++;
+                    good_electron_pt->Fill(theel.pt());
+                    good_electron_phi->Fill(theel.phi());
+                    good_electron_eta->Fill(theel.eta());
+                }
+                // fill baby trees
+                electron_has_gen_particle[electron_count] = 0;
+                electron_gen_particle_pdgid[electron_count] = 0;
+                electron_has_gen_mother[electron_count] = 0;
+                electron_gen_mother_pdgid[electron_count] = 0;
+                electron_is_veto[electron_count] = -1;
+                electron_is_loose[electron_count] = -1;
+                electron_is_tight[electron_count] = -1;
+                if (theel.genParticle()) { 
+                    electron_has_gen_particle[electron_count] = 1;
+                    electron_gen_particle_pdgid[electron_count] = theel.genParticle()->pdgId();
+                    if (abs(theel.genParticle()->pdgId()) == 11) {
+                        good_matched_electron_pt->Fill(theel.pt());
+                        good_matched_electron_phi->Fill(theel.phi());
+                        good_matched_electron_eta->Fill(theel.eta());
+                        NumMatched++;
+                    }
+                    if (theel.genParticle()->mother()) {
+                        electron_has_gen_mother[electron_count] = 1;
+                        electron_gen_mother_pdgid[electron_count] = theel.genParticle()->mother()->pdgId();
+                    }
+                }
+
+                // end baby trees
+            } // end good electron loop
+        } // end all electron loop
+    }
+    all_electron_count->Fill(NumAll);
+    good_electron_count->Fill(NumGood);
+    good_matched_electron_count->Fill(NumMatched);
+    if(NumGood >= cElNum) { return (true); }
+    return (false);
+}
+
 Int_t RootMaker::getSuperClusterEl(const SuperClusterRef &A) {
-    if(cdebug) { cout<<"getSuperClusterEl..."<<endl; }
+    if(cdebug) cout<<"getSuperClusterEl..."<<endl;
     TVector3 testa(A->x(), A->y(), A->z());
     for(UInt_t i = 0 ; i < supercluster_count ; i++) {
         TVector3 testb(supercluster_x[i], supercluster_y[i], supercluster_z[i]);
@@ -3449,7 +4461,7 @@ Int_t RootMaker::getSuperClusterEl(const SuperClusterRef &A) {
 }
 
 Int_t RootMaker::getSuperClusterPh(const SuperClusterRef &A) {
-    if(cdebug) { cout<<"getSuperClusterPh..."<<endl; }
+    if(cdebug) cout<<"getSuperClusterPh..."<<endl;
     for(UInt_t i = 0 ; i < supercluster_count ; i++) {
         if(supercluster_rawe[i] == Float_t (A->rawEnergy())) {
             return (i);
@@ -3458,8 +4470,18 @@ Int_t RootMaker::getSuperClusterPh(const SuperClusterRef &A) {
     return (-1);
 }
 
+// for miniAOD, where trackRef is not available
+Int_t RootMaker::getPrimVertex(const pat::PackedCandidate *con) {
+    if(Vertices.isValid()) {
+        if (con->PVUsedInFit) { return  0; }
+        if (con->PVTight)     { return -1; }
+        if (con->PVLoose)     { return -2; }
+        if (con->NoPV)        { return -2; }
+    }
+    return (-2);
+}
+
 Int_t RootMaker::getPrimVertex(const Track &trk) {
-    if (cdebug) cout<<"getPrimVertex..."<<endl;
     if(Vertices.isValid()) {
         for(unsigned i = 0 ; i < Vertices->size(); i++) {
             if((*Vertices)[i].isValid() && !(*Vertices)[i].isFake()) {
@@ -3477,9 +4499,8 @@ bool RootMaker::AddVertices(const edm::Event &iEvent) {
     double mpi = 0.13957018;
     double mp = 0.93827203;
     edm::Handle<TrackCollection> Tracks;
-    iEvent.getByLabel(edm::InputTag("generalTracks"), Tracks);
-    edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
-    iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
+    iEvent.getByToken(recoTracksToken_, Tracks);
+    iEvent.getByToken(dharmonicToken_, dEdxharmonic2);
     if(cdebug) { cout<<"Tracks.isValid() = "<<Tracks.isValid()<<endl; }
     if(Tracks.isValid() && primvertex_count > 0) {
         KalmanVertexFitter fitter(true);
@@ -3566,10 +4587,9 @@ bool RootMaker::AddVertices(const edm::Event &iEvent) {
 
 bool RootMaker::AddMuVertices(const edm::Event &iEvent) {
     if (cdebug) cout<<"AddMuVertices..."<<endl;
-    edm::Handle<edm::ValueMap<DeDxData> > dEdxharmonic2;
-    iEvent.getByLabel(edm::InputTag("dedxHarmonic2"), dEdxharmonic2);
-    edm::Handle<MuonCollection> Muons;
-    iEvent.getByLabel(edm::InputTag("muons"), Muons);
+    iEvent.getByToken(dharmonicToken_, dEdxharmonic2);
+    edm::Handle<reco::MuonCollection> Muons;
+    iEvent.getByToken(recoMuonsToken_, Muons);
     int count = 0;
     if(Muons.isValid() && primvertex_count > 0) {
         vector<TransientTrack> testvec(2);
@@ -3655,7 +4675,6 @@ bool RootMaker::AddMuVertices(const edm::Event &iEvent) {
 }
 
 double RootMaker::DR(const Candidate &A, const Candidate &B) {
-    if (cdebug) cout<<"DR..."<<endl;
     //using namespace TMath;
     TLorentzVector TA(A.px(), A.py(), A.pz(), A.energy());
     TLorentzVector TB(B.px(), B.py(), B.pz(), B.energy());
@@ -3685,7 +4704,12 @@ void RootMaker::TriggerIndexSelection(vector<string> configstring, vector<pair<u
                     if(HLTConfiguration.saveTags(ModuleLabels[u])) {
                         allnames += HLTConfiguration.triggerName(i) + string(":") + ModuleLabels[u] + string(" ");
                         triggers.push_back(pair<unsigned, int> (TriggerIndex, u));
-                        cout << triggers.size() << ": " << HLTConfiguration.triggerName(i) << " " << TriggerIndex << " " << ModuleLabels[u] << " " << u << endl;
+                        //if (cdebug) { 
+                        //    cout<<"triggers.size() = "<<triggers.size()<< ": "<<endl;
+                        //    cout<<"HLTConfiguration.triggerName("<<i<<") = "<<HLTConfiguration.triggerName(i)<<endl;
+                        //    cout<<"TriggerIndex = "<<TriggerIndex<<endl;
+                        //    cout<<"ModuleLabels["<<u<<"] = "<<ModuleLabels[u]<<"\n"<<endl;
+                        //}
                         if("hltL1sL1DoubleMu10MuOpen" == ModuleLabels[u]) {
                             allnames += HLTConfiguration.triggerName(i) + string(":") + ModuleLabels[u] + string("gt10 ");
                             triggers.push_back(pair<unsigned, int> (TriggerIndex, -1*u));
