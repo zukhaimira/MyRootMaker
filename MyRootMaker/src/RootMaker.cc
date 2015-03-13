@@ -14,8 +14,8 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     dharmonicToken_(consumes<edm::ValueMap<DeDxData>>(iConfig.getParameter<edm::InputTag>("dEdxharmonic2"))),
     verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
 
-//  electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
-//  electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),
+  electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
+  electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),
 
     conversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("conversions"))),
     ak4pfchsJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfchsjets"))),
@@ -30,7 +30,6 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
 
     ebeeClustersToken_(consumes<vector<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("ebeeClusters"))),
     esClustersToken_(consumes<vector<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("esClusters"))),
-
     ebRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("barrelHits"))),
     eeRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("endcapHits"))),
     esRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("esHits"))),
@@ -4247,11 +4246,17 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
 
     // Look up the ID decision for this electron in 
     // the ValueMap object and store it. We need a Ptr object as the key.
-//    const Ptr<pat::Electron> elPtr(Electrons, itel - Electrons->begin() );
+    //const Ptr<pat::Electron> elPtr(Electrons, itel - Electrons->begin() );
+//    const Ptr<pat::Electron> elPtr(Electrons, n);
 //    bool isPassVeto  = (*veto_id_decisions)[ elPtr ];
 //    bool isPassTight = (*tight_id_decisions)[ elPtr ];
-//    passVetoId_.push_back( isPassVeto );
-//    passTightId_.push_back( isPassTight );
+    //passVetoId_.push_back( isPassVeto );
+    //passTightId_.push_back( isPassTight );
+      
+//            if (isPassVeto)  cout<<"veto electron"<<endl;
+//            if (isPassTight) cout<<"tight electron"<<endl;
+
+
 
             all_electron_pt->Fill(theel.pt());
             all_electron_phi->Fill(theel.phi());
@@ -4413,6 +4418,25 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
                     good_electron_phi->Fill(theel.phi());
                     good_electron_eta->Fill(theel.eta());
                 }
+
+                // cut based electron ID
+                // full5x5_sigmaIetaIeta:     full5x5_sigmaIetaIeta()
+                // fabs(dEtaIn):              deltaEtaSuperClusterTrackAtVtx() 
+                // abs(dPhiIn):               deltaPhiSuperClusterTrackAtVtx()
+                // hOverE                     hadronicOverEm()
+                // PF isolation w/dBeta PU correction / pT (cone dR=0.3)     
+                // ooEmooP                    fabs( (1/ecalEnergy()) - (1/trackMomentumAtVtx().p()) )
+                // abs(d0)                    fabs()
+                // abs(dz)                    fabs(electron_dz)
+                // expectedMissingInnerHits   electron_nhitsexpected
+                // pass conversion veto
+                //
+                // barrel
+                //if (fabs(theel.superCluster()->eta()) <= 1.479) {
+                //}
+                //if (fabs(theel.superCluster()->eta()) > 1.479 && fabs(theel.superCluster()->eta()) <=2.5) {
+                //}
+
                 // fill baby trees
                 electron_has_gen_particle[electron_count] = 0;
                 electron_gen_particle_pdgid[electron_count] = 0;

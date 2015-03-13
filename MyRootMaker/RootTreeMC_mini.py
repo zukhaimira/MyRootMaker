@@ -7,7 +7,9 @@ process.load('RecoJets.Configuration.RecoJetAssociations_cff')
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
 process.load('RecoBTag.Configuration.RecoBTag_cff')
 process.load('RecoJets.Configuration.RecoJetAssociations_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
@@ -28,15 +30,16 @@ process.source = cms.Source("PoolSource",
     )
 )
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions
-process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
+#process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
+process.GlobalTag.globaltag = cms.string('PHYS14_25_V1')
 process.makeroottree.isMiniAOD = cms.untracked.bool(True)
 
 
 
-process.makeroottree.debug = cms.untracked.bool(False)
+process.makeroottree.debug = cms.untracked.bool(True)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100000) 
+    input = cms.untracked.int32(100) 
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
@@ -44,7 +47,8 @@ process.TFileService = cms.Service("TFileService",
 	fileName = cms.string('AC1B_test_mini.root')
 )
 
-#process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
+process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
+
 process.makeroottree.RecMuonNum = cms.untracked.int32(0)
 process.makeroottree.RecElectronNum = cms.untracked.int32(0)
 process.makeroottree.RecAK4PFCHSNum = cms.untracked.int32(0)

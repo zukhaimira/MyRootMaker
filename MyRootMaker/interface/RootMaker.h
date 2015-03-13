@@ -774,10 +774,6 @@ private:
     Int_t ak4pfchsjet_mcflavour[M_jetmaxcount];
 
     UInt_t electron_count;
-
-//  std::vector<Int_t>   passVetoId_;     
-//  std::vector<Int_t>   passTightId_;   
-
     Int_t electron_vtx[M_electronmaxcount];
     Float_t electron_px[M_electronmaxcount];
     Float_t electron_py[M_electronmaxcount];
