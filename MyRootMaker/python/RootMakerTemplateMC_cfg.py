@@ -172,8 +172,9 @@ process.pfPileUp.checkClosestZVertex = False
 #
 #from RecoJets.JetProducers.puJetIDAlgo_cff import * 
 #from RecoJets.JetProducers.puJetIDParams_cfi import * 
-from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdProducer, _stdalgos_4x, _stdalgos_5x, _stdalgos, cutbased, _chsalgos_4x, _chsalgos_5x, _chsalgos 
-from RecoJets.JetProducers.PileupJetID_cfi import * 
+#from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdProducer, _stdalgos_4x, _stdalgos_5x, _stdalgos, cutbased, _chsalgos_4x, _chsalgos_5x, _chsalgos 
+from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdProducer, _stdalgos_5x, _stdalgos, cutbased, _chsalgos_5x, _chsalgos 
+#from RecoJets.JetProducers.PileupJetID_cfi import * 
 #process.load("RecoJets.JetProducers.PileupJetID_cfi")
 #process.load("RecoJets.JetProducers.puJetIDAlgo_cff")
 
@@ -384,10 +385,11 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     RecLambdaMasswin = cms.untracked.double(0.02),
 
     # INPUT TAGS ##################################################
+    rhoAll = cms.InputTag("fixedGridRhoAll", "", "RECO"),
     dEdxharmonic2 = cms.InputTag("dEdxharmonic2"),
     l1trigger = cms.InputTag("gtDigis"),
-    hltrigger = cms.InputTag("TriggerResults","", TriggerProcess),
-    hltriggerevent = cms.InputTag("hltTriggerSummaryAOD", "", TriggerProcess),
+    hltrigger = cms.InputTag("TriggerResults","", "HLT"), #TriggerProcess),
+    hltriggerevent = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"), #TriggerProcess),
     metFilterBits = cms.InputTag("TriggerResults", "", "PAT"),
     lostTracks = cms.InputTag("lostTracks", "", "PAT"), # mini only
     generalTracks = cms.InputTag("generalTracks"), # AOD only

@@ -12,8 +12,7 @@ process.source.fileNames = cms.untracked.vstring(
     #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/507A8AF3-D276-E411-87E5-002590A370B2.root', # 4000 events
     #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/68F5DFAD-FD76-E411-AAE0-002590200AE0.root', # 4600 events 
     #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/6C4F596C-E576-E411-B749-002590A4C69A.root', # 4900 events
-    #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/6E125622-FF76-E411-A4CC-001E67397747.root' # 7400 events
-    'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/1CA79CF9-F876-E411-BD55-001E67396E05.root'
+    'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/6E125622-FF76-E411-A4CC-001E67397747.root' # 7400 events
     #'root://cms-xrd-global.cern.ch/'
 )
 
@@ -26,7 +25,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
-process.makeroottree.isMiniAOD = cms.untracked.bool(False)
+#process.makeroottree.debug = cms.untracked.bool(True)
 
 
 
@@ -43,7 +42,6 @@ process.load('RecoBTag/Configuration/RecoBTag_cff')
 process.btag = cms.Path(process.btagging)
 
 # DEBUGGING
-process.makeroottree.debug = cms.untracked.bool(True)
 #process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
 #process.makeroottree.RecMuon = cms.untracked.bool(False)
 #process.makeroottree.RecElectron = cms.untracked.bool(False)
@@ -63,6 +61,7 @@ process.makeroottree.GenAllParticles = cms.untracked.bool(False)
 process.makeroottree.GenSomeParticles = cms.untracked.bool(True)
 process.makeroottree.GenAK4Jets = cms.untracked.bool(True)
 
+process.makeroottree.isMiniAOD = cms.untracked.bool(False)
 process.schedule = cms.Schedule(
 process.vertex_step,
 process.filters_step,

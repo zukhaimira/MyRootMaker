@@ -302,6 +302,8 @@ private:
     math::XYZPoint PositionOnECalSurface(reco::TransientTrack &);
     Int_t getSuperClusterPh(const SuperClusterRef &A);
     Int_t getSuperClusterEl(const SuperClusterRef &A);
+    Int_t getCBElectronID(const pat::Electron &theel);
+    Int_t getCBElectronID(const reco::GsfElectron &theel);
     Int_t getPrimVertex(const pat::PackedCandidate *con);
     Int_t getPrimVertex(const Track &trk);
     //Int_t getSuperCluster(const Candidate& A);
@@ -785,9 +787,7 @@ private:
     Float_t electron_trackchi2[M_electronmaxcount];
     Float_t electron_trackndof[M_electronmaxcount];
 
-    Int_t electron_is_veto[M_electronmaxcount];
-    Int_t electron_is_loose[M_electronmaxcount];
-    Int_t electron_is_tight[M_electronmaxcount];
+    Int_t electron_cb_id[M_electronmaxcount];
 
     Int_t electron_has_gen_particle[M_electronmaxcount];
     Int_t electron_gen_particle_pdgid[M_electronmaxcount];

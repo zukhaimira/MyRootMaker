@@ -1,6 +1,5 @@
 from MyRootMaker.MyRootMaker.RootMakerTemplateMC_mini_cfg import *
 
-process.makeroottree.debug = cms.untracked.bool(True)
 
 process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 process.load('RecoJets.Configuration.RecoJetAssociations_cff')
@@ -22,10 +21,10 @@ process.inclusiveSecondaryVertexFinderTagInfos.extSVCollection = cms.InputTag("u
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/C20B68E7-0277-E411-85E5-001E67396A22.root', # 35400 events
-        #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/6856B40F-0C77-E411-893D-D8D385FF7678.root', # 37500 events
-        #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/E601D324-FA76-E411-B2A3-0025B3E066A4.root' # 38200 events
-        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root' # 38200 events
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/C20B68E7-0277-E411-85E5-001E67396A22.root', # 35400 events
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/6856B40F-0C77-E411-893D-D8D385FF7678.root', # 37500 events
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/E601D324-FA76-E411-B2A3-0025B3E066A4.root' # 38200 events
+        #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root'
         #'file:TTbarH_M-125_13TeV_mini_PU40bx25_PHYS14_25_V1_file2.root'
     )
 )
@@ -36,11 +35,11 @@ process.makeroottree.isMiniAOD = cms.untracked.bool(True)
 
 
 
-process.makeroottree.debug = cms.untracked.bool(True)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100) 
+    input = cms.untracked.int32(100000) 
 )
+#process.makeroottree.debug = cms.untracked.bool(True)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.TFileService = cms.Service("TFileService",
