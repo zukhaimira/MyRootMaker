@@ -14,8 +14,8 @@ Recipe:
     cp /afs/cern.ch/user/i/ikrav/public/EGMCode/GsfEleFull5x5SigmaIEtaIEtaCut72X.cc RecoEgamma/ElectronIdentification/plugins/cuts/
     cp /afs/cern.ch/user/i/ikrav/public/EGMCode/cutBasedElectronID_PHYS14_PU20bx25_V0_miniAOD_cff.py RecoEgamma/ElectronIdentification/python/Identification/
 
-    git clone git@github.com:ekenn003/PFIsolation.git
-    git clone git@github.com:ekenn003/MyRootMaker.git
+    git clone https://github.com:ekenn003/PFIsolation.git
+    git clone https://github.com:ekenn003/MyRootMaker.git
 
     scram b -j 8
     
