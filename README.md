@@ -18,3 +18,5 @@ Recipe:
     git clone git@github.com:ekenn003/MyRootMaker.git
 
     scram b -j 8
+    
+    cmsRun MyRootMaker/MyRootMaker/RootTreeMC_mini.py    
