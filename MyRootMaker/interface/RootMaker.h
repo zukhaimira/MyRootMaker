@@ -302,8 +302,6 @@ private:
     math::XYZPoint PositionOnECalSurface(reco::TransientTrack &);
     Int_t getSuperClusterPh(const SuperClusterRef &A);
     Int_t getSuperClusterEl(const SuperClusterRef &A);
-    Int_t getCBElectronID(const pat::Electron &theel);
-    Int_t getCBElectronID(const reco::GsfElectron &theel);
     Int_t getPrimVertex(const pat::PackedCandidate *con);
     Int_t getPrimVertex(const Track &trk);
     //Int_t getSuperCluster(const Candidate& A);
