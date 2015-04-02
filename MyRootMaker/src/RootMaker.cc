@@ -19,6 +19,12 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     dharmonicToken_(consumes<edm::ValueMap<DeDxData>>(iConfig.getParameter<edm::InputTag>("dEdxharmonic2"))),
     verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
 
+<<<<<<< HEAD
+=======
+    electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
+    electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),
+
+>>>>>>> abfe662e141e7e8d4a3214e352a696a58420539a
     conversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("conversions"))),
     ak4pfchsJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfchsjets"))),
     genSimParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genSimParticles"))),
@@ -4595,7 +4601,6 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
                 electron_gapinfo[electron_count] |= theel.isEBEEGap() << 8;
 
                 electron_cb_id[electron_count] = -1;
-                electron_cb_id[electron_count] = getCBElectronID(theel);
 
                 edm::Handle<reco::TrackCollection> ctfTracks;
                 iEvent.getByToken(recoTracksToken_, ctfTracks);
@@ -4708,12 +4713,22 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
     edm::Handle<reco::ConversionCollection> Conversions;
     iEvent.getByToken(conversionsToken_, Conversions);
 
+<<<<<<< HEAD
     if(cdebug) {
         cout<<"pat Electrons.isValid() = "<<Electrons.isValid()<<endl;
     }
     if(cdebug) {
         cout<<"pat Electrons->size() = "<<Electrons->size()<<endl;
     }
+=======
+  edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
+  edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
+  iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
+  iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);
+
+    if(cdebug) cout<<"pat Electrons.isValid() = "<<Electrons.isValid()<<endl;
+    if(cdebug) cout<<"pat Electrons->size() = "<<Electrons->size()<<endl;
+>>>>>>> abfe662e141e7e8d4a3214e352a696a58420539a
     NumAll = Electrons->size();
     if(Electrons.isValid()) {
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
@@ -4723,6 +4738,17 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
             all_electron_eta->Fill(theel.eta());
 
             pat::ElectronRef refel(Electrons, n);
+    // Look up the ID decision for this electron in 
+    // the ValueMap object and store it. We need a Ptr object as the key.
+    //const Ptr<pat::Electron> elPtr(*Electrons)[n];
+    //const Ptr<pat::Electron> elPtr(Electrons,n);
+    //bool isPassVeto  = (*veto_id_decisions)[ elPtr ];  cout<<"isPassVeto  = "<<isPassVeto<<endl;
+    //bool isPassTight = (*tight_id_decisions)[ elPtr ]; cout<<"isPassTight = "<<isPassTight<<endl;
+    bool isPassVeto  = (*veto_id_decisions)[ refel ];  cout<<"isPassVeto  = "<<isPassVeto<<endl;
+    bool isPassTight = (*tight_id_decisions)[ refel ]; cout<<"isPassTight = "<<isPassTight<<endl;
+
+
+
             if(theel.pt() > cElFilterPtMin && TMath::Abs(theel.eta()) < cElFilterEtaMax) {
                 electron_px[electron_count] = theel.px();
                 electron_py[electron_count] = theel.py();
@@ -4780,7 +4806,6 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
                 electron_gapinfo[electron_count] |= theel.isEBEEGap() << 8;
 
                 electron_cb_id[electron_count] = -1;
-                electron_cb_id[electron_count] = getCBElectronID(theel);
 
 // NOTE
                 /*
@@ -4930,6 +4955,7 @@ Int_t RootMaker::getSuperClusterPh(const SuperClusterRef &A) {
     return (-1);
 }
 
+<<<<<<< HEAD
 
 
 // manual cut based electron ID
@@ -5229,6 +5255,8 @@ Int_t RootMaker::getCBElectronID(const reco::GsfElectron &theel) {
     return (-1);
 }
 
+=======
+>>>>>>> abfe662e141e7e8d4a3214e352a696a58420539a
 // for miniAOD, where trackRef is not available
 Int_t RootMaker::getPrimVertex(const pat::PackedCandidate *con) {
     if(Vertices.isValid()) {
