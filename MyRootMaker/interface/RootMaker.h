@@ -205,11 +205,13 @@ private:
 
     // tokens
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1TriggerToken_;
+
+      edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
+      edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+      edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
+
     edm::EDGetTokenT<edm::ValueMap<DeDxData>> dharmonicToken_;
     edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
-
-      edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken_;
-      edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken_;
 
     edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
     edm::EDGetTokenT<pat::JetCollection> ak4pfchsJetsToken_;

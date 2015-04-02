@@ -43,37 +43,6 @@ process.TFileService = cms.Service("TFileService",
 
 #process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
 
-##
-## START ELECTRON ID SECTION
-##
-## Set up everything that is needed to compute electron IDs and
-## add the ValueMaps with ID decisions into the event data stream
-##
-#
-## Load tools and function definitions
-#from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-#
-#process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
-## overwrite a default parameter: for miniAOD, the collection name is a slimmed one
-#process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
-#
-#from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-#process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
-#
-## Define which IDs we want to produce
-## Each of these two example IDs contains all four standard 
-## cut-based ID working points (only two WP of the PU20bx25 are actually used here).
-#my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V1_miniAOD_cff']
-##Add them to the VID producer
-#for idmod in my_id_modules:
-#    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-#
-## Do not forget to add the egmGsfElectronIDSequence to the path,
-## as in the example below!
-#
-##
-## END ELECTRON ID SECTION
-##
 
 # ROOTMAKER #########################################################################################
 process.makeroottree = cms.EDAnalyzer("RootMaker",
@@ -84,7 +53,7 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     # TRIGGER #####################################################
     HLTriggerSelection = cms.untracked.vstring(),
     TriggerProcess = cms.untracked.string('HLT'), #REDIGI311X'),
-    Trigger = cms.untracked.bool(False),
+    Trigger = cms.untracked.bool(True),
 
     # MUONS #######################################################
     RecMuonHLTriggerMatching = cms.untracked.vstring(
@@ -96,6 +65,14 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
         'HLT_IsoMu(24|30)_eta2p1_v.*',
         'HLT_Mu40_v.*',
         'HLT_Mu50_eta2p1_v.*',
+
+        'HLT_Mu17_Mu8_v.*',
+        'HLT_Mu17_TkMu8_v.*',
+        'HLT_Mu30_TkMu11_v.*',
+        'HLT_IsoTkMu24_IterTrk02_v.*',
+        'HLT_IsoTkMu24_eta2p1_IterTrk02_v.*',
+        'HLT_DoubleMu33NoFiltersNoVtx_v.*',
+
         'HLT_Mu40_eta2p1_v.*'
     ),
 
@@ -106,11 +83,6 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     RecMuonNum = cms.untracked.int32(1000),
     
     # ELECTRONS and PHOTONS #######################################
-    #electronVetoIdMap = cms.InputTag('egmGsfElectronIDs:cutBasedElectronID-CSA14-50ns-V1-standalone-veto'),
-    #electronTightIdMap = cms.InputTag('egmGsfElectronIDs:cutBasedElectronID-CSA14-50ns-V1-standalone-tight'),
-    electronVetoIdMap = cms.InputTag('egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V0-miniAOD-standalone-veto'),
-    electronTightIdMap = cms.InputTag('egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V0-miniAOD-standalone-tight'),
-
     RecElectronHLTriggerMatching = cms.untracked.vstring(
         'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v.*:FilterTrue',
         'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v.*:FilterTrue',
@@ -202,9 +174,13 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     RecLambdaMasswin = cms.untracked.double(0.02),
 
     # INPUT TAGS ##################################################
+    bits = cms.InputTag("TriggerResults","","HLT"),
+    prescales = cms.InputTag("patTrigger"),
+    objects = cms.InputTag("selectedPatTrigger"),
+
     dEdxharmonic2 = cms.InputTag("dEdxharmonic2"),
     l1trigger = cms.InputTag("gtDigis"),
-    metFilterBits = cms.InputTag("TriggerResults", "", "PAT"),
+#    metFilterBits = cms.InputTag("TriggerResults", "", "PAT"),
     lostTracks = cms.InputTag("lostTracks", "", "PAT"), # mini only
     generalTracks = cms.InputTag("generalTracks"), # AOD only
     unpackedTracks = cms.InputTag("unpackedTracksAndVertices"), # mini only
@@ -246,6 +222,6 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
 )
 
 process.p = cms.Path(
-    #process.egmGsfElectronIDSequence *
+#    process.egmGsfElectronIDSequence *
     process.makeroottree
 )

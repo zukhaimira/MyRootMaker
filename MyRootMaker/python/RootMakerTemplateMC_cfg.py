@@ -385,6 +385,9 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     RecLambdaMasswin = cms.untracked.double(0.02),
 
     # INPUT TAGS ##################################################
+    bits = cms.InputTag("TriggerResults","","HLT"),
+    prescales = cms.InputTag("patTrigger"),
+    objects = cms.InputTag("selectedPatTrigger"),
     rhoAll = cms.InputTag("fixedGridRhoAll", "", "RECO"),
     dEdxharmonic2 = cms.InputTag("dEdxharmonic2"),
     l1trigger = cms.InputTag("gtDigis"),

@@ -12,18 +12,19 @@ process.source.fileNames = cms.untracked.vstring(
     #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/507A8AF3-D276-E411-87E5-002590A370B2.root', # 4000 events
     #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/68F5DFAD-FD76-E411-AAE0-002590200AE0.root', # 4600 events 
     #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/6C4F596C-E576-E411-B749-002590A4C69A.root', # 4900 events
-    'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/6E125622-FF76-E411-A4CC-001E67397747.root' # 7400 events
+    #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU40bx25_PHYS14_25_V1-v1/00000/6E125622-FF76-E411-A4CC-001E67397747.root' # 7400 events
     #'root://cms-xrd-global.cern.ch/'
+    'file:/afs/cern.ch/work/e/ekennedy/work/tuplizer/miniAOD/CMSSW_7_2_4/src/TTbarH_M-125_13TeV_aod_PU40bx25_PHYS14_25_V1_file.root'
 )
 
 process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
 
 #process.source.skipEvents=cms.untracked.uint32(290)
-process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 # also overridden by crab.cfg
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
 )
 #process.makeroottree.debug = cms.untracked.bool(True)
 
