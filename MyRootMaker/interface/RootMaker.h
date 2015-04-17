@@ -587,6 +587,7 @@ private:
     Float_t supercluster_escluster_hit_z[M_superclusterhitmaxcount];
 
     UInt_t muon_count;
+    Float_t muon_muID[M_muonmaxcount];
     Float_t muon_px[M_muonmaxcount];
     Float_t muon_py[M_muonmaxcount];
     Float_t muon_pz[M_muonmaxcount];

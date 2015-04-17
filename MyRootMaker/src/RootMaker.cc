@@ -19,12 +19,9 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     dharmonicToken_(consumes<edm::ValueMap<DeDxData>>(iConfig.getParameter<edm::InputTag>("dEdxharmonic2"))),
     verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
 
-<<<<<<< HEAD
-=======
-    electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
-    electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),
+    //electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
+    //electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),
 
->>>>>>> abfe662e141e7e8d4a3214e352a696a58420539a
     conversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("conversions"))),
     ak4pfchsJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfchsjets"))),
     genSimParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genSimParticles"))),
@@ -386,6 +383,7 @@ void RootMaker::beginJob() {
     tree->Branch("supercluster_escluster_hit_z", supercluster_escluster_hit_z, "supercluster_escluster_hit_z[supercluster_escluster_hit_count]/F");
 
     tree->Branch("muon_count", &muon_count, "muon_count/i");
+    tree->Branch("muon_muID", &muon_muID, "muon_muID/i");
     tree->Branch("muon_px", muon_px, "muon_px[muon_count]/F");
     tree->Branch("muon_py", muon_py, "muon_py[muon_count]/F");
     tree->Branch("muon_pz", muon_pz, "muon_pz[muon_count]/F");
@@ -2126,6 +2124,7 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
             all_muon_pt->Fill(themu.pt());
             all_muon_phi->Fill(themu.phi());
             all_muon_eta->Fill(themu.eta());
+            
             muon_px[muon_count] = themu.px();
             muon_py[muon_count] = themu.py();
             muon_pz[muon_count] = themu.pz();
@@ -2381,9 +2380,7 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
 }
 
 bool RootMaker::AddPatMuons(const edm::Event &iEvent) {
-    if(cdebug) {
-        cout<<"AddPatMuons..."<<endl;
-    }
+    if(cdebug) cout<<"AddPatMuons..."<<endl;
     int NumAll = 0;
     int NumTracker = 0;
     int NumGlobal = 0;
@@ -2392,12 +2389,8 @@ bool RootMaker::AddPatMuons(const edm::Event &iEvent) {
     int NumMatched = 0;
     edm::Handle<pat::MuonCollection> Muons;
     iEvent.getByToken(patMuonsToken_, Muons);
-    if(cdebug) {
-        cout<<"pat Muons.isValid() = "<<Muons.isValid()<<endl;
-    }
-    if(cdebug) {
-        cout<<"pat Muons->size() = "<<Muons->size()<<endl;
-    }
+    if(cdebug) cout<<"pat Muons.isValid() = "<<Muons.isValid()<<endl;
+    if(cdebug) cout<<"pat Muons->size() = "<<Muons->size()<<endl;
     NumAll = Muons->size();
     if(Muons.isValid()) {
         for(unsigned i = 0 ; i < Muons->size() ; i++) {
@@ -2405,6 +2398,11 @@ bool RootMaker::AddPatMuons(const edm::Event &iEvent) {
             all_muon_pt->Fill(themu.pt());
             all_muon_phi->Fill(themu.phi());
             all_muon_eta->Fill(themu.eta());
+            muon_muID[muon_count] = 0;
+            if (themu.isLooseMuon()) muon_muID[muon_count] = 2;
+            if (themu.isSoftMuon((*Vertices)[0])) muon_muID[muon_count] = 3;
+            if (themu.isTightMuon((*Vertices)[0])) muon_muID[muon_count] = 4;
+cout<<"muID = "<<muon_muID[muon_count]<<endl;
             muon_px[muon_count] = themu.px();
             muon_py[muon_count] = themu.py();
             muon_pz[muon_count] = themu.pz();
@@ -4713,22 +4711,19 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
     edm::Handle<reco::ConversionCollection> Conversions;
     iEvent.getByToken(conversionsToken_, Conversions);
 
-<<<<<<< HEAD
     if(cdebug) {
         cout<<"pat Electrons.isValid() = "<<Electrons.isValid()<<endl;
     }
     if(cdebug) {
         cout<<"pat Electrons->size() = "<<Electrons->size()<<endl;
     }
-=======
-  edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
-  edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
-  iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
-  iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);
+  //edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
+  //edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
+  //iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
+  //iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);
 
     if(cdebug) cout<<"pat Electrons.isValid() = "<<Electrons.isValid()<<endl;
     if(cdebug) cout<<"pat Electrons->size() = "<<Electrons->size()<<endl;
->>>>>>> abfe662e141e7e8d4a3214e352a696a58420539a
     NumAll = Electrons->size();
     if(Electrons.isValid()) {
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
@@ -4744,8 +4739,8 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
     //const Ptr<pat::Electron> elPtr(Electrons,n);
     //bool isPassVeto  = (*veto_id_decisions)[ elPtr ];  cout<<"isPassVeto  = "<<isPassVeto<<endl;
     //bool isPassTight = (*tight_id_decisions)[ elPtr ]; cout<<"isPassTight = "<<isPassTight<<endl;
-    bool isPassVeto  = (*veto_id_decisions)[ refel ];  cout<<"isPassVeto  = "<<isPassVeto<<endl;
-    bool isPassTight = (*tight_id_decisions)[ refel ]; cout<<"isPassTight = "<<isPassTight<<endl;
+    //bool isPassVeto  = (*veto_id_decisions)[ refel ];  cout<<"isPassVeto  = "<<isPassVeto<<endl;
+    //bool isPassTight = (*tight_id_decisions)[ refel ]; cout<<"isPassTight = "<<isPassTight<<endl;
 
 
 
@@ -4955,308 +4950,304 @@ Int_t RootMaker::getSuperClusterPh(const SuperClusterRef &A) {
     return (-1);
 }
 
-<<<<<<< HEAD
 
+//// manual cut based electron ID
+//Int_t RootMaker::getCBElectronID(const pat::Electron &theel) {
+//    if(cdebug) {
+//        cout<<"getCBElectronID..."<<endl;
+//    }
+//
+//    float superClusterEta = theel.superCluster()->eta();
+//    float full5x5 = theel.full5x5_sigmaIetaIeta();
+//    float dEtaIn = abs(theel.deltaEtaSuperClusterTrackAtVtx());
+//    float dPhiIn = abs(theel.deltaPhiSuperClusterTrackAtVtx());
+//    float hOverE = theel.hadronicOverEm();
+//    float relIso = (theel.pfIsolationVariables().sumChargedHadronPt + std::max(0.0, theel.pfIsolationVariables().sumNeutralHadronEt + theel.pfIsolationVariables().sumPhotonEt - 0.5*theel.pfIsolationVariables().sumPUPt)) / theel.pt();
+//    float ooEmooP = fabs((1/theel.ecalEnergy()) - (1/(theel.ecalEnergy() / theel.eSuperClusterOverP())));
+//    float absd0 = fabs(theel.gsfTrack()->dxy(pv_position));
+//    float absdz = fabs(theel.gsfTrack()->dz(pv_position));
+//    int   expHits = theel.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+//    int   passConv = theel.passConversionVeto();
+//
+//    // PHYS14 selection, conditions: PU20 bx25
+//    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
+//    if(fabs(superClusterEta) <= 1.479) {
+//        // BARREL TIGHT
+//        if(
+//            full5x5  < 0.010181 &&
+//            dEtaIn   < 0.006574 &&
+//            dPhiIn   < 0.022868 &&
+//            hOverE   < 0.037553 &&
+//            relIso   < 0.074355 &&
+//            ooEmooP  < 0.131191 &&
+//            absd0    < 0.009924 &&
+//            absdz    < 0.015310 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (4);
+//        }
+//        // BARREL MEDIUM
+//        if(
+//            full5x5  < 0.010399 &&
+//            dEtaIn   < 0.007641 &&
+//            dPhiIn   < 0.032643 &&
+//            hOverE   < 0.060662 &&
+//            relIso   < 0.097213 &&
+//            ooEmooP  < 0.153897 &&
+//            absd0    < 0.011811 &&
+//            absdz    < 0.070775 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (3);
+//        }
+//        // BARREL LOOSE
+//        if(
+//            full5x5  < 0.010557 &&
+//            dEtaIn   < 0.012442 &&
+//            dPhiIn   < 0.072624 &&
+//            hOverE   < 0.121476 &&
+//            relIso   < 0.120026 &&
+//            ooEmooP  < 0.221803 &&
+//            absd0    < 0.022664 &&
+//            absdz    < 0.173670 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (2);
+//        }
+//        // BARREL VETO
+//        if(
+//            full5x5  < 0.011100 &&
+//            dEtaIn   < 0.016315 &&
+//            dPhiIn   < 0.252044 &&
+//            hOverE   < 0.345843 &&
+//            relIso   < 0.164369 &&
+//            ooEmooP  < 0.248070 &&
+//            absd0    < 0.060279 &&
+//            absdz    < 0.800538 &&
+//            expHits  <= 2       &&
+//            passConv == 1
+//        ) {
+//            return (1);
+//        }
+//    }
+//    // ENDCAP
+//    else if(fabs(superClusterEta) > 1.479 && fabs(superClusterEta) <=2.5) {
+//        // ENDCAP TIGHT
+//        if(
+//            full5x5  < 0.028766 &&
+//            dEtaIn   < 0.005681 &&
+//            dPhiIn   < 0.032046 &&
+//            hOverE   < 0.081902 &&
+//            relIso   < 0.090185 &&
+//            ooEmooP  < 0.106055 &&
+//            absd0    < 0.027261 &&
+//            absdz    < 0.147154 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (4);
+//        }
+//        // ENDCAP MEDIUM
+//        if(
+//            full5x5  < 0.029524 &&
+//            dEtaIn   < 0.009285 &&
+//            dPhiIn   < 0.042447 &&
+//            hOverE   < 0.104263 &&
+//            relIso   < 0.116708 &&
+//            ooEmooP  < 0.137468 &&
+//            absd0    < 0.051682 &&
+//            absdz    < 0.180720 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (3);
+//        }
+//        // ENDCAP LOOSE
+//        if(
+//            full5x5  < 0.032602 &&
+//            dEtaIn   < 0.010654 &&
+//            dPhiIn   < 0.145129 &&
+//            hOverE   < 0.131862 &&
+//            relIso   < 0.162914 &&
+//            ooEmooP  < 0.142283 &&
+//            absd0    < 0.097358 &&
+//            absdz    < 0.198444 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (2);
+//        }
+//        // ENDCAP VETO
+//        if(
+//            full5x5  < 0.033987 &&
+//            dEtaIn   < 0.010671 &&
+//            dPhiIn   < 0.245263 &&
+//            hOverE   < 0.134691 &&
+//            relIso   < 0.212604 &&
+//            ooEmooP  < 0.157160 &&
+//            absd0    < 0.273097 &&
+//            absdz    < 0.885860 &&
+//            expHits  <= 3       &&
+//            passConv == 1
+//        ) {
+//            return (1);
+//        }
+//    } // end endcap
+//    return (-1);
+//}
+//
+//// manual cut based electron ID
+//Int_t RootMaker::getCBElectronID(const reco::GsfElectron &theel) {
+//    if(cdebug) {
+//        cout<<"getCBElectronID..."<<endl;
+//    }
+//
+//    float superClusterEta = theel.superCluster()->eta();
+//    float full5x5 = theel.full5x5_sigmaIetaIeta();
+//    float dEtaIn = abs(theel.deltaEtaSuperClusterTrackAtVtx());
+//    float dPhiIn = abs(theel.deltaPhiSuperClusterTrackAtVtx());
+//    float hOverE = theel.hadronicOverEm();
+//    float relIso = (theel.pfIsolationVariables().sumChargedHadronPt + std::max(0.0, theel.pfIsolationVariables().sumNeutralHadronEt + theel.pfIsolationVariables().sumPhotonEt - 0.5*theel.pfIsolationVariables().sumPUPt)) / theel.pt();
+//    float ooEmooP = fabs((1/theel.ecalEnergy()) - (1/(theel.ecalEnergy() / theel.eSuperClusterOverP())));
+//    float absd0 = fabs(theel.gsfTrack()->dxy(pv_position));
+//    float absdz = fabs(theel.gsfTrack()->dz(pv_position));
+//    int   expHits = theel.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+//    //int   passConv = theel.passConversionVeto();
+//    int   passConv = 1;
+//
+//    // PHYS14 selection, conditions: PU20 bx25
+//    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
+//    if(fabs(superClusterEta) <= 1.479) {
+//        // BARREL TIGHT
+//        if(
+//            full5x5  < 0.010181 &&
+//            dEtaIn   < 0.006574 &&
+//            dPhiIn   < 0.022868 &&
+//            hOverE   < 0.037553 &&
+//            relIso   < 0.074355 &&
+//            ooEmooP  < 0.131191 &&
+//            absd0    < 0.009924 &&
+//            absdz    < 0.015310 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (4);
+//        }
+//        // BARREL MEDIUM
+//        if(
+//            full5x5  < 0.010399 &&
+//            dEtaIn   < 0.007641 &&
+//            dPhiIn   < 0.032643 &&
+//            hOverE   < 0.060662 &&
+//            relIso   < 0.097213 &&
+//            ooEmooP  < 0.153897 &&
+//            absd0    < 0.011811 &&
+//            absdz    < 0.070775 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (3);
+//        }
+//        // BARREL LOOSE
+//        if(
+//            full5x5  < 0.010557 &&
+//            dEtaIn   < 0.012442 &&
+//            dPhiIn   < 0.072624 &&
+//            hOverE   < 0.121476 &&
+//            relIso   < 0.120026 &&
+//            ooEmooP  < 0.221803 &&
+//            absd0    < 0.022664 &&
+//            absdz    < 0.173670 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (2);
+//        }
+//        // BARREL VETO
+//        if(
+//            full5x5  < 0.011100 &&
+//            dEtaIn   < 0.016315 &&
+//            dPhiIn   < 0.252044 &&
+//            hOverE   < 0.345843 &&
+//            relIso   < 0.164369 &&
+//            ooEmooP  < 0.248070 &&
+//            absd0    < 0.060279 &&
+//            absdz    < 0.800538 &&
+//            expHits  <= 2       &&
+//            passConv == 1
+//        ) {
+//            return (1);
+//        }
+//    }
+//    // ENDCAP
+//    else if(fabs(superClusterEta) > 1.479 && fabs(superClusterEta) <=2.5) {
+//        // ENDCAP TIGHT
+//        if(
+//            full5x5  < 0.028766 &&
+//            dEtaIn   < 0.005681 &&
+//            dPhiIn   < 0.032046 &&
+//            hOverE   < 0.081902 &&
+//            relIso   < 0.090185 &&
+//            ooEmooP  < 0.106055 &&
+//            absd0    < 0.027261 &&
+//            absdz    < 0.147154 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (4);
+//        }
+//        // ENDCAP MEDIUM
+//        if(
+//            full5x5  < 0.029524 &&
+//            dEtaIn   < 0.009285 &&
+//            dPhiIn   < 0.042447 &&
+//            hOverE   < 0.104263 &&
+//            relIso   < 0.116708 &&
+//            ooEmooP  < 0.137468 &&
+//            absd0    < 0.051682 &&
+//            absdz    < 0.180720 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (3);
+//        }
+//        // ENDCAP LOOSE
+//        if(
+//            full5x5  < 0.032602 &&
+//            dEtaIn   < 0.010654 &&
+//            dPhiIn   < 0.145129 &&
+//            hOverE   < 0.131862 &&
+//            relIso   < 0.162914 &&
+//            ooEmooP  < 0.142283 &&
+//            absd0    < 0.097358 &&
+//            absdz    < 0.198444 &&
+//            expHits  <= 1       &&
+//            passConv == 1
+//        ) {
+//            return (2);
+//        }
+//        // ENDCAP VETO
+//        if(
+//            full5x5  < 0.033987 &&
+//            dEtaIn   < 0.010671 &&
+//            dPhiIn   < 0.245263 &&
+//            hOverE   < 0.134691 &&
+//            relIso   < 0.212604 &&
+//            ooEmooP  < 0.157160 &&
+//            absd0    < 0.273097 &&
+//            absdz    < 0.885860 &&
+//            expHits  <= 3       &&
+//            passConv == 1
+//        ) {
+//            return (1);
+//        }
+//    } // end endcap
+//    return (-1);
+//}
 
-// manual cut based electron ID
-Int_t RootMaker::getCBElectronID(const pat::Electron &theel) {
-    if(cdebug) {
-        cout<<"getCBElectronID..."<<endl;
-    }
-
-    float superClusterEta = theel.superCluster()->eta();
-    float full5x5 = theel.full5x5_sigmaIetaIeta();
-    float dEtaIn = abs(theel.deltaEtaSuperClusterTrackAtVtx());
-    float dPhiIn = abs(theel.deltaPhiSuperClusterTrackAtVtx());
-    float hOverE = theel.hadronicOverEm();
-    float relIso = (theel.pfIsolationVariables().sumChargedHadronPt + std::max(0.0, theel.pfIsolationVariables().sumNeutralHadronEt + theel.pfIsolationVariables().sumPhotonEt - 0.5*theel.pfIsolationVariables().sumPUPt)) / theel.pt();
-    float ooEmooP = fabs((1/theel.ecalEnergy()) - (1/(theel.ecalEnergy() / theel.eSuperClusterOverP())));
-    float absd0 = fabs(theel.gsfTrack()->dxy(pv_position));
-    float absdz = fabs(theel.gsfTrack()->dz(pv_position));
-    int   expHits = theel.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
-    int   passConv = theel.passConversionVeto();
-
-    // PHYS14 selection, conditions: PU20 bx25
-    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
-    if(fabs(superClusterEta) <= 1.479) {
-        // BARREL TIGHT
-        if(
-            full5x5  < 0.010181 &&
-            dEtaIn   < 0.006574 &&
-            dPhiIn   < 0.022868 &&
-            hOverE   < 0.037553 &&
-            relIso   < 0.074355 &&
-            ooEmooP  < 0.131191 &&
-            absd0    < 0.009924 &&
-            absdz    < 0.015310 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (4);
-        }
-        // BARREL MEDIUM
-        if(
-            full5x5  < 0.010399 &&
-            dEtaIn   < 0.007641 &&
-            dPhiIn   < 0.032643 &&
-            hOverE   < 0.060662 &&
-            relIso   < 0.097213 &&
-            ooEmooP  < 0.153897 &&
-            absd0    < 0.011811 &&
-            absdz    < 0.070775 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (3);
-        }
-        // BARREL LOOSE
-        if(
-            full5x5  < 0.010557 &&
-            dEtaIn   < 0.012442 &&
-            dPhiIn   < 0.072624 &&
-            hOverE   < 0.121476 &&
-            relIso   < 0.120026 &&
-            ooEmooP  < 0.221803 &&
-            absd0    < 0.022664 &&
-            absdz    < 0.173670 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (2);
-        }
-        // BARREL VETO
-        if(
-            full5x5  < 0.011100 &&
-            dEtaIn   < 0.016315 &&
-            dPhiIn   < 0.252044 &&
-            hOverE   < 0.345843 &&
-            relIso   < 0.164369 &&
-            ooEmooP  < 0.248070 &&
-            absd0    < 0.060279 &&
-            absdz    < 0.800538 &&
-            expHits  <= 2       &&
-            passConv == 1
-        ) {
-            return (1);
-        }
-    }
-    // ENDCAP
-    else if(fabs(superClusterEta) > 1.479 && fabs(superClusterEta) <=2.5) {
-        // ENDCAP TIGHT
-        if(
-            full5x5  < 0.028766 &&
-            dEtaIn   < 0.005681 &&
-            dPhiIn   < 0.032046 &&
-            hOverE   < 0.081902 &&
-            relIso   < 0.090185 &&
-            ooEmooP  < 0.106055 &&
-            absd0    < 0.027261 &&
-            absdz    < 0.147154 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (4);
-        }
-        // ENDCAP MEDIUM
-        if(
-            full5x5  < 0.029524 &&
-            dEtaIn   < 0.009285 &&
-            dPhiIn   < 0.042447 &&
-            hOverE   < 0.104263 &&
-            relIso   < 0.116708 &&
-            ooEmooP  < 0.137468 &&
-            absd0    < 0.051682 &&
-            absdz    < 0.180720 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (3);
-        }
-        // ENDCAP LOOSE
-        if(
-            full5x5  < 0.032602 &&
-            dEtaIn   < 0.010654 &&
-            dPhiIn   < 0.145129 &&
-            hOverE   < 0.131862 &&
-            relIso   < 0.162914 &&
-            ooEmooP  < 0.142283 &&
-            absd0    < 0.097358 &&
-            absdz    < 0.198444 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (2);
-        }
-        // ENDCAP VETO
-        if(
-            full5x5  < 0.033987 &&
-            dEtaIn   < 0.010671 &&
-            dPhiIn   < 0.245263 &&
-            hOverE   < 0.134691 &&
-            relIso   < 0.212604 &&
-            ooEmooP  < 0.157160 &&
-            absd0    < 0.273097 &&
-            absdz    < 0.885860 &&
-            expHits  <= 3       &&
-            passConv == 1
-        ) {
-            return (1);
-        }
-    } // end endcap
-    return (-1);
-}
-
-// manual cut based electron ID
-Int_t RootMaker::getCBElectronID(const reco::GsfElectron &theel) {
-    if(cdebug) {
-        cout<<"getCBElectronID..."<<endl;
-    }
-
-    float superClusterEta = theel.superCluster()->eta();
-    float full5x5 = theel.full5x5_sigmaIetaIeta();
-    float dEtaIn = abs(theel.deltaEtaSuperClusterTrackAtVtx());
-    float dPhiIn = abs(theel.deltaPhiSuperClusterTrackAtVtx());
-    float hOverE = theel.hadronicOverEm();
-    float relIso = (theel.pfIsolationVariables().sumChargedHadronPt + std::max(0.0, theel.pfIsolationVariables().sumNeutralHadronEt + theel.pfIsolationVariables().sumPhotonEt - 0.5*theel.pfIsolationVariables().sumPUPt)) / theel.pt();
-    float ooEmooP = fabs((1/theel.ecalEnergy()) - (1/(theel.ecalEnergy() / theel.eSuperClusterOverP())));
-    float absd0 = fabs(theel.gsfTrack()->dxy(pv_position));
-    float absdz = fabs(theel.gsfTrack()->dz(pv_position));
-    int   expHits = theel.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
-    //int   passConv = theel.passConversionVeto();
-    int   passConv = 1;
-
-    // PHYS14 selection, conditions: PU20 bx25
-    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
-    if(fabs(superClusterEta) <= 1.479) {
-        // BARREL TIGHT
-        if(
-            full5x5  < 0.010181 &&
-            dEtaIn   < 0.006574 &&
-            dPhiIn   < 0.022868 &&
-            hOverE   < 0.037553 &&
-            relIso   < 0.074355 &&
-            ooEmooP  < 0.131191 &&
-            absd0    < 0.009924 &&
-            absdz    < 0.015310 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (4);
-        }
-        // BARREL MEDIUM
-        if(
-            full5x5  < 0.010399 &&
-            dEtaIn   < 0.007641 &&
-            dPhiIn   < 0.032643 &&
-            hOverE   < 0.060662 &&
-            relIso   < 0.097213 &&
-            ooEmooP  < 0.153897 &&
-            absd0    < 0.011811 &&
-            absdz    < 0.070775 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (3);
-        }
-        // BARREL LOOSE
-        if(
-            full5x5  < 0.010557 &&
-            dEtaIn   < 0.012442 &&
-            dPhiIn   < 0.072624 &&
-            hOverE   < 0.121476 &&
-            relIso   < 0.120026 &&
-            ooEmooP  < 0.221803 &&
-            absd0    < 0.022664 &&
-            absdz    < 0.173670 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (2);
-        }
-        // BARREL VETO
-        if(
-            full5x5  < 0.011100 &&
-            dEtaIn   < 0.016315 &&
-            dPhiIn   < 0.252044 &&
-            hOverE   < 0.345843 &&
-            relIso   < 0.164369 &&
-            ooEmooP  < 0.248070 &&
-            absd0    < 0.060279 &&
-            absdz    < 0.800538 &&
-            expHits  <= 2       &&
-            passConv == 1
-        ) {
-            return (1);
-        }
-    }
-    // ENDCAP
-    else if(fabs(superClusterEta) > 1.479 && fabs(superClusterEta) <=2.5) {
-        // ENDCAP TIGHT
-        if(
-            full5x5  < 0.028766 &&
-            dEtaIn   < 0.005681 &&
-            dPhiIn   < 0.032046 &&
-            hOverE   < 0.081902 &&
-            relIso   < 0.090185 &&
-            ooEmooP  < 0.106055 &&
-            absd0    < 0.027261 &&
-            absdz    < 0.147154 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (4);
-        }
-        // ENDCAP MEDIUM
-        if(
-            full5x5  < 0.029524 &&
-            dEtaIn   < 0.009285 &&
-            dPhiIn   < 0.042447 &&
-            hOverE   < 0.104263 &&
-            relIso   < 0.116708 &&
-            ooEmooP  < 0.137468 &&
-            absd0    < 0.051682 &&
-            absdz    < 0.180720 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (3);
-        }
-        // ENDCAP LOOSE
-        if(
-            full5x5  < 0.032602 &&
-            dEtaIn   < 0.010654 &&
-            dPhiIn   < 0.145129 &&
-            hOverE   < 0.131862 &&
-            relIso   < 0.162914 &&
-            ooEmooP  < 0.142283 &&
-            absd0    < 0.097358 &&
-            absdz    < 0.198444 &&
-            expHits  <= 1       &&
-            passConv == 1
-        ) {
-            return (2);
-        }
-        // ENDCAP VETO
-        if(
-            full5x5  < 0.033987 &&
-            dEtaIn   < 0.010671 &&
-            dPhiIn   < 0.245263 &&
-            hOverE   < 0.134691 &&
-            relIso   < 0.212604 &&
-            ooEmooP  < 0.157160 &&
-            absd0    < 0.273097 &&
-            absdz    < 0.885860 &&
-            expHits  <= 3       &&
-            passConv == 1
-        ) {
-            return (1);
-        }
-    } // end endcap
-    return (-1);
-}
-
-=======
->>>>>>> abfe662e141e7e8d4a3214e352a696a58420539a
 // for miniAOD, where trackRef is not available
 Int_t RootMaker::getPrimVertex(const pat::PackedCandidate *con) {
     if(Vertices.isValid()) {
