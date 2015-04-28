@@ -383,7 +383,7 @@ void RootMaker::beginJob() {
     tree->Branch("supercluster_escluster_hit_z", supercluster_escluster_hit_z, "supercluster_escluster_hit_z[supercluster_escluster_hit_count]/F");
 
     tree->Branch("muon_count", &muon_count, "muon_count/i");
-    tree->Branch("muon_muID", &muon_muID, "muon_muID/i");
+    tree->Branch("muon_muID", &muon_muID, "muon_muID/I");
     tree->Branch("muon_px", muon_px, "muon_px[muon_count]/F");
     tree->Branch("muon_py", muon_py, "muon_py[muon_count]/F");
     tree->Branch("muon_pz", muon_pz, "muon_pz[muon_count]/F");
