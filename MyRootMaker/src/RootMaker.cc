@@ -2399,9 +2399,9 @@ bool RootMaker::AddPatMuons(const edm::Event &iEvent) {
             all_muon_phi->Fill(themu.phi());
             all_muon_eta->Fill(themu.eta());
             muon_muID[muon_count] = 0;
-            if (themu.isLooseMuon()) muon_muID[muon_count] = 2;
-            if (themu.isSoftMuon((*Vertices)[0])) muon_muID[muon_count] = 3;
             if (themu.isTightMuon((*Vertices)[0])) muon_muID[muon_count] = 4;
+            else if (themu.isLooseMuon()) muon_muID[muon_count] = 2;
+            else muon_muID[muon_count] = -1;
 cout<<"muID = "<<muon_muID[muon_count]<<endl;
             muon_px[muon_count] = themu.px();
             muon_py[muon_count] = themu.py();
@@ -2451,96 +2451,38 @@ cout<<"muID = "<<muon_muID[muon_count]<<endl;
             muon_charge[muon_count] = themu.charge();
             muon_type[muon_count] = 0;
             muon_trackermuonquality[muon_count] = 0;
-            if(themu.isGlobalMuon()) {
-                muon_type[muon_count] |= 1 << 0;
-            }
-            if(themu.isTrackerMuon()) {
-                muon_type[muon_count] |= 1 << 1;
-            }
-            if(themu.isStandAloneMuon()) {
-                muon_type[muon_count] |= 1 << 2;
-            }
-            if(themu.isCaloMuon()) {
-                muon_type[muon_count] |= 1 << 3;
-            }
-            if(themu.isPFMuon()) {
-                muon_type[muon_count] |= 1 << 6;
-            }
+            if(themu.isGlobalMuon()) muon_type[muon_count] |= 1 << 0;
+            if(themu.isTrackerMuon()) muon_type[muon_count] |= 1 << 1;
+            if(themu.isStandAloneMuon()) muon_type[muon_count] |= 1 << 2;
+            if(themu.isCaloMuon()) muon_type[muon_count] |= 1 << 3;
+            if(themu.isPFMuon()) muon_type[muon_count] |= 1 << 6;
 
             {
                 using namespace muon;
-                if(isGoodMuon(themu, All)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 0;
-                }
-                if(isGoodMuon(themu, AllGlobalMuons)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 1;
-                }
-                if(isGoodMuon(themu, AllStandAloneMuons)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 2;
-                }
-                if(isGoodMuon(themu, AllTrackerMuons)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 3;
-                }
-                if(isGoodMuon(themu, TrackerMuonArbitrated)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 4;
-                }
-                if(isGoodMuon(themu, AllArbitrated)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 5;
-                }
-                if(isGoodMuon(themu, GlobalMuonPromptTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 6;
-                }
-                if(isGoodMuon(themu, TMLastStationLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 7;
-                }
-                if(isGoodMuon(themu, TMLastStationTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 8;
-                }
-                if(isGoodMuon(themu, TM2DCompatibilityLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 9;
-                }
-                if(isGoodMuon(themu, TM2DCompatibilityTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 10;
-                }
-                if(isGoodMuon(themu, TMOneStationLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 11;
-                }
-                if(isGoodMuon(themu, TMOneStationTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 12;
-                }
-                if(isGoodMuon(themu, TMLastStationOptimizedLowPtLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 13;
-                }
-                if(isGoodMuon(themu, TMLastStationOptimizedLowPtTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 14;
-                }
-                if(isGoodMuon(themu, GMTkChiCompatibility)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 15;
-                }
-                if(isGoodMuon(themu, GMStaChiCompatibility)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 16;
-                }
-                if(isGoodMuon(themu, GMTkKinkTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 17;
-                }
-                if(isGoodMuon(themu, TMLastStationAngLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 18;
-                }
-                if(isGoodMuon(themu, TMLastStationAngTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 19;
-                }
-                if(isGoodMuon(themu, TMOneStationAngLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 20;
-                }
-                if(isGoodMuon(themu, TMOneStationAngTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 21;
-                }
-                if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 22;
-                }
-                if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 23;
-                }
+                if(isGoodMuon(themu, All)) muon_trackermuonquality[muon_count] |= 1 << 0;
+                if(isGoodMuon(themu, AllGlobalMuons)) muon_trackermuonquality[muon_count] |= 1 << 1;
+                if(isGoodMuon(themu, AllStandAloneMuons)) muon_trackermuonquality[muon_count] |= 1 << 2;
+                if(isGoodMuon(themu, AllTrackerMuons)) muon_trackermuonquality[muon_count] |= 1 << 3;
+                if(isGoodMuon(themu, TrackerMuonArbitrated)) muon_trackermuonquality[muon_count] |= 1 << 4;
+                if(isGoodMuon(themu, AllArbitrated)) muon_trackermuonquality[muon_count] |= 1 << 5;
+                if(isGoodMuon(themu, GlobalMuonPromptTight)) muon_trackermuonquality[muon_count] |= 1 << 6;
+                if(isGoodMuon(themu, TMLastStationLoose)) muon_trackermuonquality[muon_count] |= 1 << 7;
+                if(isGoodMuon(themu, TMLastStationTight)) muon_trackermuonquality[muon_count] |= 1 << 8;
+                if(isGoodMuon(themu, TM2DCompatibilityLoose)) muon_trackermuonquality[muon_count] |= 1 << 9;
+                if(isGoodMuon(themu, TM2DCompatibilityTight)) muon_trackermuonquality[muon_count] |= 1 << 10;
+                if(isGoodMuon(themu, TMOneStationLoose)) muon_trackermuonquality[muon_count] |= 1 << 11;
+                if(isGoodMuon(themu, TMOneStationTight)) muon_trackermuonquality[muon_count] |= 1 << 12;
+                if(isGoodMuon(themu, TMLastStationOptimizedLowPtLoose)) muon_trackermuonquality[muon_count] |= 1 << 13;
+                if(isGoodMuon(themu, TMLastStationOptimizedLowPtTight)) muon_trackermuonquality[muon_count] |= 1 << 14;
+                if(isGoodMuon(themu, GMTkChiCompatibility)) muon_trackermuonquality[muon_count] |= 1 << 15;
+                if(isGoodMuon(themu, GMStaChiCompatibility)) muon_trackermuonquality[muon_count] |= 1 << 16;
+                if(isGoodMuon(themu, GMTkKinkTight)) muon_trackermuonquality[muon_count] |= 1 << 17;
+                if(isGoodMuon(themu, TMLastStationAngLoose)) muon_trackermuonquality[muon_count] |= 1 << 18;
+                if(isGoodMuon(themu, TMLastStationAngTight)) muon_trackermuonquality[muon_count] |= 1 << 19;
+                if(isGoodMuon(themu, TMOneStationAngLoose)) muon_trackermuonquality[muon_count] |= 1 << 20;
+                if(isGoodMuon(themu, TMOneStationAngTight)) muon_trackermuonquality[muon_count] |= 1 << 21;
+                if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtLoose)) muon_trackermuonquality[muon_count] |= 1 << 22;
+                if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtTight)) muon_trackermuonquality[muon_count] |= 1 << 23;
                 muon_numchambers[muon_count] = themu.numberOfChambers();
                 muon_numchamberswithsegments[muon_count] = themu.numberOfMatches(pat::Muon::SegmentAndTrackArbitration);
                 muon_nummatchedstations[muon_count] = themu.numberOfMatchedStations();
