@@ -2,17 +2,14 @@
 MyRootMaker ntuplizer 
 
 https://twiki.cern.ch/twiki/bin/view/Sandbox/MyRootMakerFrom70XTo72X
+https://twiki.cern.ch/twiki/bin/view/Sandbox/MyRootMakerFrom72XTo74X
 
 Recipe:
 
-    cmsrel CMSSW_7_2_4
-    cd CMSSW_7_2_4/src/
+    cmsrel CMSSW_7_4_6_patch2
+    cd CMSSW_7_4_6_patch2/src/
     cmsenv
     git cms-init
-
-    git cms-merge-topic HuguesBrun:trigElecIdInCommonIsoSelection720
-    cp /afs/cern.ch/user/i/ikrav/public/EGMCode/GsfEleFull5x5SigmaIEtaIEtaCut72X.cc RecoEgamma/ElectronIdentification/plugins/cuts/
-    cp /afs/cern.ch/user/i/ikrav/public/EGMCode/cutBasedElectronID_PHYS14_PU20bx25_V0_miniAOD_cff.py RecoEgamma/ElectronIdentification/python/Identification/
 
     git clone https://github.com/ekenn003/PFIsolation.git
     git clone https://github.com/ekenn003/MyRootMaker.git
