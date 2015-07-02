@@ -6,12 +6,18 @@ process.load('RecoJets.Configuration.RecoJetAssociations_cff')
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
 process.load('RecoBTag.Configuration.RecoBTag_cff')
 process.load('RecoJets.Configuration.RecoJetAssociations_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+
+
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Services_cff")
 
 #process.load('Configuration.StandardSequences.Geometry_cff') deprecated
-process.load('Configuration.Geometry.GeometryIdeal_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+#process.load('Configuration.Geometry.GeometryIdeal_cff')
+process.load('Configuration.Geometry.GeometryRecoDB_cff')
+#process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+#process.load('Configuration.StandardSequences.MagneticField_cff')
 
 process.ak4JetTracksAssociatorAtVertexPF.jets = cms.InputTag("ak4PFJetsCHS")
 process.ak4JetTracksAssociatorAtVertexPF.tracks = cms.InputTag("unpackedTracksAndVertices")
@@ -22,39 +28,30 @@ process.inclusiveSecondaryVertexFinderTagInfos.extSVCollection = cms.InputTag("u
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/C20B68E7-0277-E411-85E5-001E67396A22.root', # 35400 events
-        #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/6856B40F-0C77-E411-893D-D8D385FF7678.root', # 37500 events
-<<<<<<< HEAD
-        #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/E601D324-FA76-E411-B2A3-0025B3E066A4.root' # 38200 events
-=======
-        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/MINIAODSIM/PU40bx25_PHYS14_25_V1-v1/00000/E601D324-FA76-E411-B2A3-0025B3E066A4.root' # 38200 events
->>>>>>> abfe662e141e7e8d4a3214e352a696a58420539a
-        #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/DYJetsToLL_M-50_13TeV-madgraph-pythia8/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0432E62A-7A6C-E411-87BB-002590DB92A8.root'
-        'root://cms-xrd-global.cern.ch//store/mc/Spring14miniaod/WH_ZH_HToMuMu_M-125_13TeV_pythia6/MINIAODSIM/141029_PU40bx50_PLS170_V6AN2-v1/10000/36523177-CD66-E411-ABA7-008CFA111200.root'
+        'root://cms-xrd-global.cern.ch//store/mc/RunIISpring15DR74/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/026B146D-8716-E511-B16D-00266CF9BDFC.root',
+        'root://cms-xrd-global.cern.ch//store/mc/RunIISpring15DR74/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/08223373-8716-E511-A47C-00266CF9AFF0.root',
+        'root://cms-xrd-global.cern.ch//store/mc/RunIISpring15DR74/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/0A5F8F6E-8716-E511-81AF-008CFA0079C4.root'
         #'file:/afs/cern.ch/work/e/ekennedy/work/tuplizer/miniAOD/TTbarH_M-125_13TeV_mini_PU40bx25_PHYS14_25_V1_file2.root'
     )
 )
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions
 #process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
-process.GlobalTag.globaltag = cms.string('PLS170_V6AN2::All')
-#process.GlobalTag.globaltag = cms.string('PHYS14_25_V1')
+#process.GlobalTag.globaltag = cms.string('PLS170_V6AN2::All')
+process.GlobalTag.globaltag = cms.string('MCRUN2_74_V9')
 process.makeroottree.isMiniAOD = cms.untracked.bool(True)
 
 
 
 
 process.maxEvents = cms.untracked.PSet(
-<<<<<<< HEAD
     input = cms.untracked.int32(1000) 
-=======
-    input = cms.untracked.int32(100) 
->>>>>>> abfe662e141e7e8d4a3214e352a696a58420539a
+    #input = cms.untracked.int32(-1) 
 )
 #process.makeroottree.debug = cms.untracked.bool(True)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.TFileService = cms.Service("TFileService",
-	fileName = cms.string('AC1B_test_mini.root')
+	fileName = cms.string('AC1B_test74_mini.root')
 )
 
 #process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
@@ -63,7 +60,7 @@ process.makeroottree.RecMuonNum = cms.untracked.int32(0)
 process.makeroottree.RecElectronNum = cms.untracked.int32(0)
 process.makeroottree.RecAK4PFCHSNum = cms.untracked.int32(0)
 process.makeroottree.HLTriggerSelection = cms.untracked.vstring()
-process.makeroottree.GenAllParticles = cms.untracked.bool(False)
+process.makeroottree.GenAllParticles = cms.untracked.bool(True)
 process.makeroottree.GenSomeParticles = cms.untracked.bool(True)
 process.makeroottree.GenAK4Jets = cms.untracked.bool(True)
 
