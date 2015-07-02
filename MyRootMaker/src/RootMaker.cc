@@ -1266,13 +1266,13 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         iEvent.getByToken(triggerPrescales_, triggerPrescales);
 
         const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
-        std::cout << "\n === TRIGGER PATHS === " << std::endl;
-        for(unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
-            std::cout << "Trigger " << names.triggerName(i) <<
-                      ", prescale " << triggerPrescales->getPrescaleForIndex(i) <<
-                      ": " << (triggerBits->accept(i) ? "PASS" : "fail (or not run)")
-                      << std::endl;
-        }
+        //std::cout << "\n === TRIGGER PATHS === " << std::endl;
+        //for(unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
+        //    std::cout << "Trigger " << names.triggerName(i) <<
+        //              ", prescale " << triggerPrescales->getPrescaleForIndex(i) <<
+        //              ": " << (triggerBits->accept(i) ? "PASS" : "fail (or not run)")
+        //              << std::endl;
+        //}
 
         // Trigger Objects
         for(pat::TriggerObjectStandAlone obj : *triggerObjects) {  // note: not "const &" since we want to call unpackPathNames
@@ -1789,9 +1789,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(cgenallparticles) {
         edm::Handle<GenParticleCollection> GenParticles;
         iEvent.getByToken(genSimParticlesToken_, GenParticles);
-        if(!GenParticles.isValid()) {
-            iEvent.getByToken(genParticlesToken_, GenParticles);
-        }
+        if(!GenParticles.isValid()) iEvent.getByToken(genParticlesToken_, GenParticles);
 
         if(GenParticles.isValid()) {
             GenPartons.clear();
@@ -1855,19 +1853,13 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(cgen) {
         edm::Handle<GenParticleCollection> GenParticles;
         iEvent.getByToken(genSimParticlesToken_, GenParticles);
-        if(!GenParticles.isValid()) {
-            iEvent.getByToken(genParticlesToken_, GenParticles);
-        }
+        if(!GenParticles.isValid()) iEvent.getByToken(genParticlesToken_, GenParticles);
 
         if(GenParticles.isValid()) {
             GenPartons.clear();
-            if(cdebug) {
-                cout<<"GenParticles->size() = "<<GenParticles->size()<<endl;
-            }
+            if(cdebug) cout<<"GenParticles->size() = "<<GenParticles->size()<<endl;
             for(unsigned i = 0 ; i < GenParticles->size() ; i++) {
-                if((abs((*GenParticles)[i].pdgId()) <= 5 || (*GenParticles)[i].pdgId() == 21) && (*GenParticles)[i].pt() > 10.) {
-                    GenPartons.push_back((*GenParticles)[i]);
-                }
+                if((abs((*GenParticles)[i].pdgId()) <= 5 || (*GenParticles)[i].pdgId() == 21) && (*GenParticles)[i].pt() > 10.) GenPartons.push_back((*GenParticles)[i]);
                 bool fill = false;
                 if(
                     (abs((*GenParticles)[i].pdgId()) >= 11 && abs((*GenParticles)[i].pdgId()) <= 16)   //leptons
@@ -1882,13 +1874,9 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
                     || (*GenParticles)[i].pdgId() == 36 //A
                     || abs((*GenParticles)[i].pdgId()) == 37  //H+, H-
                     || (*GenParticles)[i].pdgId() == 32 //Z'
-                ) {
-                    fill = true;
-                } else if((*GenParticles)[i].pdgId() == 22 && (*GenParticles)[i].status() == 1 && (*GenParticles)[i].pt() > 10. && HasAnyMother(& (*GenParticles)[i], 111) == 0) {
-                    fill = true;
-                } else if((*GenParticles)[i].pdgId() == 111 && (*GenParticles)[i].pt() > 10. && HasAnyMother(& (*GenParticles)[i], 111) == 0) {
-                    fill = true;
-                }
+                ) fill = true;
+                else if((*GenParticles)[i].pdgId() == 22 && (*GenParticles)[i].status() == 1 && (*GenParticles)[i].pt() > 10. && HasAnyMother(& (*GenParticles)[i], 111) == 0) fill = true;
+                else if((*GenParticles)[i].pdgId() == 111 && (*GenParticles)[i].pt() > 10. && HasAnyMother(& (*GenParticles)[i], 111) == 0) fill = true;
                 if(fill) {
                     genparticles_e[genparticles_count] = (*GenParticles)[i].energy();
                     genparticles_px[genparticles_count] = (*GenParticles)[i].px();
@@ -1910,9 +1898,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
                     genparticles_count++;
                 }
             }
-            if(cdebug) {
-                cout << "Total gen particles: " << genparticles_count << endl;
-            }
+            if(cdebug) cout << "Total gen particles: " << genparticles_count << endl;
         }
     }
 
@@ -1932,19 +1918,13 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
                     double ptmax = 0;
                     for(size_t j = 0 ; j < GenPartons.size() ; ++j) {
                         if(DR(GenPartons[j], *it) < 0.5) {
-                            if(GenPartons[j].pdgId() == 5) {
-                                genak4jet_info[genak4jet_count] |= 1<<0;
-                            } else if(GenPartons[j].pdgId() == -5) {
-                                genak4jet_info[genak4jet_count] |= 1<<1;
-                            } else if(GenPartons[j].pdgId() == 4) {
-                                genak4jet_info[genak4jet_count] |= 1<<2;
-                            } else if(GenPartons[j].pdgId() == -4) {
-                                genak4jet_info[genak4jet_count] |= 1<<3;
-                            } else if(abs(GenPartons[j].pdgId()) <= 3) {
-                                genak4jet_info[genak4jet_count] |= 1<<4;
-                            } else if(GenPartons[j].pdgId() == 21) {
-                                genak4jet_info[genak4jet_count] |= 1<<5;
-                            }
+                            if(GenPartons[j].pdgId() == 5) genak4jet_info[genak4jet_count] |= 1<<0;
+                            else if(GenPartons[j].pdgId() == -5) genak4jet_info[genak4jet_count] |= 1<<1;
+                            else if(GenPartons[j].pdgId() == 4) genak4jet_info[genak4jet_count] |= 1<<2;
+                            else if(GenPartons[j].pdgId() == -4) genak4jet_info[genak4jet_count] |= 1<<3;
+                            else if(abs(GenPartons[j].pdgId()) <= 3) genak4jet_info[genak4jet_count] |= 1<<4;
+                            else if(GenPartons[j].pdgId() == 21) genak4jet_info[genak4jet_count] |= 1<<5;
+
                             if(GenPartons[j].pt() > ptmax) {
                                 ptmax = GenPartons[j].pt();
                                 genak4jet_flavour[genak4jet_count] = GenPartons[j].pdgId();
@@ -1985,22 +1965,16 @@ pair<Int_t, Int_t> RootMaker::HasAnyMother(const GenParticle *particle, vector<i
     while(true) {
         if(j == bkparticle[level]->numberOfMothers()) {
             level--;
-            if(level == -1) {
-                break;
-            }
+            if(level == -1) break;
             j = bknummother[level];
             bkparticle.resize(level+1);
             bknummother.resize(level+1);
             continue;
         }
 
-        if(motherid == 0 && bkparticle[level]->mother(j)->pdgId() != particle->pdgId()) {
-            motherid = bkparticle[level]->mother(j)->pdgId();
-        }
+        if(motherid == 0 && bkparticle[level]->mother(j)->pdgId() != particle->pdgId()) motherid = bkparticle[level]->mother(j)->pdgId();
         it = find(ids.begin(), ids.end(), bkparticle[level]->mother(j)->pdgId());
-        if(it != ids.end()) {
-            result |= 1<< (it-ids.begin());
-        }
+        if(it != ids.end()) result |= 1<< (it-ids.begin());
 
         if(bkparticle[level]->mother(j)->numberOfMothers() > 0) {
             bknummother[level] = j+1;
@@ -2028,21 +2002,15 @@ Int_t RootMaker::HasAnyMother(const GenParticle *particle, int id) {
     while(true) {
         if(j == bkparticle[level]->numberOfMothers()) {
             level--;
-            if(level == -1) {
-                return (0);
-            }
+            if(level == -1) return (0);
             j = bknummother[level];
             bkparticle.resize(level+1);
             bknummother.resize(level+1);
             continue;
         }
 
-        if(bkparticle[level]->mother(j)->pdgId() == id) {
-            return (2);
-        }
-        if(abs(bkparticle[level]->mother(j)->pdgId()) == abs(id)) {
-            return (1);
-        }
+        if(bkparticle[level]->mother(j)->pdgId() == id) return (2);
+        if(abs(bkparticle[level]->mother(j)->pdgId()) == abs(id)) return (1);
 
         if(bkparticle[level]->mother(j)->numberOfMothers() > 0) {
             bknummother[level] = j+1;
@@ -2058,9 +2026,7 @@ Int_t RootMaker::HasAnyMother(const GenParticle *particle, int id) {
 }
 
 void RootMaker::endJob() {
-    if(cdebug) {
-        cout<<"endJob..."<<endl;
-    }
+    if(cdebug) cout<<"endJob..."<<endl;
 }
 
 UInt_t RootMaker::FindGenParticle(const Candidate *particle) {
@@ -2079,9 +2045,7 @@ UInt_t RootMaker::FindGenParticle(const Candidate *particle) {
 }
 
 math::XYZPoint RootMaker::PositionOnECalSurface(TransientTrack &trTrack) {
-    if(cdebug) {
-        cout<<"PositionOnECalSurface..."<<endl;
-    }
+    if(cdebug) cout<<"PositionOnECalSurface..."<<endl;
     math::XYZPoint ecalPosition(0.,0.,0.);
     const FreeTrajectoryState myTSOS = trTrack.initialFreeState();
     TrajectoryStateOnSurface stateAtECal = propagatorWithMaterial->propagate(myTSOS, *ecalBarrel);
@@ -2101,9 +2065,7 @@ math::XYZPoint RootMaker::PositionOnECalSurface(TransientTrack &trTrack) {
 }
 
 bool RootMaker::AddMuons(const edm::Event &iEvent) {
-    if(cdebug) {
-        cout<<"AddMuons..."<<endl;
-    }
+    if(cdebug) cout<<"AddMuons..."<<endl;
     int NumAll = 0;
     int NumTracker = 0;
     int NumGlobal = 0;
@@ -2111,12 +2073,8 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
     int NumGood = 0;
     edm::Handle<reco::MuonCollection> Muons;
     iEvent.getByToken(recoMuonsToken_, Muons);
-    if(cdebug) {
-        cout<<"Muons.isValid() = "<<Muons.isValid()<<endl;
-    }
-    if(cdebug) {
-        cout<<"Muons->size() = "<<Muons->size()<<endl;
-    }
+    if(cdebug) cout<<"Muons.isValid() = "<<Muons.isValid()<<endl;
+    if(cdebug) cout<<"Muons->size() = "<<Muons->size()<<endl;
     NumAll = Muons->size();
     if(Muons.isValid()) {
         for(unsigned i = 0 ; i < Muons->size() ; i++) {
@@ -2147,9 +2105,7 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
             muon_isolationr3ecal[muon_count]   = themu.isolationR03().emEt;
             muon_isolationr3hcal[muon_count]   = themu.isolationR03().hadEt;
 
-            if(cdebug) {
-                cout<<"themu.isPFIsolationValid() = "<<endl;
-            }
+            if(cdebug) cout<<"themu.isPFIsolationValid() = "<<endl;
             if(themu.isPFIsolationValid()) {
 
                 const reco::MuonPFIsolation pfisor03 = themu.pfIsolationR03();
@@ -2178,96 +2134,38 @@ bool RootMaker::AddMuons(const edm::Event &iEvent) {
             muon_charge[muon_count] = themu.charge();
             muon_type[muon_count] = 0;
             muon_trackermuonquality[muon_count] = 0;
-            if(themu.isGlobalMuon()) {
-                muon_type[muon_count] |= 1 << 0;
-            }
-            if(themu.isTrackerMuon()) {
-                muon_type[muon_count] |= 1 << 1;
-            }
-            if(themu.isStandAloneMuon()) {
-                muon_type[muon_count] |= 1 << 2;
-            }
-            if(themu.isCaloMuon()) {
-                muon_type[muon_count] |= 1 << 3;
-            }
-            if(themu.isPFMuon()) {
-                muon_type[muon_count] |= 1 << 6;
-            }
+            if(themu.isGlobalMuon()) muon_type[muon_count] |= 1 << 0;
+            if(themu.isTrackerMuon()) muon_type[muon_count] |= 1 << 1;
+            if(themu.isStandAloneMuon()) muon_type[muon_count] |= 1 << 2;
+            if(themu.isCaloMuon()) muon_type[muon_count] |= 1 << 3;
+            if(themu.isPFMuon()) muon_type[muon_count] |= 1 << 6;
 
             {
                 using namespace muon;
-                if(isGoodMuon(themu, All)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 0;
-                }
-                if(isGoodMuon(themu, AllGlobalMuons)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 1;
-                }
-                if(isGoodMuon(themu, AllStandAloneMuons)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 2;
-                }
-                if(isGoodMuon(themu, AllTrackerMuons)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 3;
-                }
-                if(isGoodMuon(themu, TrackerMuonArbitrated)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 4;
-                }
-                if(isGoodMuon(themu, AllArbitrated)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 5;
-                }
-                if(isGoodMuon(themu, GlobalMuonPromptTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 6;
-                }
-                if(isGoodMuon(themu, TMLastStationLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 7;
-                }
-                if(isGoodMuon(themu, TMLastStationTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 8;
-                }
-                if(isGoodMuon(themu, TM2DCompatibilityLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 9;
-                }
-                if(isGoodMuon(themu, TM2DCompatibilityTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 10;
-                }
-                if(isGoodMuon(themu, TMOneStationLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 11;
-                }
-                if(isGoodMuon(themu, TMOneStationTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 12;
-                }
-                if(isGoodMuon(themu, TMLastStationOptimizedLowPtLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 13;
-                }
-                if(isGoodMuon(themu, TMLastStationOptimizedLowPtTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 14;
-                }
-                if(isGoodMuon(themu, GMTkChiCompatibility)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 15;
-                }
-                if(isGoodMuon(themu, GMStaChiCompatibility)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 16;
-                }
-                if(isGoodMuon(themu, GMTkKinkTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 17;
-                }
-                if(isGoodMuon(themu, TMLastStationAngLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 18;
-                }
-                if(isGoodMuon(themu, TMLastStationAngTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 19;
-                }
-                if(isGoodMuon(themu, TMOneStationAngLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 20;
-                }
-                if(isGoodMuon(themu, TMOneStationAngTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 21;
-                }
-                if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtLoose)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 22;
-                }
-                if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtTight)) {
-                    muon_trackermuonquality[muon_count] |= 1 << 23;
-                }
+                if(isGoodMuon(themu, All))  muon_trackermuonquality[muon_count] |= 1 << 0;
+                if(isGoodMuon(themu, AllGlobalMuons)) muon_trackermuonquality[muon_count] |= 1 << 1;
+                if(isGoodMuon(themu, AllStandAloneMuons)) muon_trackermuonquality[muon_count] |= 1 << 2;
+                if(isGoodMuon(themu, AllTrackerMuons)) muon_trackermuonquality[muon_count] |= 1 << 3;
+                if(isGoodMuon(themu, TrackerMuonArbitrated)) muon_trackermuonquality[muon_count] |= 1 << 4;
+                if(isGoodMuon(themu, AllArbitrated)) muon_trackermuonquality[muon_count] |= 1 << 5;
+                if(isGoodMuon(themu, GlobalMuonPromptTight)) muon_trackermuonquality[muon_count] |= 1 << 6;
+                if(isGoodMuon(themu, TMLastStationLoose)) muon_trackermuonquality[muon_count] |= 1 << 7;
+                if(isGoodMuon(themu, TMLastStationTight)) muon_trackermuonquality[muon_count] |= 1 << 8;
+                if(isGoodMuon(themu, TM2DCompatibilityLoose)) muon_trackermuonquality[muon_count] |= 1 << 9;
+                if(isGoodMuon(themu, TM2DCompatibilityTight)) muon_trackermuonquality[muon_count] |= 1 << 10;
+                if(isGoodMuon(themu, TMOneStationLoose)) muon_trackermuonquality[muon_count] |= 1 << 11;
+                if(isGoodMuon(themu, TMOneStationTight)) muon_trackermuonquality[muon_count] |= 1 << 12;
+                if(isGoodMuon(themu, TMLastStationOptimizedLowPtLoose)) muon_trackermuonquality[muon_count] |= 1 << 13;
+                if(isGoodMuon(themu, TMLastStationOptimizedLowPtTight)) muon_trackermuonquality[muon_count] |= 1 << 14;
+                if(isGoodMuon(themu, GMTkChiCompatibility)) muon_trackermuonquality[muon_count] |= 1 << 15;
+                if(isGoodMuon(themu, GMStaChiCompatibility)) muon_trackermuonquality[muon_count] |= 1 << 16;
+                if(isGoodMuon(themu, GMTkKinkTight)) muon_trackermuonquality[muon_count] |= 1 << 17;
+                if(isGoodMuon(themu, TMLastStationAngLoose)) muon_trackermuonquality[muon_count] |= 1 << 18;
+                if(isGoodMuon(themu, TMLastStationAngTight)) muon_trackermuonquality[muon_count] |= 1 << 19;
+                if(isGoodMuon(themu, TMOneStationAngLoose)) muon_trackermuonquality[muon_count] |= 1 << 20;
+                if(isGoodMuon(themu, TMOneStationAngTight)) muon_trackermuonquality[muon_count] |= 1 << 21;
+                if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtLoose)) muon_trackermuonquality[muon_count] |= 1 << 22;
+                if(isGoodMuon(themu, TMLastStationOptimizedBarrelLowPtTight)) muon_trackermuonquality[muon_count] |= 1 << 23;
                 muon_numchambers[muon_count] = themu.numberOfChambers();
                 muon_numchamberswithsegments[muon_count] = themu.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
                 muon_nummatchedstations[muon_count] = themu.numberOfMatchedStations();
@@ -2402,7 +2300,7 @@ bool RootMaker::AddPatMuons(const edm::Event &iEvent) {
             if (themu.isTightMuon((*Vertices)[0])) muon_muID[muon_count] = 4;
             else if (themu.isLooseMuon()) muon_muID[muon_count] = 2;
             else muon_muID[muon_count] = -1;
-cout<<"muID = "<<muon_muID[muon_count]<<endl;
+            if (cdebug) cout<<"muID = "<<muon_muID[muon_count]<<endl;
             muon_px[muon_count] = themu.px();
             muon_py[muon_count] = themu.py();
             muon_pz[muon_count] = themu.pz();
@@ -2425,9 +2323,7 @@ cout<<"muID = "<<muon_muID[muon_count]<<endl;
             muon_isolationr3ecal[muon_count]   = themu.isolationR03().emEt;
             muon_isolationr3hcal[muon_count]   = themu.isolationR03().hadEt;
 
-            if(cdebug) {
-                cout<<"themu.isPFIsolationValid() = "<<themu.isPFIsolationValid()<<endl;
-            }
+            if(cdebug) cout<<"themu.isPFIsolationValid() = "<<themu.isPFIsolationValid()<<endl;
             if(themu.isPFIsolationValid()) {
                 const reco::MuonPFIsolation pfisor03 = themu.pfIsolationR03();
                 const reco::MuonPFIsolation pfisor04 = themu.pfIsolationR04();
@@ -4636,9 +4532,8 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
 }
 
 bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
-    if(cdebug) {
-        cout<<"AddPatElectrons..."<<endl;
-    }
+    if(cdebug) cout<<"AddPatElectrons..."<<endl;
+
     int NumAll = 0;
     int NumGood = 0;
     int NumMatched = 0;
@@ -4653,19 +4548,14 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
     edm::Handle<reco::ConversionCollection> Conversions;
     iEvent.getByToken(conversionsToken_, Conversions);
 
-    if(cdebug) {
-        cout<<"pat Electrons.isValid() = "<<Electrons.isValid()<<endl;
-    }
-    if(cdebug) {
-        cout<<"pat Electrons->size() = "<<Electrons->size()<<endl;
-    }
+    if(cdebug) cout<<"pat Electrons.isValid() = "<<Electrons.isValid()<<endl;
+    if(cdebug) cout<<"pat Electrons->size() = "<<Electrons->size()<<endl;
+
   //edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
   //edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
   //iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
   //iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);
 
-    if(cdebug) cout<<"pat Electrons.isValid() = "<<Electrons.isValid()<<endl;
-    if(cdebug) cout<<"pat Electrons->size() = "<<Electrons->size()<<endl;
     NumAll = Electrons->size();
     if(Electrons.isValid()) {
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
