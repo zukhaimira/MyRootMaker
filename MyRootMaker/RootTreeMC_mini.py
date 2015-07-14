@@ -1,6 +1,5 @@
 from MyRootMaker.MyRootMaker.RootMakerTemplateMC_mini_cfg import *
 
-
 process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 process.load('RecoJets.Configuration.RecoJetAssociations_cff')
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
@@ -9,15 +8,10 @@ process.load('RecoJets.Configuration.RecoJetAssociations_cff')
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
-
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Services_cff")
-
-#process.load('Configuration.StandardSequences.Geometry_cff') deprecated
 #process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
 #process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-#process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 process.ak4JetTracksAssociatorAtVertexPF.jets = cms.InputTag("ak4PFJetsCHS")
 process.ak4JetTracksAssociatorAtVertexPF.tracks = cms.InputTag("unpackedTracksAndVertices")
@@ -28,9 +22,9 @@ process.inclusiveSecondaryVertexFinderTagInfos.extSVCollection = cms.InputTag("u
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'root://cms-xrd-global.cern.ch//store/mc/RunIISpring15DR74/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/026B146D-8716-E511-B16D-00266CF9BDFC.root',
-        'root://cms-xrd-global.cern.ch//store/mc/RunIISpring15DR74/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/08223373-8716-E511-A47C-00266CF9AFF0.root',
-        'root://cms-xrd-global.cern.ch//store/mc/RunIISpring15DR74/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/0A5F8F6E-8716-E511-81AF-008CFA0079C4.root'
+        'root://cms-xrd-global.cern.ch//store/mc/RunIISpring15DR74/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/026B146D-8716-E511-B16D-00266CF9BDFC.root'
+#        'root://cms-xrd-global.cern.ch//store/mc/RunIISpring15DR74/ZZTo4L_13TeV_powheg_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/08223373-8716-E511-A47C-00266CF9AFF0.root'
+#        'root://cms-xrd-global.cern.ch//store/mc/Spring14miniaod/ZZTo4L_Tune4C_13TeV-powheg-pythia8/MINIAODSIM/141029_PU40bx50_PLS170_V6AN2-v1/00000/0649812F-EB6A-E411-90DE-00259094F2E8.root'
         #'file:/afs/cern.ch/work/e/ekennedy/work/tuplizer/miniAOD/TTbarH_M-125_13TeV_mini_PU40bx25_PHYS14_25_V1_file2.root'
     )
 )
@@ -44,7 +38,7 @@ process.makeroottree.isMiniAOD = cms.untracked.bool(True)
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000) 
+    input = cms.untracked.int32(100) 
     #input = cms.untracked.int32(-1) 
 )
 #process.makeroottree.debug = cms.untracked.bool(True)

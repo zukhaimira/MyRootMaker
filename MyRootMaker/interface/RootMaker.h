@@ -154,12 +154,56 @@
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "EgammaAnalysis/ElectronTools/src/PFIsolationEstimator.cc"
 #include "EgammaAnalysis/ElectronTools/src/SuperClusterHelper.cc"
 #include "PFIsolation/SuperClusterFootprintRemoval/interface/SuperClusterFootprintRemoval.h"
 
 #include "TGeoPara.h"
+
+
+
+
+
+
+
+#include <memory>
+#include <vector>
+
+
+
+
+
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
+#include "DataFormats/Common/interface/ValueMap.h"
+
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "TTree.h"
+#include "Math/VectorUtil.h"
 
 using namespace std;
 using namespace reco;
@@ -206,12 +250,16 @@ private:
     // tokens
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1TriggerToken_;
 
-      edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
-      edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
-      edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
+    edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+    edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
 
     edm::EDGetTokenT<edm::ValueMap<DeDxData>> dharmonicToken_;
     edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
+
+    // ID decisions objects
+    edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
+    edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
 
     edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
     edm::EDGetTokenT<pat::JetCollection> ak4pfchsJetsToken_;
@@ -373,6 +421,7 @@ private:
 
     //Configuration
     bool cisMiniAOD;
+    bool cisMC;
     bool cdebug;
     bool cgen;
     bool cgenallparticles;

@@ -19,8 +19,8 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     dharmonicToken_(consumes<edm::ValueMap<DeDxData>>(iConfig.getParameter<edm::InputTag>("dEdxharmonic2"))),
     verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
 
-    //electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
-    //electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),
+    eleMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
+    eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
 
     conversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("conversions"))),
     ak4pfchsJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfchsjets"))),
@@ -79,6 +79,7 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
 
 
     cisMiniAOD(iConfig.getUntrackedParameter<bool> ("isMiniAOD", false)),
+    cisMC(iConfig.getUntrackedParameter<bool> ("isMC", false)),
     cdebug(iConfig.getUntrackedParameter<bool> ("debug", false)),
     cgen(iConfig.getUntrackedParameter<bool> ("GenSomeParticles", false)),
     cgenallparticles(iConfig.getUntrackedParameter<bool> ("GenAllParticles", false)),
@@ -224,7 +225,8 @@ void RootMaker::beginJob() {
     if(cdebug) {
         cout<<"begin job..."<<endl;
     }
-    cout<<"isMiniAOD = "<<cisMiniAOD<<endl;
+    cout<<"is miniAOD = "<<cisMiniAOD<<endl;
+    cout<<"is monte carlo = "<<cisMC<<endl;
     cout<<"debug = "<<cdebug<<endl;
     edm::Service<TFileService> FS;
     tree = FS->make<TTree> ("AC1B", "AC1B", 1);
@@ -1582,55 +1584,23 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
     takeevent = false;
 
-    if(crectrack) {
-        takeevent = AddTracks(iEvent) || takeevent;
-    }
-    if(crecmuon && !cisMiniAOD) {
-        takeevent = AddMuons(iEvent) || takeevent;
-    }
-    if(crecmuon && cisMiniAOD) {
-        takeevent = AddPatMuons(iEvent) || takeevent;
-    }
-    if(crecelectron && !cisMiniAOD) {
-        takeevent = AddElectrons(iEvent) || takeevent;
-    }
-    if(crecelectron && cisMiniAOD) {
-        takeevent = AddPatElectrons(iEvent) || takeevent;
-    }
-    if(crecphoton && !cisMiniAOD) {
-        takeevent = AddPhotons(iEvent, iSetup) || takeevent;
-    }
-    if(crecphoton && cisMiniAOD) {
-        takeevent = AddPatPhotons(iEvent, iSetup) || takeevent;
-    }
-    if(crectau && !cisMiniAOD) {
-        takeevent = AddTaus(iEvent) || takeevent;
-    }
-    if(crectau && cisMiniAOD) {
-        takeevent = AddPatTaus(iEvent) || takeevent;
-    }
-    if(crecak4calojet && !cisMiniAOD) {
-        takeevent = AddAK4CaloJets(iEvent, iSetup) || takeevent;
-    }
-    if(crecak4jptjet && !cisMiniAOD) {
-        takeevent = AddAK4JPTJets(iEvent, iSetup) || takeevent;
-    }
-    if(crecak4pfjet && !cisMiniAOD) {
-        takeevent = AddAK4PFJets(iEvent, iSetup) || takeevent;
-    }
-    if(crecak4pfchsjet) {
-        takeevent = AddAK4PFCHSJets(iEvent, iSetup) || takeevent;
-    }
-    if(crecmusecvertices) {
-        AddMuVertices(iEvent);
-    }
-    if(crecallconversion) {
-        AddAllConversions(iEvent);
-    }
+    if(crectrack) takeevent = AddTracks(iEvent) || takeevent;
+    if(crecmuon && !cisMiniAOD) takeevent = AddMuons(iEvent) || takeevent;
+    if(crecmuon && cisMiniAOD)  takeevent = AddPatMuons(iEvent) || takeevent;
+    if(crecelectron && !cisMiniAOD) takeevent = AddElectrons(iEvent) || takeevent;
+    if(crecelectron && cisMiniAOD)  takeevent = AddPatElectrons(iEvent) || takeevent;
+    if(crecphoton && !cisMiniAOD) takeevent = AddPhotons(iEvent, iSetup) || takeevent;
+    if(crecphoton && cisMiniAOD)  takeevent = AddPatPhotons(iEvent, iSetup) || takeevent;
+    if(crectau && !cisMiniAOD) takeevent = AddTaus(iEvent) || takeevent;
+    if(crectau && cisMiniAOD)  takeevent = AddPatTaus(iEvent) || takeevent;
+    if(crecak4calojet && !cisMiniAOD) takeevent = AddAK4CaloJets(iEvent, iSetup) || takeevent;
+    if(crecak4jptjet && !cisMiniAOD) takeevent = AddAK4JPTJets(iEvent, iSetup) || takeevent;
+    if(crecak4pfjet && !cisMiniAOD) takeevent = AddAK4PFJets(iEvent, iSetup) || takeevent;
+    if(crecak4pfchsjet) takeevent = AddAK4PFCHSJets(iEvent, iSetup) || takeevent;
+    if(crecmusecvertices) AddMuVertices(iEvent);
+    if(crecallconversion) AddAllConversions(iEvent);
 
-    if(!takeevent) {
-        return;
-    }
+    if(!takeevent) return;
 
     if(cisMiniAOD) {
         edm::Handle<double> rho;
@@ -4551,11 +4521,6 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
     if(cdebug) cout<<"pat Electrons.isValid() = "<<Electrons.isValid()<<endl;
     if(cdebug) cout<<"pat Electrons->size() = "<<Electrons->size()<<endl;
 
-  //edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
-  //edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
-  //iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
-  //iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);
-
     NumAll = Electrons->size();
     if(Electrons.isValid()) {
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
@@ -4565,16 +4530,13 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
             all_electron_eta->Fill(theel.eta());
 
             pat::ElectronRef refel(Electrons, n);
-    // Look up the ID decision for this electron in 
-    // the ValueMap object and store it. We need a Ptr object as the key.
-    //const Ptr<pat::Electron> elPtr(*Electrons)[n];
-    //const Ptr<pat::Electron> elPtr(Electrons,n);
-    //bool isPassVeto  = (*veto_id_decisions)[ elPtr ];  cout<<"isPassVeto  = "<<isPassVeto<<endl;
-    //bool isPassTight = (*tight_id_decisions)[ elPtr ]; cout<<"isPassTight = "<<isPassTight<<endl;
-    //bool isPassVeto  = (*veto_id_decisions)[ refel ];  cout<<"isPassVeto  = "<<isPassVeto<<endl;
-    //bool isPassTight = (*tight_id_decisions)[ refel ]; cout<<"isPassTight = "<<isPassTight<<endl;
 
-
+            edm::Handle<GenParticleCollection> GenParticles;
+            iEvent.getByToken(genSimParticlesToken_, GenParticles);
+            edm::Handle<edm::ValueMap<bool> > medium_id_decisions;
+            edm::Handle<edm::ValueMap<bool> > tight_id_decisions; 
+            iEvent.getByToken(eleMediumIdMapToken_,medium_id_decisions);
+            iEvent.getByToken(eleTightIdMapToken_,tight_id_decisions);
 
             if(theel.pt() > cElFilterPtMin && TMath::Abs(theel.eta()) < cElFilterEtaMax) {
                 electron_px[electron_count] = theel.px();
@@ -4583,6 +4545,17 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
                 electron_pt[electron_count] = theel.pt();
                 electron_phi[electron_count] = theel.phi();
                 electron_eta[electron_count] = theel.eta();
+
+                
+cout<<"\n\n\n\n\n\n\n\n\n\n\n\n"<<endl;
+ // look up id decisions
+                bool isPassMedium = (*medium_id_decisions)[refel];
+                bool isPassTight  = (*tight_id_decisions)[refel];
+
+                cout<<" is medium = "<<(int)isPassMedium<<endl;
+                cout<<" is tight = "<<(int)isPassTight<<endl;
+cout<<"\n\n\n\n\n\n\n\n\n\n\n\n"<<endl;
+
                 electron_correctedecalenergy[electron_count] = theel.ecalEnergy();
                 electron_charge[electron_count] = theel.charge();
                 electron_esuperclusterovertrack[electron_count] = theel.eSuperClusterOverP();
