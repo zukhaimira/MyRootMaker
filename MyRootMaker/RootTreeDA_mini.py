@@ -1,4 +1,4 @@
-from MyRootMaker.MyRootMaker.RootMakerTemplateMC_mini_cfg import *
+from MyRootMaker.MyRootMaker.RootMakerTemplateDA_mini_cfg import *
 
 process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 process.load('RecoJets.Configuration.RecoJetAssociations_cff')
@@ -28,12 +28,13 @@ process.source = cms.Source("PoolSource",
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions
 process.GlobalTag.globaltag = cms.string('74X_dataRun2_Prompt_v0')
 process.makeroottree.isMiniAOD = cms.untracked.bool(True)
+process.makeroottree.isMC = cms.untracked.bool(False)
 
 
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100) 
+    input = cms.untracked.int32(10000) 
     #input = cms.untracked.int32(-1) 
 )
 #process.makeroottree.debug = cms.untracked.bool(True)
@@ -54,6 +55,7 @@ process.makeroottree.GenSomeParticles = cms.untracked.bool(True)
 process.makeroottree.GenAK4Jets = cms.untracked.bool(True)
 
 process.p = cms.Path(
+    process.egmGsfElectronIDSequence *
     process.makeroottree
 )
 
