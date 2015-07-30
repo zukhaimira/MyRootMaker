@@ -186,10 +186,10 @@ using namespace pat;
 
 
 class RootMaker : public edm::EDAnalyzer {
-public:
+  public:
     explicit RootMaker(const edm::ParameterSet &iConfig);
     ~RootMaker();
-private:
+  private:
     virtual void beginJob();
     virtual void endJob();
 
@@ -266,7 +266,7 @@ private:
     edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseIdMapToken_;
     edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
     edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
-    edm::EDGetTokenT<edm::ValueMap<bool> > eleHeepV60IdMapToken_; 
+    edm::EDGetTokenT<edm::ValueMap<bool> > eleHeepV60IdMapToken_;
     edm::EDGetTokenT<edm::ValueMap<bool> > eleMVAIdMap_wp80Token_;
     edm::EDGetTokenT<edm::ValueMap<bool> > eleMVAIdMap_wp90Token_;
 
@@ -329,66 +329,9 @@ private:
     TTree *runtree;
     TH1D *drhist;
 
-    TH1F *all_muon_count_global;
-    TH1F *all_muon_count_standalone;
-    TH1F *all_muon_count_tracker;
-    TH1F *all_muon_count;
-    TH1F *all_muon_pt;
-    TH1F *all_muon_phi;
-    TH1F *all_muon_eta;
-    TH1F *good_muon_count;
-    TH1F *good_muon_pt;
-    TH1F *good_muon_phi;
-    TH1F *good_muon_eta;
-    TH1F *good_matched_muon_count;
-    TH1F *good_matched_muon_pt;
-    TH1F *good_matched_muon_phi;
-    TH1F *good_matched_muon_eta;
-
-    TH1F *all_electron_count;
-    TH1F *all_electron_pt;
-    TH1F *all_electron_phi;
-    TH1F *all_electron_eta;
-    TH1F *good_electron_count;
-    TH1F *good_electron_pt;
-    TH1F *good_electron_phi;
-    TH1F *good_electron_eta;
-    TH1F *good_matched_electron_count;
-    TH1F *good_matched_electron_pt;
-    TH1F *good_matched_electron_phi;
-    TH1F *good_matched_electron_eta;
-
-    TH1F *all_tau_count;
-    TH1F *all_tau_pt;
-    TH1F *all_tau_phi;
-    TH1F *all_tau_eta;
-    TH1F *good_tau_count;
-    TH1F *good_tau_pt;
-    TH1F *good_tau_phi;
-    TH1F *good_tau_eta;
-
-    TH1F *all_photon_count;
-    TH1F *all_photon_pt;
-    TH1F *all_photon_phi;
-    TH1F *all_photon_eta;
-    TH1F *good_photon_count;
-    TH1F *good_photon_pt;
-    TH1F *good_photon_phi;
-    TH1F *good_photon_eta;
-
-    TH1F *all_jet_count;
-    TH1F *all_jet_pt;
-    TH1F *all_jet_phi;
-    TH1F *all_jet_eta;
-    TH1F *good_jet_count_cpt20;
-    TH1F *good_jet_count_cpt25;
-    TH1F *good_jet_count_cpt30;
-    TH1F *good_jet_pt;
-    TH1F *good_jet_phi;
-    TH1F *good_jet_eta;
-
     //Configuration
     bool cisMiniAOD;
+    bool cisMC;
     bool cdebug;
     bool cgen;
     bool cgenallparticles;
