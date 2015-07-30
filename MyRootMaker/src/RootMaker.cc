@@ -1,3 +1,4 @@
+
 #include "MyRootMaker/MyRootMaker/interface/RootMaker.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include <vector>
@@ -19,11 +20,9 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     dharmonicToken_(consumes<edm::ValueMap<DeDxData>>(iConfig.getParameter<edm::InputTag>("dEdxharmonic2"))),
     verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
 
-    eleMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
-    eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
-
     conversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("conversions"))),
     ak4pfchsJetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfchsjets"))),
+    ak4pfchsJetsPuppiToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfchsjetspuppi"))),
     genSimParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genSimParticles"))),
     genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
     //genParticlesToken_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genParticles"))),
@@ -65,9 +64,25 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     patPhotonsToken_(mayConsume<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
     patTausToken_(mayConsume<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
     packedPFCandsToken_(mayConsume<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPfCands"))),
+    //patMVAMetToken_(mayConsume<pat::METCollection>(iConfig.getParameter<edm::InputTag>("pfMetMVAEMT"))),
+    patMVAMetEMTToken_(iConfig.getParameter<edm::InputTag>("pfMetMVAEMT")),
+    patMVAMetEMToken_(iConfig.getParameter<edm::InputTag>("pfMetMVAEM")),
+    patMVAMetETToken_(iConfig.getParameter<edm::InputTag>("pfMetMVAET")),
+    patMVAMetMTToken_(iConfig.getParameter<edm::InputTag>("pfMetMVAMT")),
+    patMVAMetTTToken_(iConfig.getParameter<edm::InputTag>("pfMetMVATT")),
+    newMetLabel_(iConfig.getParameter<edm::InputTag>("patMETs")),
     patMetToken_(mayConsume<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
+    patMetPuppiToken_(mayConsume<pat::METCollection>(iConfig.getParameter<edm::InputTag>("metspuppi"))),
     rhoToken_(mayConsume<double>(iConfig.getParameter<edm::InputTag>("rhoAll"))),
     gedGsfElectronCoresToken_(mayConsume<vector<reco::GsfElectronCore> >(iConfig.getParameter<edm::InputTag>("gedGsfElectronCores"))),
+    eleVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleVetoIdMap"))),
+    eleLooseIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))), 
+    eleMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
+    eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
+    eleHeepV60IdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleHeepV60IdMap"))),
+    eleMVAIdMap_wp80Token_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMVAIdMap_wp80"))),
+    eleMVAIdMap_wp90Token_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMVAIdMap_wp90"))),
+
     gedPhotonCoresToken_(mayConsume<vector<reco::PhotonCore> >(iConfig.getParameter<edm::InputTag>("gedPhotonCores"))),
 
 
@@ -79,7 +94,6 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
 
 
     cisMiniAOD(iConfig.getUntrackedParameter<bool> ("isMiniAOD", false)),
-    cisMC(iConfig.getUntrackedParameter<bool> ("isMC", false)),
     cdebug(iConfig.getUntrackedParameter<bool> ("debug", false)),
     cgen(iConfig.getUntrackedParameter<bool> ("GenSomeParticles", false)),
     cgenallparticles(iConfig.getUntrackedParameter<bool> ("GenAllParticles", false)),
@@ -102,6 +116,7 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     crecak4jptjet(iConfig.getUntrackedParameter<bool> ("RecAK4JPTJet", false)),
     crecak4pfjet(iConfig.getUntrackedParameter<bool> ("RecAK4PFJet", false)),
     crecak4pfchsjet(iConfig.getUntrackedParameter<bool> ("RecAK4PFCHSJet", false)),
+    crecak4pfchspuppijet(iConfig.getUntrackedParameter<bool> ("RecAK4PFCHSPuppiJet", false)),
     crecpfmet(iConfig.getUntrackedParameter<bool> ("RecPFMet", false)),
     crecsecvertices(iConfig.getUntrackedParameter<bool> ("RecSecVertices", false)),
     crecmusecvertices(iConfig.getUntrackedParameter<bool> ("RecMuSecVertices", false)),
@@ -146,6 +161,10 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     cAK4PFCHSPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSPtMin", 0.)),
     cAK4PFCHSEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSEtaMax", 1000000.)),
     cAK4PFCHSNum(iConfig.getUntrackedParameter<int> ("RecAK4PFCHSNum", 0)),
+    cAK4PFCHSPuppiFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSPuppiFilterPtMin", 0.)),
+    cAK4PFCHSPuppiPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSPuppiPtMin", 0.)),
+    cAK4PFCHSPuppiEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSPuppiEtaMax", 1000000.)),
+    cAK4PFCHSPuppiNum(iConfig.getUntrackedParameter<int> ("RecAK4PFCHSPuppiNum", 0)),
     cAK4PFFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFFilterPtMin", 0.)),
     cAK4PFPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFPtMin", 0.)),
     cAK4PFEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4PFEtaMax", 1000000.)),
@@ -179,15 +198,10 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     testids.push_back(-8);  //15
     testids.push_back(15);  //16
     testids.push_back(-15);  //17
-    //bdisclabel.push_back("jetBProbabilityBJetTags");
-    //bdisclabel.push_back("jetProbabilityBJetTags");
-    bdisclabel.push_back("trackCountingHighPurBJetTags");
-    bdisclabel.push_back("trackCountingHighEffBJetTags");
-    bdisclabel.push_back("simpleSecondaryVertexHighPurBJetTags");
-    bdisclabel.push_back("simpleSecondaryVertexHighEffBJetTags");
-    bdisclabel.push_back("combinedSecondaryVertexBJetTags");
-    bdisclabel.push_back("combinedSecondaryVertexMVABJetTags");
-
+    bdisclabel.push_back("pfJetProbabilityBJetTags");
+    bdisclabel.push_back("pfJetBProbabilityBJetTags");
+    bdisclabel.push_back("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+ 
     double barrelRadius = 129.; //p81, p50, ECAL TDR
     double endcapZ = 320.5; // fig 3.26, p81, ECAL TDR
     Surface::RotationType rot;
@@ -225,8 +239,7 @@ void RootMaker::beginJob() {
     if(cdebug) {
         cout<<"begin job..."<<endl;
     }
-    cout<<"is miniAOD = "<<cisMiniAOD<<endl;
-    cout<<"is monte carlo = "<<cisMC<<endl;
+    cout<<"isMiniAOD = "<<cisMiniAOD<<endl;
     cout<<"debug = "<<cdebug<<endl;
     edm::Service<TFileService> FS;
     tree = FS->make<TTree> ("AC1B", "AC1B", 1);
@@ -385,7 +398,7 @@ void RootMaker::beginJob() {
     tree->Branch("supercluster_escluster_hit_z", supercluster_escluster_hit_z, "supercluster_escluster_hit_z[supercluster_escluster_hit_count]/F");
 
     tree->Branch("muon_count", &muon_count, "muon_count/i");
-    tree->Branch("muon_muID", &muon_muID, "muon_muID/I");
+    tree->Branch("muon_muID", &muon_muID, "muon_muID[muon_count]/I");
     tree->Branch("muon_px", muon_px, "muon_px[muon_count]/F");
     tree->Branch("muon_py", muon_py, "muon_py[muon_count]/F");
     tree->Branch("muon_pz", muon_pz, "muon_pz[muon_count]/F");
@@ -395,6 +408,7 @@ void RootMaker::beginJob() {
     tree->Branch("muon_pterror", muon_pterror, "muon_pterror[muon_count]/F");
     tree->Branch("muon_chi2", muon_chi2, "muon_chi2[muon_count]/F");
     tree->Branch("muon_ndof", muon_ndof, "muon_ndof[muon_count]/F");
+    tree->Branch("muon_dB", muon_dB, "muon_dB[muon_count]/F");
 
     tree->Branch("muon_is_tracker", muon_is_tracker, "muon_is_tracker[muon_count]/I");
     tree->Branch("muon_is_global", muon_is_global, "muon_is_global[muon_count]/I");
@@ -573,8 +587,86 @@ void RootMaker::beginJob() {
     tree->Branch("ak4pfchsjet_btag", ak4pfchsjet_btag, "ak4pfchsjet_btag[ak4pfchsjet_count][6]/F");
     tree->Branch("ak4pfchsjet_trigger", ak4pfchsjet_trigger, "ak4pfchsjet_trigger[ak4pfchsjet_count]/i");
     tree->Branch("ak4pfchsjet_mcflavour", ak4pfchsjet_mcflavour, "ak4pfchsjet_mcflavour[ak4pfchsjet_count]/I");
+    tree->Branch("ak4pfchsjet_count", &ak4pfchsjet_count, "ak4pfchsjet_count/i");
+    tree->Branch("ak4pfchsjet_e", ak4pfchsjet_e, "ak4pfchsjet_e[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_px", ak4pfchsjet_px, "ak4pfchsjet_px[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_py", ak4pfchsjet_py, "ak4pfchsjet_py[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_pz", ak4pfchsjet_pz, "ak4pfchsjet_pz[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_pt", ak4pfchsjet_pt, "ak4pfchsjet_pt[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_phi", ak4pfchsjet_phi, "ak4pfchsjet_phi[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_eta", ak4pfchsjet_eta, "ak4pfchsjet_eta[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_area", ak4pfchsjet_area, "ak4pfchsjet_area[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_hadronicenergy", ak4pfchsjet_hadronicenergy, "ak4pfchsjet_hadronicenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargedhadronicenergy", ak4pfchsjet_chargedhadronicenergy, "ak4pfchsjet_chargedhadronicenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_emenergy", ak4pfchsjet_emenergy, "ak4pfchsjet_emenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargedemenergy", ak4pfchsjet_chargedemenergy, "ak4pfchsjet_chargedemenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_hfhadronicenergy", ak4pfchsjet_hfhadronicenergy, "ak4pfchsjet_hfhadronicenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_hfemenergy", ak4pfchsjet_hfemenergy, "ak4pfchsjet_hfemenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_electronenergy", ak4pfchsjet_electronenergy, "ak4pfchsjet_electronenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_muonenergy", ak4pfchsjet_muonenergy, "ak4pfchsjet_muonenergy[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargedmulti", ak4pfchsjet_chargedmulti, "ak4pfchsjet_chargedmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_neutralmulti", ak4pfchsjet_neutralmulti, "ak4pfchsjet_neutralmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_hfhadronicmulti", ak4pfchsjet_hfhadronicmulti, "ak4pfchsjet_hfhadronicmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_hfemmulti", ak4pfchsjet_hfemmulti, "ak4pfchsjet_hfemmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_electronmulti", ak4pfchsjet_electronmulti, "ak4pfchsjet_electronmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_muonmulti", ak4pfchsjet_muonmulti, "ak4pfchsjet_muonmulti[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_energycorr", ak4pfchsjet_energycorr, "ak4pfchsjet_energycorr[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargeda", ak4pfchsjet_chargeda, "ak4pfchsjet_chargeda[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargedb", ak4pfchsjet_chargedb, "ak4pfchsjet_chargedb[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_neutrala", ak4pfchsjet_neutrala, "ak4pfchsjet_neutrala[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_neutralb", ak4pfchsjet_neutralb, "ak4pfchsjet_neutralb[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_alla", ak4pfchsjet_alla, "ak4pfchsjet_alla[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_allb", ak4pfchsjet_allb, "ak4pfchsjet_allb[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_chargedfractionmv", ak4pfchsjet_chargedfractionmv, "ak4pfchsjet_chargedfractionmv[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_energycorrunc", ak4pfchsjet_energycorrunc, "ak4pfchsjet_energycorrunc[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_energycorrl7uds", ak4pfchsjet_energycorrl7uds, "ak4pfchsjet_energycorrl7uds[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_energycorrl7bottom", ak4pfchsjet_energycorrl7bottom, "ak4pfchsjet_energycorrl7bottom[ak4pfchsjet_count]/F");
+    tree->Branch("ak4pfchsjet_btag", ak4pfchsjet_btag, "ak4pfchsjet_btag[ak4pfchsjet_count][6]/F");
+    tree->Branch("ak4pfchsjet_trigger", ak4pfchsjet_trigger, "ak4pfchsjet_trigger[ak4pfchsjet_count]/i");
+    tree->Branch("ak4pfchsjet_mcflavour", ak4pfchsjet_mcflavour, "ak4pfchsjet_mcflavour[ak4pfchsjet_count]/I");
+
+    tree->Branch("ak4pfchspuppijet_count", &ak4pfchspuppijet_count, "ak4pfchspuppijet_count/i");
+    tree->Branch("ak4pfchspuppijet_e", ak4pfchspuppijet_e, "ak4pfchspuppijet_e[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_px", ak4pfchspuppijet_px, "ak4pfchspuppijet_px[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_py", ak4pfchspuppijet_py, "ak4pfchspuppijet_py[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_pz", ak4pfchspuppijet_pz, "ak4pfchspuppijet_pz[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_pt", ak4pfchspuppijet_pt, "ak4pfchspuppijet_pt[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_phi", ak4pfchspuppijet_phi, "ak4pfchspuppijet_phi[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_eta", ak4pfchspuppijet_eta, "ak4pfchspuppijet_eta[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_area", ak4pfchspuppijet_area, "ak4pfchspuppijet_area[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_hadronicenergy", ak4pfchspuppijet_hadronicenergy, "ak4pfchspuppijet_hadronicenergy[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_chargedhadronicenergy", ak4pfchspuppijet_chargedhadronicenergy, "ak4pfchspuppijet_chargedhadronicenergy[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_emenergy", ak4pfchspuppijet_emenergy, "ak4pfchspuppijet_emenergy[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_chargedemenergy", ak4pfchspuppijet_chargedemenergy, "ak4pfchspuppijet_chargedemenergy[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_hfhadronicenergy", ak4pfchspuppijet_hfhadronicenergy, "ak4pfchspuppijet_hfhadronicenergy[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_hfemenergy", ak4pfchspuppijet_hfemenergy, "ak4pfchspuppijet_hfemenergy[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_electronenergy", ak4pfchspuppijet_electronenergy, "ak4pfchspuppijet_electronenergy[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_muonenergy", ak4pfchspuppijet_muonenergy, "ak4pfchspuppijet_muonenergy[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_chargedmulti", ak4pfchspuppijet_chargedmulti, "ak4pfchspuppijet_chargedmulti[ak4pfchspuppijet_count]/i");
+    tree->Branch("ak4pfchspuppijet_neutralmulti", ak4pfchspuppijet_neutralmulti, "ak4pfchspuppijet_neutralmulti[ak4pfchspuppijet_count]/i");
+    tree->Branch("ak4pfchspuppijet_hfhadronicmulti", ak4pfchspuppijet_hfhadronicmulti, "ak4pfchspuppijet_hfhadronicmulti[ak4pfchspuppijet_count]/i");
+    tree->Branch("ak4pfchspuppijet_hfemmulti", ak4pfchspuppijet_hfemmulti, "ak4pfchspuppijet_hfemmulti[ak4pfchspuppijet_count]/i");
+    tree->Branch("ak4pfchspuppijet_electronmulti", ak4pfchspuppijet_electronmulti, "ak4pfchspuppijet_electronmulti[ak4pfchspuppijet_count]/i");
+    tree->Branch("ak4pfchspuppijet_muonmulti", ak4pfchspuppijet_muonmulti, "ak4pfchspuppijet_muonmulti[ak4pfchspuppijet_count]/i");
+    tree->Branch("ak4pfchspuppijet_energycorr", ak4pfchspuppijet_energycorr, "ak4pfchspuppijet_energycorr[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_chargeda", ak4pfchspuppijet_chargeda, "ak4pfchspuppijet_chargeda[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_chargedb", ak4pfchspuppijet_chargedb, "ak4pfchspuppijet_chargedb[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_neutrala", ak4pfchspuppijet_neutrala, "ak4pfchspuppijet_neutrala[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_neutralb", ak4pfchspuppijet_neutralb, "ak4pfchspuppijet_neutralb[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_alla", ak4pfchspuppijet_alla, "ak4pfchspuppijet_alla[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_allb", ak4pfchspuppijet_allb, "ak4pfchspuppijet_allb[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_chargedfractionmv", ak4pfchspuppijet_chargedfractionmv, "ak4pfchspuppijet_chargedfractionmv[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_energycorrunc", ak4pfchspuppijet_energycorrunc, "ak4pfchspuppijet_energycorrunc[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_energycorrl7uds", ak4pfchspuppijet_energycorrl7uds, "ak4pfchspuppijet_energycorrl7uds[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_energycorrl7bottom", ak4pfchspuppijet_energycorrl7bottom, "ak4pfchspuppijet_energycorrl7bottom[ak4pfchspuppijet_count]/F");
+    tree->Branch("ak4pfchspuppijet_btag", ak4pfchspuppijet_btag, "ak4pfchspuppijet_btag[ak4pfchspuppijet_count][6]/F");
+    tree->Branch("ak4pfchspuppijet_trigger", ak4pfchspuppijet_trigger, "ak4pfchspuppijet_trigger[ak4pfchspuppijet_count]/i");
+    tree->Branch("ak4pfchspuppijet_mcflavour", ak4pfchspuppijet_mcflavour, "ak4pfchspuppijet_mcflavour[ak4pfchspuppijet_count]/I");
 
     tree->Branch("electron_count", &electron_count, "electron_count/i");
+    tree->Branch("electron_cbID", &electron_cbID, "electron_cbID[electron_count]/I");
+    tree->Branch("electron_heepID", &electron_heepID, "electron_heepID[electron_count]/I");
+    tree->Branch("electron_mvaID", &electron_mvaID, "electron_mvaID[electron_count]/I");
     tree->Branch("electron_vtx", electron_vtx, "electron_vtx[electron_count]/I");
     tree->Branch("electron_px", electron_px, "electron_px[electron_count]/F");
     tree->Branch("electron_py", electron_py, "electron_py[electron_count]/F");
@@ -585,8 +677,6 @@ void RootMaker::beginJob() {
     tree->Branch("electron_correctedecalenergy", electron_correctedecalenergy, "electron_correctedecalenergy[electron_count]/F");
     tree->Branch("electron_trackchi2", electron_trackchi2, "electron_trackchi2[electron_count]/F");
     tree->Branch("electron_trackndof", electron_trackndof, "electron_trackndof[electron_count]/F");
-
-    tree->Branch("electron_cb_id", electron_cb_id, "electron_cb_id[electron_count]/I");
 
     tree->Branch("electron_has_gen_particle", electron_has_gen_particle, "electron_has_gen_particle[electron_count]/I");
     tree->Branch("electron_gen_particle_pdgid", electron_gen_particle_pdgid, "electron_gen_particle_pdgid[electron_count]/I");
@@ -779,6 +869,7 @@ void RootMaker::beginJob() {
     tree->Branch("tau_isolationneutralsnum", tau_isolationneutralsnum, "tau_isolationneutralsnum[tau_count]/i");
     tree->Branch("tau_isolationchargedpt", tau_isolationchargedpt, "tau_isolationchargedpt[tau_count]/F");
     tree->Branch("tau_isolationchargednum", tau_isolationchargednum, "tau_isolationchargednum[tau_count]/i");
+    tree->Branch("tau_pucorrptsum", tau_pucorrptsum, "tau_pucorrptsum[tau_count]/F");
     tree->Branch("tau_isolationgammapt", tau_isolationgammapt, "tau_isolationgammapt[tau_count]/F");
     tree->Branch("tau_isolationgammanum", tau_isolationgammanum, "tau_isolationgammanum[tau_count]/i");
     tree->Branch("tau_charge", tau_charge, "tau_charge[tau_count]/I");
@@ -831,10 +922,46 @@ void RootMaker::beginJob() {
     tree->Branch("ak4pfjet_rho", &ak4pfjet_rho, "ak4pfjet_rho/F");
     tree->Branch("ak4pfjet_sigma", &ak4pfjet_sigma, "ak4pfjet_sigma/F");
 
+    tree->Branch("patmvamet_emt_ex", &patmvamet_emt_ex, "patmvamet_emt_ex/F");
+    tree->Branch("patmvamet_emt_ey", &patmvamet_emt_ey, "patmvamet_emt_ey/F");
+    tree->Branch("patmvamet_emt_cov_00", &patmvamet_emt_cov_00, "patmvamet_emt_cov_00/F");
+    tree->Branch("patmvamet_emt_cov_01", &patmvamet_emt_cov_01, "patmvamet_emt_cov_01/F");
+    tree->Branch("patmvamet_emt_cov_10", &patmvamet_emt_cov_10, "patmvamet_emt_cov_10/F");
+    tree->Branch("patmvamet_emt_cov_11", &patmvamet_emt_cov_11, "patmvamet_emt_cov_11/F");
+    tree->Branch("patmvamet_et_ex", &patmvamet_et_ex, "patmvamet_et_ex/F");
+    tree->Branch("patmvamet_et_ey", &patmvamet_et_ey, "patmvamet_et_ey/F");
+    tree->Branch("patmvamet_et_cov_00", &patmvamet_et_cov_00, "patmvamet_et_cov_00/F");
+    tree->Branch("patmvamet_et_cov_01", &patmvamet_et_cov_01, "patmvamet_et_cov_01/F");
+    tree->Branch("patmvamet_et_cov_10", &patmvamet_et_cov_10, "patmvamet_et_cov_10/F");
+    tree->Branch("patmvamet_et_cov_11", &patmvamet_et_cov_11, "patmvamet_et_cov_11/F");
+    tree->Branch("patmvamet_em_ex", &patmvamet_em_ex, "patmvamet_em_ex/F");
+    tree->Branch("patmvamet_em_ey", &patmvamet_em_ey, "patmvamet_em_ey/F");
+    tree->Branch("patmvamet_em_cov_00", &patmvamet_em_cov_00, "patmvamet_em_cov_00/F");
+    tree->Branch("patmvamet_em_cov_01", &patmvamet_em_cov_01, "patmvamet_em_cov_01/F");
+    tree->Branch("patmvamet_em_cov_10", &patmvamet_em_cov_10, "patmvamet_em_cov_10/F");
+    tree->Branch("patmvamet_em_cov_11", &patmvamet_em_cov_11, "patmvamet_em_cov_11/F");
+    tree->Branch("patmvamet_mt_ex", &patmvamet_mt_ex, "patmvamet_mt_ex/F");
+    tree->Branch("patmvamet_mt_ey", &patmvamet_mt_ey, "patmvamet_mt_ey/F");
+    tree->Branch("patmvamet_mt_cov_00", &patmvamet_mt_cov_00, "patmvamet_mt_cov_00/F");
+    tree->Branch("patmvamet_mt_cov_01", &patmvamet_mt_cov_01, "patmvamet_mt_cov_01/F");
+    tree->Branch("patmvamet_mt_cov_10", &patmvamet_mt_cov_10, "patmvamet_mt_cov_10/F");
+    tree->Branch("patmvamet_mt_cov_11", &patmvamet_mt_cov_11, "patmvamet_mt_cov_11/F");
+    tree->Branch("patmvamet_tt_ex", &patmvamet_tt_ex, "patmvamet_tt_ex/F");
+    tree->Branch("patmvamet_tt_ey", &patmvamet_tt_ey, "patmvamet_tt_ey/F");
+    tree->Branch("patmvamet_tt_cov_00", &patmvamet_tt_cov_00, "patmvamet_tt_cov_00/F");
+    tree->Branch("patmvamet_tt_cov_01", &patmvamet_tt_cov_01, "patmvamet_tt_cov_01/F");
+    tree->Branch("patmvamet_tt_cov_10", &patmvamet_tt_cov_10, "patmvamet_tt_cov_10/F");
+    tree->Branch("patmvamet_tt_cov_11", &patmvamet_tt_cov_11, "patmvamet_tt_cov_11/F");
     tree->Branch("pfmet_ex", &pfmet_ex, "pfmet_ex/F");
     tree->Branch("pfmet_ey", &pfmet_ey, "pfmet_ey/F");
     tree->Branch("pfmettype1_ex", &pfmettype1_ex, "pfmettype1_ex/F");
     tree->Branch("pfmettype1_ey", &pfmettype1_ey, "pfmettype1_ey/F");
+    tree->Branch("pfmettype1_cov_00", &pfmettype1_cov_00, "pfmettype1_cov_00/F");
+    tree->Branch("pfmettype1_cov_01", &pfmettype1_cov_01, "pfmettype1_cov_01/F");
+    tree->Branch("pfmettype1_cov_10", &pfmettype1_cov_10, "pfmettype1_cov_10/F");
+    tree->Branch("pfmettype1_cov_11", &pfmettype1_cov_11, "pfmettype1_cov_11/F");
+    tree->Branch("pfmetpuppitype1_ex", &pfmetpuppitype1_ex, "pfmetpuppitype1_ex/F");
+    tree->Branch("pfmetpuppitype1_ey", &pfmetpuppitype1_ey, "pfmetpuppitype1_ey/F");
     tree->Branch("pfmettype0type1_ex", &pfmettype0type1_ex, "pfmettype0type1_ex/F");
     tree->Branch("pfmettype0type1_ey", &pfmettype0type1_ey, "pfmettype0type1_ey/F");
 
@@ -1183,6 +1310,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     ak4jptjet_count = 0;
     ak4pfjet_count = 0;
     ak4pfchsjet_count = 0;
+    ak4pfchspuppijet_count = 0;
     electron_count = 0;
     photon_count = 0;
     conversion_count = 0;
@@ -1584,23 +1712,58 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
     takeevent = false;
 
-    if(crectrack) takeevent = AddTracks(iEvent) || takeevent;
-    if(crecmuon && !cisMiniAOD) takeevent = AddMuons(iEvent) || takeevent;
-    if(crecmuon && cisMiniAOD)  takeevent = AddPatMuons(iEvent) || takeevent;
-    if(crecelectron && !cisMiniAOD) takeevent = AddElectrons(iEvent) || takeevent;
-    if(crecelectron && cisMiniAOD)  takeevent = AddPatElectrons(iEvent) || takeevent;
-    if(crecphoton && !cisMiniAOD) takeevent = AddPhotons(iEvent, iSetup) || takeevent;
-    if(crecphoton && cisMiniAOD)  takeevent = AddPatPhotons(iEvent, iSetup) || takeevent;
-    if(crectau && !cisMiniAOD) takeevent = AddTaus(iEvent) || takeevent;
-    if(crectau && cisMiniAOD)  takeevent = AddPatTaus(iEvent) || takeevent;
-    if(crecak4calojet && !cisMiniAOD) takeevent = AddAK4CaloJets(iEvent, iSetup) || takeevent;
-    if(crecak4jptjet && !cisMiniAOD) takeevent = AddAK4JPTJets(iEvent, iSetup) || takeevent;
-    if(crecak4pfjet && !cisMiniAOD) takeevent = AddAK4PFJets(iEvent, iSetup) || takeevent;
-    if(crecak4pfchsjet) takeevent = AddAK4PFCHSJets(iEvent, iSetup) || takeevent;
-    if(crecmusecvertices) AddMuVertices(iEvent);
-    if(crecallconversion) AddAllConversions(iEvent);
+    if(crectrack) {
+        takeevent = AddTracks(iEvent) || takeevent;
+    }
+    if(crecmuon && !cisMiniAOD) {
+        takeevent = AddMuons(iEvent) || takeevent;
+    }
+    if(crecmuon && cisMiniAOD) {
+        takeevent = AddPatMuons(iEvent) || takeevent;
+    }
+    if(crecelectron && !cisMiniAOD) {
+        takeevent = AddElectrons(iEvent) || takeevent;
+    }
+    if(crecelectron && cisMiniAOD) {
+        takeevent = AddPatElectrons(iEvent) || takeevent;
+    }
+    if(crecphoton && !cisMiniAOD) {
+        takeevent = AddPhotons(iEvent, iSetup) || takeevent;
+    }
+    if(crecphoton && cisMiniAOD) {
+        takeevent = AddPatPhotons(iEvent, iSetup) || takeevent;
+    }
+    if(crectau && !cisMiniAOD) {
+        takeevent = AddTaus(iEvent) || takeevent;
+    }
+    if(crectau && cisMiniAOD) {
+        takeevent = AddPatTaus(iEvent) || takeevent;
+    }
+    if(crecak4calojet && !cisMiniAOD) {
+        takeevent = AddAK4CaloJets(iEvent, iSetup) || takeevent;
+    }
+    if(crecak4jptjet && !cisMiniAOD) {
+        takeevent = AddAK4JPTJets(iEvent, iSetup) || takeevent;
+    }
+    if(crecak4pfjet && !cisMiniAOD) {
+        takeevent = AddAK4PFJets(iEvent, iSetup) || takeevent;
+    }
+    if(crecak4pfchsjet) {
+        takeevent = AddAK4PFCHSJets(iEvent, iSetup) || takeevent;
+    }
+    if(crecak4pfchspuppijet) {
+        takeevent = AddAK4PFCHSPuppiJets(iEvent, iSetup) || takeevent;
+    }
+    if(crecmusecvertices) {
+        AddMuVertices(iEvent);
+    }
+    if(crecallconversion) {
+        AddAllConversions(iEvent);
+    }
 
-    if(!takeevent) return;
+    if(!takeevent) {
+        return;
+    }
 
     if(cisMiniAOD) {
         edm::Handle<double> rho;
@@ -1651,14 +1814,114 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
     if(crecpfmet) {
         if(cisMiniAOD) {
-            edm::Handle<pat::METCollection> pfMetType1;
-            iEvent.getByToken(patMetToken_, pfMetType1);
+	  // mvaMET considering: ele, mu and tau leptons
+	  edm::Handle<std::vector<reco::PFMET> > mvaMetEMT;
+	  iEvent.getByLabel( patMVAMetEMTToken_, mvaMetEMT);
+	  if(cdebug) {
+	    cout<<"mini mvaMetEMT.isValid() = "<<mvaMetEMT.isValid()<<endl;
+	  }
+	  if(mvaMetEMT.isValid() && mvaMetEMT->size() > 0) {
+	    patmvamet_emt_ex = (*mvaMetEMT)[0].px();
+	    patmvamet_emt_ey = (*mvaMetEMT)[0].py(); 
+	    patmvamet_emt_cov_00 = (*mvaMetEMT)[0].getSignificanceMatrix()(0,0);
+	    patmvamet_emt_cov_01 = (*mvaMetEMT)[0].getSignificanceMatrix()(0,1);
+	    patmvamet_emt_cov_10 = (*mvaMetEMT)[0].getSignificanceMatrix()(1,0);
+	    patmvamet_emt_cov_11 = (*mvaMetEMT)[0].getSignificanceMatrix()(1,1);
+	  } else {
+	    errors |= 1<<24;
+	  }
+	  // mvaMET considering: ele and mu leptons
+          edm::Handle<std::vector<reco::PFMET> > mvaMetEM;
+          iEvent.getByLabel( patMVAMetEMToken_, mvaMetEM);
+          if(cdebug) {
+            cout<<"mini mvaMetEM.isValid() = "<<mvaMetEM.isValid()<<endl;
+          }
+          if(mvaMetEM.isValid() && mvaMetEM->size() > 0) {
+            patmvamet_em_ex = (*mvaMetEM)[0].px();
+            patmvamet_em_ey = (*mvaMetEM)[0].py();
+	    patmvamet_em_cov_00 = (*mvaMetEM)[0].getSignificanceMatrix()(0,0);
+	    patmvamet_em_cov_01 = (*mvaMetEM)[0].getSignificanceMatrix()(0,1);
+	    patmvamet_em_cov_10 = (*mvaMetEM)[0].getSignificanceMatrix()(1,0);
+	    patmvamet_em_cov_11 = (*mvaMetEM)[0].getSignificanceMatrix()(1,1);
+          } else {
+            errors |= 1<<24;
+          }
+	  // mvaMET considering: ele and tau leptons
+          edm::Handle<std::vector<reco::PFMET> > mvaMetET;
+          iEvent.getByLabel( patMVAMetETToken_, mvaMetET);
+          if(cdebug) {
+            cout<<"mini mvaMetET.isValid() = "<<mvaMetET.isValid()<<endl;
+          }
+          if(mvaMetET.isValid() && mvaMetET->size() > 0) {
+            patmvamet_et_ex = (*mvaMetET)[0].px();
+            patmvamet_et_ey = (*mvaMetET)[0].py();
+	    patmvamet_et_cov_00 = (*mvaMetET)[0].getSignificanceMatrix()(0,0);
+	    patmvamet_et_cov_01 = (*mvaMetET)[0].getSignificanceMatrix()(0,1);
+	    patmvamet_et_cov_10 = (*mvaMetET)[0].getSignificanceMatrix()(1,0);
+	    patmvamet_et_cov_11 = (*mvaMetET)[0].getSignificanceMatrix()(1,1);
+          } else {
+            errors |= 1<<24;
+          }
+	  // mvaMET considering: mu and tau leptons
+          edm::Handle<std::vector<reco::PFMET> > mvaMetMT;
+          iEvent.getByLabel( patMVAMetMTToken_, mvaMetMT);
+          if(cdebug) {
+            cout<<"mini mvaMetMT.isValid() = "<<mvaMetMT.isValid()<<endl;
+          }
+          if(mvaMetMT.isValid() && mvaMetMT->size() > 0) {
+            patmvamet_mt_ex = (*mvaMetMT)[0].px();
+            patmvamet_mt_ey = (*mvaMetMT)[0].py();
+	    patmvamet_mt_cov_00 = (*mvaMetMT)[0].getSignificanceMatrix()(0,0);
+	    patmvamet_mt_cov_01 = (*mvaMetMT)[0].getSignificanceMatrix()(0,1);
+	    patmvamet_mt_cov_10 = (*mvaMetMT)[0].getSignificanceMatrix()(1,0);
+	    patmvamet_mt_cov_11 = (*mvaMetMT)[0].getSignificanceMatrix()(1,1);
+          } else {
+            errors |= 1<<24;
+          }
+	  // mvaMET considering: tau and tau leptons
+          edm::Handle<std::vector<reco::PFMET> > mvaMetTT;
+          iEvent.getByLabel( patMVAMetTTToken_, mvaMetTT);
+          if(cdebug) {
+            cout<<"mini mvaMetTT.isValid() = "<<mvaMetTT.isValid()<<endl;
+          }
+          if(mvaMetTT.isValid() && mvaMetTT->size() > 0) {
+            patmvamet_tt_ex = (*mvaMetTT)[0].px();
+            patmvamet_tt_ey = (*mvaMetTT)[0].py();
+	    patmvamet_tt_cov_00 = (*mvaMetTT)[0].getSignificanceMatrix()(0,0);
+	    patmvamet_tt_cov_01 = (*mvaMetTT)[0].getSignificanceMatrix()(0,1);
+	    patmvamet_tt_cov_10 = (*mvaMetTT)[0].getSignificanceMatrix()(1,0);
+	    patmvamet_tt_cov_11 = (*mvaMetTT)[0].getSignificanceMatrix()(1,1);
+          } else {
+            errors |= 1<<24;
+          }
+	  //
+ 	  edm::Handle<pat::METCollection> pfMetType1;
+	  //iEvent.getByToken(patMetToken_, pfMetType1);
+	  iEvent.getByLabel( newMetLabel_, pfMetType1);
+	  //iEvent.getByLabel( "patMETs", pfMetType1);
+	  cout<<"mini patMetType1.isValid() = "<<pfMetType1.isValid()<<endl;
+	  if(cdebug) {
+	    cout<<"mini patMetType1.isValid() = "<<pfMetType1.isValid()<<endl;
+	  }
+	  if(pfMetType1.isValid() && pfMetType1->size() > 0) {
+	    pfmettype1_ex = (*pfMetType1)[0].px();
+	    pfmettype1_ey = (*pfMetType1)[0].py();
+	    pfmettype1_cov_00 = (*pfMetType1)[0].getSignificanceMatrix()(0,0);
+	    pfmettype1_cov_01 = (*pfMetType1)[0].getSignificanceMatrix()(0,1);
+	    pfmettype1_cov_10 = (*pfMetType1)[0].getSignificanceMatrix()(1,0);
+	    pfmettype1_cov_11 = (*pfMetType1)[0].getSignificanceMatrix()(1,1);
+	  } else {
+	    errors |= 1<<24;
+	  }
+	  //
+            edm::Handle<pat::METCollection> pfMetPuppiType1;
+            iEvent.getByToken(patMetPuppiToken_, pfMetPuppiType1);
             if(cdebug) {
-                cout<<"mini pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl;
+                cout<<"mini patMetPuppiType1.isValid() = "<<pfMetPuppiType1.isValid()<<endl;
             }
-            if(pfMetType1.isValid() && pfMetType1->size() > 0) {
-                pfmettype1_ex = (*pfMetType1)[0].px();
-                pfmettype1_ey = (*pfMetType1)[0].py();
+            if(pfMetPuppiType1.isValid() && pfMetPuppiType1->size() > 0) {
+                pfmetpuppitype1_ex = (*pfMetPuppiType1)[0].px();
+                pfmetpuppitype1_ey = (*pfMetPuppiType1)[0].py();
             } else {
                 errors |= 1<<24;
             }
@@ -2268,6 +2531,7 @@ bool RootMaker::AddPatMuons(const edm::Event &iEvent) {
             all_muon_eta->Fill(themu.eta());
             muon_muID[muon_count] = 0;
             if (themu.isTightMuon((*Vertices)[0])) muon_muID[muon_count] = 4;
+            else if (themu.isMediumMuon()) muon_muID[muon_count] = 3;
             else if (themu.isLooseMuon()) muon_muID[muon_count] = 2;
             else muon_muID[muon_count] = -1;
             if (cdebug) cout<<"muID = "<<muon_muID[muon_count]<<endl;
@@ -2288,6 +2552,7 @@ bool RootMaker::AddPatMuons(const edm::Event &iEvent) {
                 muon_ndof[muon_count] = 0;
                 muon_numvalidmuonhits[muon_count] = -1.;
             }
+	    muon_dB[muon_count] = themu.dB();
             muon_isolationr3track[muon_count]  = themu.isolationR03().sumPt;
             muon_isolationr3ntrack[muon_count] = themu.isolationR03().nTracks;
             muon_isolationr3ecal[muon_count]   = themu.isolationR03().emEt;
@@ -3109,24 +3374,24 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
     }
     NumAll = Taus->size();
     if(Taus.isValid()) {
-        vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
-        for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++) {
-            iEvent.getByLabel(cTauDiscriminators[n].c_str(), PFTauDiscriminatiors[n]);
-        }
-        edm::Handle<PFTauDiscriminator> hpsPFTauDiscriminationByLooseIsolation;
-        iEvent.getByLabel("hpsPFTauDiscriminationByLooseIsolation", hpsPFTauDiscriminationByLooseIsolation);
+      vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
+      for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++) {
+           iEvent.getByLabel(cTauDiscriminators[n].c_str(), PFTauDiscriminatiors[n]);
+       }
+       edm::Handle<PFTauDiscriminator> hpsPFTauDiscriminationByLooseIsolation;
+       iEvent.getByLabel("hpsPFTauDiscriminationByLooseIsolation", hpsPFTauDiscriminationByLooseIsolation);
 
         for(unsigned i = 0 ; i < Taus->size() ; i++) {
             int numtrack = (*Taus)[i].signalPFChargedHadrCands().size();
             PFTauRef tauCandidate(Taus, i);
-            if((*hpsPFTauDiscriminationByLooseIsolation)[tauCandidate] < 0.5 || !(numtrack == 3 || numtrack == 1)) {
-                continue;
+	       if((*hpsPFTauDiscriminationByLooseIsolation)[tauCandidate] < 0.5 || !(numtrack == 3 || numtrack == 1)) {
+               continue;
             }
             tau_dishps[tau_count] = 0;
             for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++) {
-                if((*PFTauDiscriminatiors[n])[tauCandidate] > 0.5) {
-                    tau_dishps[tau_count] |= 1<<n;
-                }
+               if((*PFTauDiscriminatiors[n])[tauCandidate] > 0.5) {
+                   tau_dishps[tau_count] |= 1<<n;
+               }
             }
 
             all_tau_pt->Fill((*Taus)[i].pt());
@@ -3173,6 +3438,7 @@ bool RootMaker::AddTaus(const edm::Event &iEvent) {
             tau_isolationchargedpt[tau_count] = 0.;
             tau_isolationneutralsnum[tau_count] = 0;
             tau_isolationneutralspt[tau_count] = 0.;
+	    tau_pucorrptsum[tau_count] = 0.;
             tau_isolationgammanum[tau_count] = (*Taus)[i].isolationPFGammaCands().size();
             tau_isolationgammapt[tau_count] = (*Taus)[i].isolationPFGammaCandsEtSum();
 
@@ -3259,8 +3525,8 @@ bool RootMaker::AddPatTaus(const edm::Event &iEvent) {
     int NumGood = 0;
     edm::Handle<pat::TauCollection> Taus;
     iEvent.getByToken(patTausToken_, Taus);
-    edm::Handle<pat::JetCollection> ak4pfchsJets;
-    iEvent.getByToken(tauJetsToken_, ak4pfchsJets);
+    edm::Handle<pat::JetCollection> ak4pfchspuppiJets;
+    iEvent.getByToken(tauJetsToken_, ak4pfchspuppiJets);
     if(cdebug) {
         cout<<"pat Taus.isValid() = "<<Taus.isValid()<<endl;
     }
@@ -3269,24 +3535,7 @@ bool RootMaker::AddPatTaus(const edm::Event &iEvent) {
     }
     NumAll = Taus->size();
     if(Taus.isValid()) {
-        /*
-                vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
-                for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++) {
-                    iEvent.getByLabel(cTauDiscriminators[n].c_str(), PFTauDiscriminatiors[n]);
-                }
-                edm::Handle<PFTauDiscriminator> hpsPFTauDiscriminationByLooseIsolation;
-                iEvent.getByLabel("hpsPFTauDiscriminationByLooseIsolation", hpsPFTauDiscriminationByLooseIsolation);
-        */
         for(unsigned i = 0 ; i < Taus->size() ; i++) {
-            /*
-                        int numtrack = (*Taus)[i].signalPFChargedHadrCands().size();
-                        PFTauRef tauCandidate(Taus, i);
-                        if((*hpsPFTauDiscriminationByLooseIsolation)[tauCandidate] < 0.5 || !(numtrack == 3 || numtrack == 1)) { continue; }
-                        tau_dishps[tau_count] = 0;
-                        for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++) {
-                            if((*PFTauDiscriminatiors[n])[tauCandidate] > 0.5) { tau_dishps[tau_count] |= 1<<n; }
-                        }
-            */
             all_tau_pt->Fill((*Taus)[i].pt());
             all_tau_phi->Fill((*Taus)[i].phi());
             all_tau_eta->Fill((*Taus)[i].eta());
@@ -3296,56 +3545,54 @@ bool RootMaker::AddPatTaus(const edm::Event &iEvent) {
             tau_pt[tau_count] = (*Taus)[i].pt();
             tau_phi[tau_count] = (*Taus)[i].phi();
             tau_eta[tau_count] = (*Taus)[i].eta();
-            /*
-                        if ((*Taus)[i].isPFTau()) {
-                            tau_emfraction[tau_count] = (*Taus)[i].emFraction();
-                            tau_hcaltotoverplead[tau_count] = (*Taus)[i].hcalTotOverPLead();
-                            tau_hcal3x3overplead[tau_count] = (*Taus)[i].hcalMaxOverPLead();
-                            tau_ecalstripsumeoverplead[tau_count] = (*Taus)[i].hcal3x3OverPLead();
-                            tau_bremsrecoveryeoverplead[tau_count] = (*Taus)[i].ecalStripSumEOverPLead();
-                            tau_calocomp[tau_count] = (*Taus)[i].caloComp();
-                            tau_segcomp[tau_count] = (*Taus)[i].segComp();
-
-                            tau_charge[tau_count] = (*Taus)[i].charge();
-                            tau_chargedbegin[tau_count] = tau_charged_count;
-                            PFJetRef thejet = (*Taus)[i].pfJetRef();
-                            bool jetfound = false;
-                            if(ak4pfchsJets.isValid()) {
-                                jetfound = true;
-                                tau_ak4pfjet_e[tau_count] = thejet->energy();
-                                tau_ak4pfjet_px[tau_count] = thejet->px();
-                                tau_ak4pfjet_py[tau_count] = thejet->py();
-                                tau_ak4pfjet_pz[tau_count] = thejet->pz();
-                                tau_ak4pfjet_hadronicenergy[tau_count] = thejet->chargedHadronEnergy() + thejet->neutralHadronEnergy();
-                                tau_ak4pfjet_chargedhadronicenergy[tau_count] = thejet->chargedHadronEnergy();
-                                tau_ak4pfjet_emenergy[tau_count] = thejet->chargedEmEnergy() + thejet->neutralEmEnergy();
-                                tau_ak4pfjet_chargedemenergy[tau_count] = thejet->chargedEmEnergy();
-                                tau_ak4pfjet_chargedmulti[tau_count] = thejet->chargedMultiplicity();
-                                tau_ak4pfjet_neutralmulti[tau_count] = thejet->neutralMultiplicity();
-                                tau_ak4pfjet_trigger[tau_count] = GetTrigger(*thejet, jettriggers);
-                                break;
-                            }
-                            if(!jetfound) {
-                                tau_ak4pfjet_e[tau_count] = -1.;
-                            }
-                        }
-            */
-            tau_isolationchargednum[tau_count] = 0;
-            tau_isolationchargedpt[tau_count] = 0.;
-            tau_isolationneutralsnum[tau_count] = 0;
-            tau_isolationneutralspt[tau_count] = 0.;
+	    for( unsigned n = 0; n < cTauDiscriminators.size() ; n++){
+	      if( (*Taus)[i].tauID(cTauDiscriminators[n]) > 0.5 ){
+		tau_dishps[tau_count] |= 1<<n;
+	      }
+	    }
+            
+	    // if ((*Taus)[i].isPFTau()) {
+	    //     tau_emfraction[tau_count] = (*Taus)[i].emFraction();
+	    //     tau_hcaltotoverplead[tau_count] = (*Taus)[i].hcalTotOverPLead();
+	    //     tau_hcal3x3overplead[tau_count] = (*Taus)[i].hcalMaxOverPLead();
+	    //     tau_ecalstripsumeoverplead[tau_count] = (*Taus)[i].hcal3x3OverPLead();
+	    //     tau_bremsrecoveryeoverplead[tau_count] = (*Taus)[i].ecalStripSumEOverPLead();
+	    //     tau_calocomp[tau_count] = (*Taus)[i].caloComp();
+	    //     tau_segcomp[tau_count] = (*Taus)[i].segComp();
+	    
+	    //     tau_charge[tau_count] = (*Taus)[i].charge();
+	    //     tau_chargedbegin[tau_count] = tau_charged_count;
+	    //     PFJetRef thejet = (*Taus)[i].pfJetRef();
+	    //     bool jetfound = false;
+	    //     if(ak4pfchsJets.isValid()) {
+	    //         jetfound = true;
+	    //         tau_ak4pfjet_e[tau_count] = thejet->energy();
+	    //         tau_ak4pfjet_px[tau_count] = thejet->px();
+	    //         tau_ak4pfjet_py[tau_count] = thejet->py();
+	    //         tau_ak4pfjet_pz[tau_count] = thejet->pz();
+	    //         tau_ak4pfjet_hadronicenergy[tau_count] = thejet->chargedHadronEnergy() + thejet->neutralHadronEnergy();
+	    //         tau_ak4pfjet_chargedhadronicenergy[tau_count] = thejet->chargedHadronEnergy();
+	    //         tau_ak4pfjet_emenergy[tau_count] = thejet->chargedEmEnergy() + thejet->neutralEmEnergy();
+	    //         tau_ak4pfjet_chargedemenergy[tau_count] = thejet->chargedEmEnergy();
+	    //         tau_ak4pfjet_chargedmulti[tau_count] = thejet->chargedMultiplicity();
+	    //         tau_ak4pfjet_neutralmulti[tau_count] = thejet->neutralMultiplicity();
+	    //         tau_ak4pfjet_trigger[tau_count] = GetTrigger(*thejet, jettriggers);
+	    //         break;
+	    //     }
+	    //     if(!jetfound) {
+	    //         tau_ak4pfjet_e[tau_count] = -1.;
+	    //     }
+	    // }
+            
+            //tau_isolationchargednum[tau_count] = 0;
+            tau_isolationchargedpt[tau_count] = (*Taus)[i].tauID("chargedIsoPtSum");
+            //tau_isolationneutralsnum[tau_count] = 0.;
+            tau_isolationneutralspt[tau_count] = (*Taus)[i].tauID("neutralIsoPtSum");
+	    tau_pucorrptsum[tau_count] = (*Taus)[i].tauID("puCorrPtSum");
             tau_isolationgammanum[tau_count] = (*Taus)[i].isolationPFGammaCands().size();
-            /*
-                        tau_isolationgammapt[tau_count] = (*Taus)[i].isolationPFGammaCandsEtSum();
-                        tau_isolationchargednum[tau_count]  = (*Taus)[i].isolationPFChargedHadrCands().size();
-                        tau_isolationchargedpt[tau_count]   = (*Taus)[i].isolationPFChargedHadrCandsPtSum();
-                        tau_isolationneutralsnum[tau_count] = (*Taus)[i].isolationPFNeutrHadrCands().size();
-
-                        std::vector<double> isocands = extract((*Taus)[i].isolationPFNeutrHadrCands(),std::mem_fun_ref(&PFCandidate::pt));
-                        BOOST_FOREACH(double pt, isocands) {
-                            tau_isolationneutralspt[tau_count] += pt;
-                        }
-            */
+	    //tau_isolationgammapt[tau_count] = (*Taus)[i].isolationPFGammaCandsEtSum();
+	    //tau_isolationchargednum[tau_count]  = (*Taus)[i].isolationPFChargedHadrCands().size();
+	    //tau_isolationneutralsnum[tau_count] = (*Taus)[i].isolationPFNeutrHadrCands().size();
             tau_trigger[tau_count] = GetTrigger((*Taus)[i], tautriggers);
             TrackRef track;
 
@@ -3514,11 +3761,12 @@ bool RootMaker::AddAK4CaloJets(const edm::Event &iEvent, const edm::EventSetup &
                     ak4calojet_energycorrl7bottom[ak4calojet_count] = -1.;
                 }
                 for(unsigned n = 0 ; n < bdisclabel.size() ; n++) {
-                    if(bdisclabel[n] != "F") {
-                        ak4calojet_btag[ak4calojet_count][n] = (*ak4caloJets)[i].bDiscriminator(bdisclabel[n]);
-                    } else {
-                        ak4calojet_btag[ak4calojet_count][n] = -1000;
-                    }
+		    ak4calojet_btag[ak4calojet_count][n] = (*ak4caloJets)[i].bDiscriminator(bdisclabel[n]);
+                    // if(bdisclabel[n] != "F") {
+                    //     ak4calojet_btag[ak4calojet_count][n] = (*ak4caloJets)[i].bDiscriminator(bdisclabel[n]);
+                    // } else {
+                    //     ak4calojet_btag[ak4calojet_count][n] = -1000;
+                    // }
                 }
 
                 ak4calojet_fhpd[ak4calojet_count] = (*ak4caloJets)[i].jetID().fHPD;
@@ -3579,11 +3827,12 @@ bool RootMaker::AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &i
                     ak4jptjet_energycorrl7bottom[ak4jptjet_count] = -1.;
                 }
                 for(unsigned n = 0 ; n < bdisclabel.size() ; n++) {
-                    if(bdisclabel[n] != "F") {
-                        ak4jptjet_btag[ak4jptjet_count][n] = (*ak4jptJets)[i].bDiscriminator(bdisclabel[n]);
-                    } else {
-                        ak4jptjet_btag[ak4jptjet_count][n] = -1000;
-                    }
+		    ak4jptjet_btag[ak4jptjet_count][n] = (*ak4jptJets)[i].bDiscriminator(bdisclabel[n]);
+                    // if(bdisclabel[n] != "F") {
+                    //     ak4jptjet_btag[ak4jptjet_count][n] = (*ak4jptJets)[i].bDiscriminator(bdisclabel[n]);
+                    // } else {
+                    //     ak4jptjet_btag[ak4jptjet_count][n] = -1000;
+                    // }
                 }
 
                 ak4jptjet_fhpd[ak4jptjet_count] = (*ak4jptJets)[i].jetID().fHPD;
@@ -3695,25 +3944,27 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                         ak4pfchsjet_mcflavour[ak4pfchsjet_count] = jetMCFl[num].second.getFlavour();
                     }
                 }
-                for(unsigned n = 0 ; n < bdisclabel.size() ; n++) {
-                    ak4pfchsjet_btag[ak4pfchsjet_count][n] = -1000000;
-                    edm::Handle<JetTagCollection> bTagHandle;
-                    iEvent.getByLabel(edm::InputTag(bdisclabel[n], "", "ROOTMAKER"), bTagHandle);
-                    if(bTagHandle.isValid()) {
-                        const JetTagCollection &bTags = * (bTagHandle.product());
-                        double drmin = 0.5;
-                        int num = -1;
-                        for(size_t u = 0; u < bTags.size(); u++) {
-                            double dr =  DR(* (bTags[u].first), corjet);
-                            if(dr < drmin) {
-                                drmin = dr;
-                                num = u;
-                            }
-                        }
-                        if(num != -1) {
-                            ak4pfchsjet_btag[ak4pfchsjet_count][n] = bTags[num].second;
-                        }
-                    }
+
+                for( unsigned n = 0; n < bdisclabel.size(); n++){
+		  ak4pfchsjet_btag[ak4pfchsjet_count][n] = corjet.bDiscriminator(bdisclabel[n]);
+                    // ak4pfchsjet_btag[ak4pfchsjet_count][n] = -1000000;
+                    // edm::Handle<JetTagCollection> bTagHandle;
+                    // iEvent.getByLabel(edm::InputTag(bdisclabel[n], "", "ROOTMAKER"), bTagHandle);
+                    // if(bTagHandle.isValid()) {
+                    //     const JetTagCollection &bTags = * (bTagHandle.product());
+                    //     double drmin = 0.5;
+                    //     int num = -1;
+                    //     for(size_t u = 0; u < bTags.size(); u++) {
+                    //         double dr =  DR(* (bTags[u].first), corjet);
+                    //         if(dr < drmin) {
+                    //             drmin = dr;
+                    //             num = u;
+                    //         }
+                    //     }
+                    //     if(num != -1) {
+                    //         ak4pfchsjet_btag[ak4pfchsjet_count][n] = bTags[num].second;
+                    //     }
+                    // }
                 }
                 ak4pfchsjet_trigger[ak4pfchsjet_count] = GetTrigger(corjet, jettriggers);
                 ak4pfchsjet_count++;
@@ -3750,6 +4001,129 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
     good_jet_count_cpt25->Fill(NumGood25);
     good_jet_count_cpt30->Fill(NumGood30);
     if(NumGood >= cAK4PFCHSNum) {
+        return (true);
+    }
+    return (false);
+}
+// pileup mitigated jets
+bool RootMaker::AddAK4PFCHSPuppiJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+    if(cdebug) {
+        cout<<"AddAK4PFCHSPuppiJets..."<<endl;
+    }
+    int NumAll = 0;
+    int NumGood = 0;
+    edm::Handle<pat::JetCollection> ak4pfJets;
+    iEvent.getByToken(ak4pfchsJetsPuppiToken_, ak4pfJets);
+    edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
+    iEvent.getByLabel("AK4byValAlgo", jetMCFlHandle);
+    if(cdebug) {
+        cout<<"chs ak4pfJets.isValid() = "<<ak4pfJets.isValid()<<endl;
+    }
+    if(cdebug) {
+        cout<<"chs ak4pfJets->size() = "<<ak4pfJets->size()<<endl;
+    }
+    NumAll = ak4pfJets->size();
+    if(ak4pfJets.isValid()) {
+        for(unsigned i = 0 ; i < ak4pfJets->size() ; i++) {
+            pat::Jet corjet((*ak4pfJets)[i]);
+            if(corjet.pt() >= cAK4PFCHSPuppiFilterPtMin) {
+                ak4pfchspuppijet_e[ak4pfchspuppijet_count] = corjet.energy();
+                ak4pfchspuppijet_px[ak4pfchspuppijet_count] = corjet.px();
+                ak4pfchspuppijet_py[ak4pfchspuppijet_count] = corjet.py();
+                ak4pfchspuppijet_pz[ak4pfchspuppijet_count] = corjet.pz();
+                ak4pfchspuppijet_pt[ak4pfchspuppijet_count] = corjet.pt();
+                ak4pfchspuppijet_phi[ak4pfchspuppijet_count] = corjet.phi();
+                ak4pfchspuppijet_eta[ak4pfchspuppijet_count] = corjet.eta();
+                ak4pfchspuppijet_area[ak4pfchspuppijet_count] = corjet.jetArea();
+                ak4pfchspuppijet_hadronicenergy[ak4pfchspuppijet_count] = corjet.chargedHadronEnergy() + corjet.neutralHadronEnergy();
+                ak4pfchspuppijet_chargedhadronicenergy[ak4pfchspuppijet_count] = corjet.chargedHadronEnergy();
+                ak4pfchspuppijet_emenergy[ak4pfchspuppijet_count] = corjet.chargedEmEnergy() + corjet.neutralEmEnergy();
+                ak4pfchspuppijet_chargedemenergy[ak4pfchspuppijet_count] = corjet.chargedEmEnergy();
+                ak4pfchspuppijet_hfhadronicenergy[ak4pfchspuppijet_count] = corjet.HFHadronEnergy();
+                ak4pfchspuppijet_hfemenergy[ak4pfchspuppijet_count] = corjet.HFEMEnergy();
+                ak4pfchspuppijet_electronenergy[ak4pfchspuppijet_count] = corjet.electronEnergy();
+                ak4pfchspuppijet_muonenergy[ak4pfchspuppijet_count] = corjet.muonEnergy();
+                ak4pfchspuppijet_chargedmulti[ak4pfchspuppijet_count] = corjet.chargedMultiplicity();
+                ak4pfchspuppijet_neutralmulti[ak4pfchspuppijet_count] = corjet.neutralMultiplicity();
+                ak4pfchspuppijet_hfhadronicmulti[ak4pfchspuppijet_count] = corjet.HFHadronMultiplicity();
+                ak4pfchspuppijet_hfemmulti[ak4pfchspuppijet_count] = corjet.HFEMMultiplicity();
+                ak4pfchspuppijet_electronmulti[ak4pfchspuppijet_count] = corjet.electronMultiplicity();
+                ak4pfchspuppijet_muonmulti[ak4pfchspuppijet_count] = corjet.muonMultiplicity();
+                ak4pfchspuppijet_energycorr[ak4pfchspuppijet_count] = corjet.jecFactor("Uncorrected");
+                ak4pfchspuppijet_energycorrunc[ak4pfchspuppijet_count] = -1;
+                ak4pfchspuppijet_energycorrl7uds[ak4pfchspuppijet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
+                ak4pfchspuppijet_energycorrl7bottom[ak4pfchspuppijet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
+
+                JetShape shape;
+                if(!cisMiniAOD) {
+                    shape = getJetShape(corjet);
+                }
+                if(cisMiniAOD) {
+                    shape = getSlimmedJetShape(corjet);
+                }
+                ak4pfchspuppijet_chargeda[ak4pfchspuppijet_count] = shape.chargeda;
+                ak4pfchspuppijet_chargedb[ak4pfchspuppijet_count] = shape.chargedb;
+                ak4pfchspuppijet_neutrala[ak4pfchspuppijet_count] = shape.neutrala;
+                ak4pfchspuppijet_neutralb[ak4pfchspuppijet_count] = shape.neutralb;
+                ak4pfchspuppijet_alla[ak4pfchspuppijet_count] = shape.alla;
+                ak4pfchspuppijet_allb[ak4pfchspuppijet_count] = shape.allb;
+                ak4pfchspuppijet_chargedfractionmv[ak4pfchspuppijet_count] = shape.chargedfractionmv;
+
+                ak4pfchspuppijet_mcflavour[ak4pfchspuppijet_count] = 0;
+                if(jetMCFlHandle.isValid()) {
+                    const JetFlavourMatchingCollection &jetMCFl = * (jetMCFlHandle.product());
+                    double drmin = 0.5;
+                    int num = -1;
+                    for(size_t u = 0; u < jetMCFl.size(); u++) {
+                        double dr =  DR(* (jetMCFl[u].first), corjet);
+                        if(dr < drmin) {
+                            drmin = dr;
+                            num = u;
+                        }
+                    }
+                    if(num != -1) {
+                        ak4pfchspuppijet_mcflavour[ak4pfchspuppijet_count] = jetMCFl[num].second.getFlavour();
+                    }
+                }
+
+                for( unsigned n = 0; n < bdisclabel.size(); n++){
+		  ak4pfchspuppijet_btag[ak4pfchspuppijet_count][n] = corjet.bDiscriminator(bdisclabel[n]);
+                    // ak4pfchspuppijet_btag[ak4pfchspuppijet_count][n] = -1000000;
+                    // edm::Handle<JetTagCollection> bTagHandle;
+                    // iEvent.getByLabel(edm::InputTag(bdisclabel[n], "", "ROOTMAKER"), bTagHandle);
+                    // if(bTagHandle.isValid()) {
+                    //     const JetTagCollection &bTags = * (bTagHandle.product());
+                    //     double drmin = 0.5;
+                    //     int num = -1;
+                    //     for(size_t u = 0; u < bTags.size(); u++) {
+                    //         double dr =  DR(* (bTags[u].first), corjet);
+                    //         if(dr < drmin) {
+                    //             drmin = dr;
+                    //             num = u;
+                    //         }
+                    //     }
+                    //     if(num != -1) {
+                    //         ak4pfchspuppijet_btag[ak4pfchspuppijet_count][n] = bTags[num].second;
+                    //     }
+                    // }
+                }
+                ak4pfchspuppijet_trigger[ak4pfchspuppijet_count] = GetTrigger(corjet, jettriggers);
+                ak4pfchspuppijet_count++;
+                if(ak4pfchspuppijet_count == M_jetmaxcount) {
+                    cerr << "number of ak4pfchspuppijet > M_jetmaxcount. They are missing." << endl;
+                    errors |= 1<<25;
+                    break;
+                }
+		if(corjet.pt() >= cAK4PFCHSPtMin && fabs(corjet.eta()) < cAK4PFCHSEtaMax) {
+		  NumGood++;
+		}
+            }
+        }
+    }
+    if(cdebug) {
+        cout<<"ak4pfchspuppi jets num all = "<<NumAll<<endl;
+    }
+    if(NumGood >= cAK4PFCHSPuppiNum) {
         return (true);
     }
     return (false);
@@ -3840,6 +4214,7 @@ bool RootMaker::AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iS
                 }
                 for(unsigned n = 0 ; n < bdisclabel.size() ; n++) {
                     ak4pfjet_btag[ak4pfjet_count][n] = -1000000;
+		    //ak4pfjet_btag[ak4pfjet_count][n] = corjet.bDiscriminator(bdisclabel[n]);
                     edm::Handle<JetTagCollection> bTagHandle;
                     iEvent.getByLabel(edm::InputTag(bdisclabel[n], "", "ROOTMAKER"), bTagHandle);
                     if(bTagHandle.isValid()) {
@@ -4328,8 +4703,6 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
     const edm::ValueMap<float> &eIDLoosemap = * eIDValueMapLoose;
     if(cdebug) {
         cout<<"Electrons.isValid() = "<<Electrons.isValid()<<endl;
-    }
-    if(cdebug) {
         cout<<"Electrons->size() = "<<Electrons->size()<<endl;
     }
     NumAll = Electrons->size();
@@ -4405,8 +4778,6 @@ bool RootMaker::AddElectrons(const edm::Event &iEvent) {
                 electron_gapinfo[electron_count] |= theel.isEERingGap() << 6;
                 electron_gapinfo[electron_count] |= theel.isEEDeeGap() << 7;
                 electron_gapinfo[electron_count] |= theel.isEBEEGap() << 8;
-
-                electron_cb_id[electron_count] = -1;
 
                 edm::Handle<reco::TrackCollection> ctfTracks;
                 iEvent.getByToken(recoTracksToken_, ctfTracks);
@@ -4521,41 +4892,73 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
     if(cdebug) cout<<"pat Electrons.isValid() = "<<Electrons.isValid()<<endl;
     if(cdebug) cout<<"pat Electrons->size() = "<<Electrons->size()<<endl;
 
+    edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
+    edm::Handle<edm::ValueMap<bool> > loose_id_decisions;
+    edm::Handle<edm::ValueMap<bool> > medium_id_decisions;
+    edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
+    edm::Handle<edm::ValueMap<bool> > heepV60_id_decisions;
+    edm::Handle<edm::ValueMap<bool> > mvaWP80_id_decisions;
+    edm::Handle<edm::ValueMap<bool> > mvaWP90_id_decisions;
+
+    iEvent.getByToken(eleVetoIdMapToken_,     veto_id_decisions);
+    iEvent.getByToken(eleLooseIdMapToken_,    loose_id_decisions);
+    iEvent.getByToken(eleMediumIdMapToken_,   medium_id_decisions);
+    iEvent.getByToken(eleTightIdMapToken_,    tight_id_decisions);
+    iEvent.getByToken(eleHeepV60IdMapToken_,  heepV60_id_decisions);
+    iEvent.getByToken(eleMVAIdMap_wp80Token_, mvaWP80_id_decisions);
+    iEvent.getByToken(eleMVAIdMap_wp90Token_, mvaWP90_id_decisions);
+
+
     NumAll = Electrons->size();
     if(Electrons.isValid()) {
         for(size_t n = 0 ; n < Electrons->size() ; n++) {
             const pat::Electron &theel = (*Electrons)[n];
+            pat::ElectronRef refel(Electrons, n);
+
             all_electron_pt->Fill(theel.pt());
             all_electron_phi->Fill(theel.phi());
             all_electron_eta->Fill(theel.eta());
-
-            pat::ElectronRef refel(Electrons, n);
-
-            edm::Handle<GenParticleCollection> GenParticles;
-            iEvent.getByToken(genSimParticlesToken_, GenParticles);
-            edm::Handle<edm::ValueMap<bool> > medium_id_decisions;
-            edm::Handle<edm::ValueMap<bool> > tight_id_decisions; 
-            iEvent.getByToken(eleMediumIdMapToken_,medium_id_decisions);
-            iEvent.getByToken(eleTightIdMapToken_,tight_id_decisions);
+            // Look up the ID decision for this electron in 
+            // the ValueMap object and store it. We need a Ptr object as the key.
+            bool isPassVeto   = (*veto_id_decisions)[refel];
+            bool isPassLoose  = (*loose_id_decisions)[refel];
+            bool isPassMedium = (*medium_id_decisions)[refel];
+            bool isPassTight  = (*tight_id_decisions)[refel]; 
+            bool isPassHeepV60= (*heepV60_id_decisions)[refel];
+            bool isPassMVAWP80= (*mvaWP80_id_decisions)[refel];
+            bool isPassMVAWP90= (*mvaWP90_id_decisions)[refel];
 
             if(theel.pt() > cElFilterPtMin && TMath::Abs(theel.eta()) < cElFilterEtaMax) {
+                if( isPassTight){
+                  electron_cbID[electron_count] = 4; 
+                }else if( isPassMedium){ 
+                  electron_cbID[electron_count] = 3;
+                }else if( isPassLoose){ 
+                  electron_cbID[electron_count] = 2;
+                }else if( isPassVeto){ 
+                  electron_cbID[electron_count] = 1;
+                }else{ 
+                  electron_cbID[electron_count] = 0;
+                }
+	        if( isPassHeepV60){
+		  electron_heepID[electron_count] = 1;
+                }else{
+                  electron_heepID[electron_count] = 0;
+                }
+                if( isPassMVAWP80){
+                  electron_mvaID[electron_count] = 2;
+                }else if(isPassMVAWP90){ 
+                  electron_mvaID[electron_count] = 1;
+                }else{
+                  electron_mvaID[electron_count] = 0;
+                }
+
                 electron_px[electron_count] = theel.px();
                 electron_py[electron_count] = theel.py();
                 electron_pz[electron_count] = theel.pz();
                 electron_pt[electron_count] = theel.pt();
                 electron_phi[electron_count] = theel.phi();
                 electron_eta[electron_count] = theel.eta();
-
-                
-cout<<"\n\n\n\n\n\n\n\n\n\n\n\n"<<endl;
- // look up id decisions
-                bool isPassMedium = (*medium_id_decisions)[refel];
-                bool isPassTight  = (*tight_id_decisions)[refel];
-
-                cout<<" is medium = "<<(int)isPassMedium<<endl;
-                cout<<" is tight = "<<(int)isPassTight<<endl;
-cout<<"\n\n\n\n\n\n\n\n\n\n\n\n"<<endl;
-
                 electron_correctedecalenergy[electron_count] = theel.ecalEnergy();
                 electron_charge[electron_count] = theel.charge();
                 electron_esuperclusterovertrack[electron_count] = theel.eSuperClusterOverP();
@@ -4605,7 +5008,6 @@ cout<<"\n\n\n\n\n\n\n\n\n\n\n\n"<<endl;
                 electron_gapinfo[electron_count] |= theel.isEEDeeGap() << 7;
                 electron_gapinfo[electron_count] |= theel.isEBEEGap() << 8;
 
-                electron_cb_id[electron_count] = -1;
 
 // NOTE
                 /*

@@ -3,10 +3,12 @@ from L1Trigger.GlobalTrigger.gtDigis_cfi import *
 
 process = cms.Process("ROOTMAKER")
 
+process.load('PhysicsTools.PatUtils.patPFMETCorrections_cff')
+from PhysicsTools.PatUtils.patPFMETCorrections_cff import *
 process.load('FastSimulation.HighLevelTrigger.HLTFastReco_cff')
 process.load('Configuration.StandardSequences.Services_cff')
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -14,11 +16,20 @@ process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
 
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
+#process.MessageLogger.categories.append('PATSummaryTables')
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
+#process.MessageLogger.categories.extend(["GetManyWithoutRegistration","GetByLabelWithoutRegistration"])
+#_messageSettings = cms.untracked.PSet(
+#                reportEvery = cms.untracked.int32(1),
+#                            optionalPSet = cms.untracked.bool(True),
+#                            limit = cms.untracked.int32(10000000)
+#                        )
+#process.MessageLogger.cerr.GetManyWithoutRegistration = _messageSettings
+#process.MessageLogger.cerr.GetByLabelWithoutRegistration = _messageSettings
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'root://cms-xrd-global.cern.ch//store/data/Run2015B/DoubleMuon/MINIAOD/PromptReco-v1/000/251/252/00000/9ADEE140-9C27-E511-919A-02163E011D23.root' # DoubleMuon, MINIAOD run 251252
+        'root://cms-xrd-global.cern.ch//store/data/Run2015B/DoubleMuon/MINIAOD/PromptReco-v1/000/251/252/00000/9ADEE140-9C27-E511-919A-02163E011D23.root'
     )
 )
 process.maxEvents = cms.untracked.PSet(
@@ -27,34 +38,25 @@ process.maxEvents = cms.untracked.PSet(
 
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions
 #process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
+process.GlobalTag.globaltag = cms.string('74X_dataRun2_Prompt_v0')
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('AC1B_test.root')
+    fileName = cms.string('AC1B_DA_mini.root')
 )
 
-#process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
-
-
-
-
-#
-# Set up electron ID (VID framework)
-#
-
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-# turn on VID producer, indicate data format  to be
-# DataFormat.AOD or DataFormat.MiniAOD, as appropriate 
+# turn on VID producer, indicate data format  to be DataFormat.AOD or DataFormat.MiniAOD, as appropriate
 dataFormat = DataFormat.MiniAOD
-
 switchOnVIDElectronIdProducer(process, dataFormat)
-
 # define which IDs we want to produce
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff']
-
+my_id_modules = [
+    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff',
+    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
+    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff'
+]
 #add them to the VID producer
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-
 
 
 # ROOTMAKER #########################################################################################
@@ -63,12 +65,6 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     isMiniAOD = cms.untracked.bool(True),
     debug = cms.untracked.bool(False),
 
-    # ID decisions (common to all formats)
-    #eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp80"),
-    #eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp90"),
-    eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_medium"),
-    eleTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight"),
-
     # TRIGGER #####################################################
     HLTriggerSelection = cms.untracked.vstring(),
     TriggerProcess = cms.untracked.string('HLT'), #REDIGI311X'),
@@ -76,25 +72,24 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
 
     # MUONS #######################################################
     RecMuonHLTriggerMatching = cms.untracked.vstring(
-        'HLT_Mu17_Mu8_v.*:FilterTrue',
-        'HLT_Mu17_TkMu8_v.*:FilterTrue',
-        'HLT_Mu22_TkMu22_v.*:FilterTrue',
-        'HLT_Mu(8|17)_v.*',
-        'HLT_IsoMu(24|30)_v.*',
-        'HLT_IsoMu(24|30)_eta2p1_v.*',
-        'HLT_Mu40_v.*',
-        'HLT_Mu50_eta2p1_v.*',
-
-        'HLT_Mu17_Mu8_v.*',
-        'HLT_Mu17_TkMu8_v.*',
-        'HLT_Mu30_TkMu11_v.*',
-        'HLT_IsoTkMu24_IterTrk02_v.*',
-        'HLT_IsoTkMu24_eta2p1_IterTrk02_v.*',
-        'HLT_DoubleMu33NoFiltersNoVtx_v.*',
-
-        'HLT_Mu40_eta2p1_v.*'
+         'HLT_IsoMu20_v.*:FilterTrue', 
+         'HLT_IsoTkMu20_v.*:FilterTrue'
+#        'HLT_Mu17_Mu8_v.*:FilterTrue',
+#        'HLT_Mu17_TkMu8_v.*:FilterTrue',
+#        'HLT_Mu22_TkMu22_v.*:FilterTrue',
+#        'HLT_Mu(8|17)_v.*',
+#        'HLT_IsoMu(24|30)_v.*',
+#        'HLT_IsoMu(24|30)_eta2p1_v.*',
+#        'HLT_Mu40_v.*',
+#        'HLT_Mu50_eta2p1_v.*',
+#        'HLT_Mu17_Mu8_v.*',
+#        'HLT_Mu17_TkMu8_v.*',
+#        'HLT_Mu30_TkMu11_v.*',
+#        'HLT_IsoTkMu24_IterTrk02_v.*',
+#        'HLT_IsoTkMu24_eta2p1_IterTrk02_v.*',
+#        'HLT_DoubleMu33NoFiltersNoVtx_v.*',
+#        'HLT_Mu40_eta2p1_v.*'
     ),
-
     RecMuon = cms.untracked.bool(True),
     RecMuonPtMin = cms.untracked.double(20),
     RecMuonTrackIso = cms.untracked.double(1000000),
@@ -103,11 +98,12 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     
     # ELECTRONS and PHOTONS #######################################
     RecElectronHLTriggerMatching = cms.untracked.vstring(
-        'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v.*:FilterTrue',
-        'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v.*:FilterTrue',
-        'HLT_Ele27_WP80_v.*',
-        'HLT_Ele80_CaloIdVT_TrkIdT_v.*',
-        'HLT_Ele80_CaloIdVT_GsfTrkIdT_v.*'
+        'HLT_Ele27_eta2p1_WPLoose_Gsf_v.*:FilterTrue'
+#        'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v.*:FilterTrue',
+#        'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v.*:FilterTrue',
+#        'HLT_Ele27_WP80_v.*',
+#        'HLT_Ele80_CaloIdVT_TrkIdT_v.*',
+#        'HLT_Ele80_CaloIdVT_GsfTrkIdT_v.*'
     ),
 
     RecElectron = cms.untracked.bool(True),
@@ -124,23 +120,45 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     RecPhotonEtaMax = cms.untracked.double(2.5),
     RecPhotonNum = cms.untracked.int32(100000),
     RecPhotonFilterPtMin = cms.untracked.double(10),
-    
+    eleVetoIdMap    = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto"),
+    eleLooseIdMap   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-loose"),
+    eleMediumIdMap  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
+    eleTightIdMap   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
+    eleHeepV60IdMap = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV60"),
+    eleMVAIdMap_wp80= cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp80"),
+    eleMVAIdMap_wp90= cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp90"),
+
     # TAUS ########################################################
     RecTauHLTriggerMatching = cms.untracked.vstring(
     ),
 
     RecTau = cms.untracked.bool(True),
     RecTauDiscriminators = cms.untracked.vstring(
-        'hpsPFTauDiscriminationByDecayModeFinding',
-        'hpsPFTauDiscriminationByLooseElectronRejection',
-        'hpsPFTauDiscriminationByLooseIsolation',
-        'hpsPFTauDiscriminationByLooseMuonRejection',
-        'hpsPFTauDiscriminationByMediumElectronRejection',
-        'hpsPFTauDiscriminationByMediumIsolation',
-        'hpsPFTauDiscriminationByTightElectronRejection',
-        'hpsPFTauDiscriminationByTightIsolation',
-        'hpsPFTauDiscriminationByTightMuonRejection',
-        'hpsPFTauDiscriminationByVLooseIsolation'
+        #'decayModeFindingOldDMs',
+        'byLooseCombinedIsolationDeltaBetaCorr3Hits',
+        'byMediumCombinedIsolationDeltaBetaCorr3Hits',
+        'byTightCombinedIsolationDeltaBetaCorr3Hits',
+        'byCombinedIsolationDeltaBetaCorrRaw3Hits',
+        'againstMuonLoose3',
+        'againstMuonTight3',
+        'againstMuonLooseMVA',
+        'againstMuonMediumMVA',
+        'againstMuonTightMVA',
+        'againstElectronVLooseMVA5',
+        'againstElectronLooseMVA5',
+        'againstElectronMediumMVA5',
+        'againstElectronTightMVA5',
+        'againstElectronVTightMVA5'
+        #'hpsPFTauDiscriminationByDecayModeFinding',
+        #'hpsPFTauDiscriminationByLooseElectronRejection',
+        #'hpsPFTauDiscriminationByLooseIsolation',
+        #'hpsPFTauDiscriminationByLooseMuonRejection',
+        #'hpsPFTauDiscriminationByMediumElectronRejection',
+        #'hpsPFTauDiscriminationByMediumIsolation',
+        #'hpsPFTauDiscriminationByTightElectronRejection',
+        #'hpsPFTauDiscriminationByTightIsolation',
+        #'hpsPFTauDiscriminationByTightMuonRejection',
+        #'hpsPFTauDiscriminationByVLooseIsolation'
     ),
     RecTauPtMin = cms.untracked.double(0.),
     RecTauEta = cms.untracked.double(0.),
@@ -156,9 +174,15 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
 
     RecAK4PFCHSJet = cms.untracked.bool(True),
     RecAK4PFCHSPtMin = cms.untracked.double(20.),
-    RecAK4PFCHSEtaMax = cms.untracked.double(3.0),
+    RecAK4PFCHSEtaMax = cms.untracked.double(4.7),
     RecAK4PFCHSNum = cms.untracked.int32(100000),
     RecAK4PFCHSFilterPtMin = cms.untracked.double(20.),
+
+    RecAK4PFCHSPuppiJet = cms.untracked.bool(True),
+    RecAK4PFCHSPuppiPtMin = cms.untracked.double(20.),
+    RecAK4PFCHSPuppiEtaMax = cms.untracked.double(4.7),
+    RecAK4PFCHSPuppiNum = cms.untracked.int32(100000),
+    RecAK4PFCHSPuppiFilterPtMin = cms.untracked.double(20.),
     
     # GEN PARTICLES ###############################################
     GenAllParticles = cms.untracked.bool(False),
@@ -167,6 +191,7 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
 
     # MET #########################################################
     RecPFMet = cms.untracked.bool(True),
+    RecPFMetPuppi = cms.untracked.bool(True),
     
     # TRACKS ######################################################
     RecTrack = cms.untracked.bool(False),
@@ -214,9 +239,19 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     ak4calojets = cms.InputTag("patJetsAK4Calo"), # AOD only
     ak4jptjets = cms.InputTag("patJetsAK4JPT"), # AOD only
     ak4pfjets = cms.InputTag("ak4PFJets"), # AOD only
-    ak4pfchsjets = cms.InputTag("slimmedJets"),
+    ak4pfchsjets = cms.InputTag("slimmedJets"),# mini
+    ak4pfchsjetspuppi = cms.InputTag("slimmedJetsPuppi"),# mini, jets corrected for the pileup response
     jetsAK8 = cms.InputTag("slimmedJetsAK8"), # mini only
+    pfMetMVAEMT = cms.InputTag("pfMetMVAEMT"), # mini only
+    pfMetMVAEM  = cms.InputTag("pfMetMVAEM"), # mini only
+    pfMetMVAET  = cms.InputTag("pfMetMVAET"), # mini only
+    pfMetMVAMT  = cms.InputTag("pfMetMVAMT"), # mini only
+    pfMetMVATT  = cms.InputTag("pfMetMVATT"), # mini only
+    #newCorrectedSlimmedMetLabel = cms.InputTag("slimmedMETs","","RERUN"),
+    patMETs = cms.InputTag("slimmedMETs"),
+    #cms.InputTag("patMETs"),
     mets = cms.InputTag("slimmedMETs"), # mini only
+    metspuppi = cms.InputTag("slimmedMETsPuppi"), # mini only
     pfmet = cms.InputTag("pfMet"), # AOD only
     pfmett1 = cms.InputTag("pfMetT1"), # AOD only
     pfmett1t0 = cms.InputTag("pfType0Type1CorrectedMet"), # AOD only
@@ -228,15 +263,19 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     puInfo = cms.InputTag("addPileupInfo", "", "HLT"),
     PfCands = cms.InputTag("PFCandidates"), # AOD only
     packedPfCands = cms.InputTag("packedPFCandidates"), # mini only
-    barrelHits = cms.InputTag("reducedEgamma", "reducedEBRecHits", "PAT"),
-    endcapHits = cms.InputTag("reducedEgamma", "reducedEERecHits", "PAT"),
-    esHits = cms.InputTag("reducedEgamma", "reducedESRecHits", "PAT"),
+    #barrelHits = cms.InputTag("reducedEgamma", "reducedEBRecHits", "PAT"),
+    #endcapHits = cms.InputTag("reducedEgamma", "reducedEERecHits", "PAT"),
+    #esHits = cms.InputTag("reducedEgamma", "reducedESRecHits", "PAT"),
+    barrelHits = cms.InputTag("reducedEgamma", "reducedEBRecHits", "RECO"),
+    endcapHits = cms.InputTag("reducedEgamma", "reducedEERecHits", "RECO"),
+    esHits = cms.InputTag("reducedEgamma", "reducedESRecHits", "RECO"),
     superClusters = cms.InputTag("reducedEgamma", "reducedSuperClusters", "PAT"),
     ebeeClusters = cms.InputTag("reducedEgamma", "reducedEBEEClusters", "PAT"),
     esClusters = cms.InputTag("reducedEgamma", "reducedESClusters", "PAT"),
-    conversions = cms.InputTag("reducedEgamma", "reducedConversions", "PAT"),
+    #conversions = cms.InputTag("reducedEgamma", "reducedConversions", "PAT"),
+    conversions = cms.InputTag("reducedEgamma", "reducedConversions", "RECO"),
     gedGsfElectronCores = cms.InputTag("reducedEgamma", "reducedGedGsfElectronCores", "PAT"), # mini only
-    gedPhotonCores = cms.InputTag("reducedEgamma", "reducedGedPhotonCores", "PAT") # mini only
+    gedPhotonCores = cms.InputTag("reducedEgamma", "reducedGedPhotonCores", "PAT"), # mini only
 
 )
 

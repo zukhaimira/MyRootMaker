@@ -6,7 +6,7 @@ process = cms.Process("ROOTMAKER")
 process.load('FastSimulation.HighLevelTrigger.HLTFastReco_cff')
 process.load('Configuration.StandardSequences.Services_cff')
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -43,40 +43,41 @@ process.TFileService = cms.Service("TFileService",
 
 #process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
 
-
-
-
+##
+## START ELECTRON ID SECTION
+##
+## Set up everything that is needed to compute electron IDs and
+## add the ValueMaps with ID decisions into the event data stream
+##
+## Load tools and function definitions
+#from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 #
-# Set up electron ID (VID framework)
+#process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
+## overwrite a default parameter: for miniAOD, the collection name is a slimmed one
+#process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
 #
-
-from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-# turn on VID producer, indicate data format  to be
-# DataFormat.AOD or DataFormat.MiniAOD, as appropriate 
-dataFormat = DataFormat.MiniAOD
-
-switchOnVIDElectronIdProducer(process, dataFormat)
-
-# define which IDs we want to produce
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff']
-
-#add them to the VID producer
-for idmod in my_id_modules:
-    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-
-
+#from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+#process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
+#
+## Define which IDs we want to produce
+## Each of these two example IDs contains all four standard 
+## cut-based ID working points (only two WP of the PU20bx25 are actually used here).
+#my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V0_miniAOD_cff']
+##Add them to the VID producer
+#for idmod in my_id_modules:
+#    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+#
+## Do not forget to add the egmGsfElectronIDSequence to the path,
+## as in the example below!
+##
+## END ELECTRON ID SECTION
+##
 
 # ROOTMAKER #########################################################################################
 process.makeroottree = cms.EDAnalyzer("RootMaker",
     
     isMiniAOD = cms.untracked.bool(True),
     debug = cms.untracked.bool(False),
-
-    # ID decisions (common to all formats)
-    #eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp80"),
-    #eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp90"),
-    eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_medium"),
-    eleTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight"),
 
     # TRIGGER #####################################################
     HLTriggerSelection = cms.untracked.vstring(),
@@ -245,11 +246,11 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     esClusters = cms.InputTag("reducedEgamma", "reducedESClusters", "PAT"),
     conversions = cms.InputTag("reducedEgamma", "reducedConversions", "PAT"),
     gedGsfElectronCores = cms.InputTag("reducedEgamma", "reducedGedGsfElectronCores", "PAT"), # mini only
-    gedPhotonCores = cms.InputTag("reducedEgamma", "reducedGedPhotonCores", "PAT") # mini only
+    gedPhotonCores = cms.InputTag("reducedEgamma", "reducedGedPhotonCores", "PAT"), # mini only
 
 )
 
 process.p = cms.Path(
-    process.egmGsfElectronIDSequence *
+#    process.egmGsfElectronIDSequence *
     process.makeroottree
 )

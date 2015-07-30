@@ -154,56 +154,12 @@
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
-#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "EgammaAnalysis/ElectronTools/src/PFIsolationEstimator.cc"
 #include "EgammaAnalysis/ElectronTools/src/SuperClusterHelper.cc"
 #include "PFIsolation/SuperClusterFootprintRemoval/interface/SuperClusterFootprintRemoval.h"
 
 #include "TGeoPara.h"
-
-
-
-
-
-
-
-#include <memory>
-#include <vector>
-
-
-
-
-
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
-#include "DataFormats/Common/interface/ValueMap.h"
-
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "TTree.h"
-#include "Math/VectorUtil.h"
 
 using namespace std;
 using namespace reco;
@@ -226,7 +182,7 @@ using namespace pat;
 #define M_genparticlesmaxcount 500
 #define M_genjetmaxcount 500
 #define M_genmotherdaughtermaxcount 100000
-#define M_btagmax 6
+#define M_btagmax 3
 
 
 class RootMaker : public edm::EDAnalyzer {
@@ -257,12 +213,9 @@ private:
     edm::EDGetTokenT<edm::ValueMap<DeDxData>> dharmonicToken_;
     edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
 
-    // ID decisions objects
-    edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
-    edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
-
     edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
     edm::EDGetTokenT<pat::JetCollection> ak4pfchsJetsToken_;
+    edm::EDGetTokenT<pat::JetCollection> ak4pfchsJetsPuppiToken_;
     edm::EDGetTokenT<reco::GenParticleCollection> genSimParticlesToken_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
     edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
@@ -297,13 +250,27 @@ private:
     edm::EDGetTokenT<pat::PhotonCollection> patPhotonsToken_;
     edm::EDGetTokenT<pat::TauCollection> patTausToken_;
     edm::EDGetTokenT<pat::PackedCandidateCollection> packedPFCandsToken_;
+    //edm::EDGetTokenT<pat::METCollection> patMVAMetToken_;
+    edm::InputTag patMVAMetEMTToken_;
+    edm::InputTag patMVAMetEMToken_;
+    edm::InputTag patMVAMetETToken_;
+    edm::InputTag patMVAMetMTToken_;
+    edm::InputTag patMVAMetTTToken_;
+    edm::InputTag newMetLabel_;
     edm::EDGetTokenT<pat::METCollection> patMetToken_;
+    edm::EDGetTokenT<pat::METCollection> patMetPuppiToken_;
     edm::EDGetTokenT<double> rhoToken_;
     edm::EDGetTokenT<vector<reco::GsfElectronCore>> gedGsfElectronCoresToken_;
+    // ID decisions objects
+    edm::EDGetTokenT<edm::ValueMap<bool> > eleVetoIdMapToken_;
+    edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseIdMapToken_;
+    edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
+    edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
+    edm::EDGetTokenT<edm::ValueMap<bool> > eleHeepV60IdMapToken_; 
+    edm::EDGetTokenT<edm::ValueMap<bool> > eleMVAIdMap_wp80Token_;
+    edm::EDGetTokenT<edm::ValueMap<bool> > eleMVAIdMap_wp90Token_;
+
     edm::EDGetTokenT<vector<reco::PhotonCore>> gedPhotonCoresToken_;
-
-
-
 
     edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebRecHits;
     edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeRecHits;
@@ -326,6 +293,7 @@ private:
     bool AddAK4JPTJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     bool AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     bool AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+    bool AddAK4PFCHSPuppiJets(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     bool AddVertices(const edm::Event &iEvent);
     bool AddMuVertices(const edm::Event &iEvent);
     bool AddConvPhotons(const edm::Event &iEvent);
@@ -421,7 +389,6 @@ private:
 
     //Configuration
     bool cisMiniAOD;
-    bool cisMC;
     bool cdebug;
     bool cgen;
     bool cgenallparticles;
@@ -444,6 +411,7 @@ private:
     bool crecak4jptjet;
     bool crecak4pfjet;
     bool crecak4pfchsjet;
+    bool crecak4pfchspuppijet;
     bool crecjettrigger;
     bool crecpfmet;
     bool crecsecvertices;
@@ -490,6 +458,10 @@ private:
     double cAK4PFCHSPtMin;
     double cAK4PFCHSEtaMax;
     int cAK4PFCHSNum;
+    double cAK4PFCHSPuppiFilterPtMin;
+    double cAK4PFCHSPuppiPtMin;
+    double cAK4PFCHSPuppiEtaMax;
+    int cAK4PFCHSPuppiNum;
     double cAK4PFFilterPtMin;
     double cAK4PFPtMin;
     double cAK4PFEtaMax;
@@ -646,6 +618,7 @@ private:
     Float_t muon_pterror[M_muonmaxcount];
     Float_t muon_chi2[M_muonmaxcount];
     Float_t muon_ndof[M_muonmaxcount];
+    Float_t muon_dB[M_muonmaxcount];
 
     Int_t muon_is_tracker[M_muonmaxcount];
     Int_t muon_is_global[M_muonmaxcount];
@@ -825,6 +798,44 @@ private:
     UInt_t ak4pfchsjet_trigger[M_jetmaxcount];
     Int_t ak4pfchsjet_mcflavour[M_jetmaxcount];
 
+    UInt_t ak4pfchspuppijet_count;
+    Float_t ak4pfchspuppijet_e[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_px[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_py[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_pz[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_pt[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_phi[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_eta[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_area[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_hadronicenergy[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_chargedhadronicenergy[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_emenergy[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_chargedemenergy[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_hfemenergy[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_hfhadronicenergy[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_electronenergy[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_muonenergy[M_jetmaxcount];
+    UInt_t ak4pfchspuppijet_chargedmulti[M_jetmaxcount];
+    UInt_t ak4pfchspuppijet_neutralmulti[M_jetmaxcount];
+    UInt_t ak4pfchspuppijet_hfhadronicmulti[M_jetmaxcount];
+    UInt_t ak4pfchspuppijet_hfemmulti[M_jetmaxcount];
+    UInt_t ak4pfchspuppijet_electronmulti[M_jetmaxcount];
+    UInt_t ak4pfchspuppijet_muonmulti[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_chargeda[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_chargedb[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_neutrala[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_neutralb[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_alla[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_allb[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_chargedfractionmv[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_energycorr[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_energycorrunc[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_energycorrl7uds[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_energycorrl7bottom[M_jetmaxcount];
+    Float_t ak4pfchspuppijet_btag[M_jetmaxcount][M_btagmax];
+    UInt_t ak4pfchspuppijet_trigger[M_jetmaxcount];
+    Int_t ak4pfchspuppijet_mcflavour[M_jetmaxcount];
+
     UInt_t electron_count;
     Int_t electron_vtx[M_electronmaxcount];
     Float_t electron_px[M_electronmaxcount];
@@ -837,7 +848,9 @@ private:
     Float_t electron_trackchi2[M_electronmaxcount];
     Float_t electron_trackndof[M_electronmaxcount];
 
-    Int_t electron_cb_id[M_electronmaxcount];
+    Int_t electron_cbID[M_electronmaxcount];
+    Int_t electron_heepID[M_electronmaxcount];
+    Int_t electron_mvaID[M_electronmaxcount];
 
     Int_t electron_has_gen_particle[M_electronmaxcount];
     Int_t electron_gen_particle_pdgid[M_electronmaxcount];
@@ -1029,6 +1042,7 @@ private:
     UInt_t tau_isolationneutralsnum[M_taumaxcount];
     Float_t tau_isolationchargedpt[M_taumaxcount];
     UInt_t tau_isolationchargednum[M_taumaxcount];
+    Float_t tau_pucorrptsum[M_taumaxcount];
     Float_t tau_isolationgammapt[M_taumaxcount];
     UInt_t tau_isolationgammanum[M_taumaxcount];
     Int_t tau_charge[M_taumaxcount];
@@ -1080,11 +1094,53 @@ private:
     Float_t ak4pfjet_rho;
     Float_t ak4pfjet_sigma;
 
+    Float_t patmvamet_emt_ex;
+    Float_t patmvamet_emt_ey;
+    Float_t patmvamet_emt_cov_00;
+    Float_t patmvamet_emt_cov_01;
+    Float_t patmvamet_emt_cov_10;
+    Float_t patmvamet_emt_cov_11;
+
+    Float_t patmvamet_em_ex;
+    Float_t patmvamet_em_ey;
+    Float_t patmvamet_em_cov_00;
+    Float_t patmvamet_em_cov_01;
+    Float_t patmvamet_em_cov_10;
+    Float_t patmvamet_em_cov_11;
+
+    Float_t patmvamet_et_ex;
+    Float_t patmvamet_et_ey;
+    Float_t patmvamet_et_cov_00;
+    Float_t patmvamet_et_cov_01;
+    Float_t patmvamet_et_cov_10;
+    Float_t patmvamet_et_cov_11;
+
+    Float_t patmvamet_mt_ex;
+    Float_t patmvamet_mt_ey;
+    Float_t patmvamet_mt_cov_00;
+    Float_t patmvamet_mt_cov_01;
+    Float_t patmvamet_mt_cov_10;
+    Float_t patmvamet_mt_cov_11;
+
+    Float_t patmvamet_tt_ex;
+    Float_t patmvamet_tt_ey;
+    Float_t patmvamet_tt_cov_00;
+    Float_t patmvamet_tt_cov_01;
+    Float_t patmvamet_tt_cov_10;
+    Float_t patmvamet_tt_cov_11;
+
     Float_t pfmet_ex;
     Float_t pfmet_ey;
 
     Float_t pfmettype1_ex;
     Float_t pfmettype1_ey;
+    Float_t pfmettype1_cov_00;
+    Float_t pfmettype1_cov_01;
+    Float_t pfmettype1_cov_10;
+    Float_t pfmettype1_cov_11;
+
+    Float_t pfmetpuppitype1_ex;
+    Float_t pfmetpuppitype1_ey;
 
     Float_t pfmettype0type1_ex;
     Float_t pfmettype0type1_ey;
