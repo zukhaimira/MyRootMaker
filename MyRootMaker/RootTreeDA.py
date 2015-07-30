@@ -1,27 +1,22 @@
 from MyRootMaker.MyRootMaker.RootMakerTemplateDA_mini_cfg import *
 
-process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
-process.load('RecoJets.Configuration.RecoJetAssociations_cff')
+process.load('Configuration.Geometry.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
 process.load('RecoBTag.Configuration.RecoBTag_cff')
 process.load('RecoJets.Configuration.RecoJetAssociations_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-
-#process.load('Configuration.Geometry.GeometryIdeal_cff')
-process.load('Configuration.Geometry.GeometryRecoDB_cff')
-#process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 
 process.ak4JetTracksAssociatorAtVertexPF.jets = cms.InputTag("ak4PFJetsCHS")
 process.ak4JetTracksAssociatorAtVertexPF.tracks = cms.InputTag("unpackedTracksAndVertices")
 process.impactParameterTagInfos.primaryVertex = cms.InputTag("unpackedTracksAndVertices")
 process.inclusiveSecondaryVertexFinderTagInfos.extSVCollection = cms.InputTag("unpackedTracksAndVertices","secondary","")
-#process.combinedSecondaryVertex.trackMultiplicityMin = 1
-
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'root://cms-xrd-global.cern.ch//store/data/Run2015B/DoubleMuon/MINIAOD/PromptReco-v1/000/251/252/00000/9ADEE140-9C27-E511-919A-02163E011D23.root' # DoubleMuon, MINIAOD run 251252
+        #'/eos/cms/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/251/096/00000/22D22D7F-5626-E511-BDE3-02163E011FAB.root'
+        'root://cms-xrd-global.cern.ch//store/data/Run2015B/SingleMuon/MINIAOD/PromptReco-v1/000/251/162/00000/160C08A3-4227-E511-B829-02163E01259F.root'
         #'file:/afs/cern.ch/work/e/ekennedy/work/tuplizer/miniAOD/TTbarH_M-125_13TeV_mini_PU40bx25_PHYS14_25_V1_file2.root'
     )
 )
@@ -29,9 +24,6 @@ process.source = cms.Source("PoolSource",
 process.GlobalTag.globaltag = cms.string('74X_dataRun2_Prompt_v0')
 process.makeroottree.isMiniAOD = cms.untracked.bool(True)
 process.makeroottree.isMC = cms.untracked.bool(False)
-
-
-
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000) 
@@ -41,7 +33,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.TFileService = cms.Service("TFileService",
-	fileName = cms.string('AC1B_test74_data_mini.root')
+	fileName = cms.string('AC1B_DATA.root')
 )
 
 #process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
@@ -55,6 +47,7 @@ process.makeroottree.GenSomeParticles = cms.untracked.bool(True)
 process.makeroottree.GenAK4Jets = cms.untracked.bool(True)
 
 process.p = cms.Path(
+    process.mvaMET *
     process.egmGsfElectronIDSequence *
     process.makeroottree
 )
