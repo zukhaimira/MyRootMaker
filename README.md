@@ -12,10 +12,12 @@ Recipe:
     cmsenv
     git cms-init
 
+    git cms-merge-topic -u cms-met:METCorUnc74X
+
     git clone https://github.com/ekenn003/PFIsolation.git
     git clone https://github.com/ekenn003/MyRootMaker.git
 
     scram b -j 8
     
-    cmsRun MyRootMaker/MyRootMaker/RootTreeMC_mini.py (monte carlo)  
-    cmsRun MyRootMaker/MyRootMaker/RootTreeDA_mini.py (data)
+    cmsRun MyRootMaker/MyRootMaker/RootTreeMC.py (monte carlo)  
+    cmsRun MyRootMaker/MyRootMaker/RootTreeDA.py (data)
