@@ -2614,14 +2614,14 @@ bool RootMaker::AddPatMuons(const edm::Event &iEvent) {
     if(Muons.isValid()) {
         for(unsigned i = 0 ; i < Muons->size() ; i++) {
             const pat::Muon &themu = (*Muons)[i];
-            muon_muID[muon_count] = 0;
+            muon_muID[muon_count] = -1;
 
-            if(themu.isTightMuon((*Vertices)[0])) { muon_muID[muon_count] = 4; }
-            else if(themu.isMediumMuon()) { muon_muID[muon_count] = 3; }
-            else if(themu.isLooseMuon()) { muon_muID[muon_count] = 2; }
-            else { muon_muID[muon_count] = -1; }
+            if (themu.isTightMuon((*Vertices)[0])) muon_muID[muon_count] = 4;
+            else if (themu.isMediumMuon()) muon_muID[muon_count] = 3;
+            else if (themu.isLooseMuon()) muon_muID[muon_count] = 2;
+            else muon_muID[muon_count] = 0;
 
-            if(cdebug) { cout<<"muID = "<<muon_muID[muon_count]<<endl; }
+            if (cdebug) cout<<"muID = "<<muon_muID[muon_count]<<endl;
 
             muon_px[muon_count] = themu.px();
             muon_py[muon_count] = themu.py();
@@ -5051,18 +5051,18 @@ bool RootMaker::AddPatElectrons(const edm::Event &iEvent) {
             bool isPassMVAWP90 = (*mvaWP90_id_decisions)[refel];
 
             if(theel.pt() > cElFilterPtMin && TMath::Abs(theel.eta()) < cElFilterEtaMax) {
-                if(isPassTight) { electron_cbID[electron_count] = 4; }
-                else if(isPassMedium) { electron_cbID[electron_count] = 3; }
-                else if(isPassLoose) { electron_cbID[electron_count] = 2; }
-                else if(isPassVeto) { electron_cbID[electron_count] = 1; }
-                else { electron_cbID[electron_count] = 0; }
+                if (isPassTight) electron_cbID[electron_count] = 4;
+                else if (isPassMedium) electron_cbID[electron_count] = 3;
+                else if (isPassLoose) electron_cbID[electron_count] = 2;
+                else if (isPassVeto) electron_cbID[electron_count] = 1;
+                else electron_cbID[electron_count] = 0;
 
-                if(isPassHeepV60) { electron_heepID[electron_count] = 1; }
-                else { electron_heepID[electron_count] = 0; }
+                if (isPassHeepV60) electron_heepID[electron_count] = 1;
+                else electron_heepID[electron_count] = 0;
 
-                if(isPassMVAWP80) { electron_mvaID[electron_count] = 2; }
-                else if(isPassMVAWP90) { electron_mvaID[electron_count] = 1; }
-                else { electron_mvaID[electron_count] = 0; }
+                if (isPassMVAWP80) electron_mvaID[electron_count] = 2;
+                else if (isPassMVAWP90) electron_mvaID[electron_count] = 1;
+                else electron_mvaID[electron_count] = 0;
 
                 electron_px[electron_count] = theel.px();
                 electron_py[electron_count] = theel.py();
