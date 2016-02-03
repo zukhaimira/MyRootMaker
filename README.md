@@ -15,7 +15,7 @@ Recipe:
     git cms-merge-topic -u cms-met:METCorUnc74X
 
     git clone https://github.com/ekenn003/PFIsolation.git
-    git clone https://github.com/ekenn003/MyRootMaker.git
+    git clone https://github.com/CMS-H2Mu/MyRootMaker.git
 
     scram b -j 8
     
