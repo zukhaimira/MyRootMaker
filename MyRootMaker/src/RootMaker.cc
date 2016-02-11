@@ -42,9 +42,9 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     recoPhotonsToken_(mayConsume<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
     recoTausToken_(mayConsume<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
     tauJetsToken_(mayConsume<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("taujets"))),
-    ak4caloJetsToken_(mayConsume<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4calojets"))),
-    ak4jptJetsToken_(mayConsume<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4jptjets"))),
-    ak4pfJetsToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfjets"))),
+    //ak4caloJetsToken_(mayConsume<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4calojets"))),
+    //ak4jptJetsToken_(mayConsume<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4jptjets"))),
+    //ak4pfJetsToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("ak4pfjets"))),
     recoPFCandsToken_(mayConsume<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PfCands"))),
     recoMetToken_(mayConsume<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmet"))),
     recoMetT1Token_(mayConsume<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("pfmett1"))),
@@ -78,7 +78,6 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     gedPhotonCoresToken_(mayConsume<vector<reco::PhotonCore> >(iConfig.getParameter<edm::InputTag>("gedPhotonCores"))),
 
 
-    cisMiniAOD(iConfig.getUntrackedParameter<bool> ("isMiniAOD", false)),
     cisMC(iConfig.getUntrackedParameter<bool> ("isMC", false)),
     cdebug(iConfig.getUntrackedParameter<bool> ("debug", false)),
     cgen(iConfig.getUntrackedParameter<bool> ("GenSomeParticles", false)),
@@ -98,9 +97,9 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     crecelectron(iConfig.getUntrackedParameter<bool> ("RecElectron", false)),
     crecphoton(iConfig.getUntrackedParameter<bool> ("RecPhoton", false)),
     crecallconversion(iConfig.getUntrackedParameter<bool> ("RecAllConversion", false)),
-    crecak4calojet(iConfig.getUntrackedParameter<bool> ("RecAK4CaloJet", false)),
-    crecak4jptjet(iConfig.getUntrackedParameter<bool> ("RecAK4JPTJet", false)),
-    crecak4pfjet(iConfig.getUntrackedParameter<bool> ("RecAK4PFJet", false)),
+    //crecak4calojet(iConfig.getUntrackedParameter<bool> ("RecAK4CaloJet", false)),
+    //crecak4jptjet(iConfig.getUntrackedParameter<bool> ("RecAK4JPTJet", false)),
+    //crecak4pfjet(iConfig.getUntrackedParameter<bool> ("RecAK4PFJet", false)),
     crecak4pfchsjet(iConfig.getUntrackedParameter<bool> ("RecAK4PFCHSJet", false)),
     crecak4pfchspuppijet(iConfig.getUntrackedParameter<bool> ("RecAK4PFCHSPuppiJet", false)),
     crecpfmet(iConfig.getUntrackedParameter<bool> ("RecPFMet", false)),
@@ -135,14 +134,14 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     cPhotonNum(iConfig.getUntrackedParameter<int> ("RecPhotonNum", 0)),
     cPhotonFilterPtMin(iConfig.getUntrackedParameter<double> ("RecPhotonFilterPtMin", 0.)),
     cPhotonFilterEtaMax(iConfig.getUntrackedParameter<double> ("RecPhotonFilterEtaMax", 1000000.)),
-    cAK4CaloFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4CaloFilterPtMin", 0.)),
-    cAK4CaloPtMin(iConfig.getUntrackedParameter<double> ("RecAK4CaloPtMin", 0.)),
-    cAK4CaloEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4CaloEtaMax", 1000000.)),
-    cAK4CaloNum(iConfig.getUntrackedParameter<int> ("RecAK4CaloNum", 0)),
-    cAK4JPTFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4JPTFilterPtMin", 0.)),
-    cAK4JPTPtMin(iConfig.getUntrackedParameter<double> ("RecAK4JPTPtMin", 0.)),
-    cAK4JPTEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4JPTEtaMax", 1000000.)),
-    cAK4JPTNum(iConfig.getUntrackedParameter<int> ("RecAK4JPTNum", 0)),
+    //cAK4CaloFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4CaloFilterPtMin", 0.)),
+    //cAK4CaloPtMin(iConfig.getUntrackedParameter<double> ("RecAK4CaloPtMin", 0.)),
+    //cAK4CaloEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4CaloEtaMax", 1000000.)),
+    //cAK4CaloNum(iConfig.getUntrackedParameter<int> ("RecAK4CaloNum", 0)),
+    //cAK4JPTFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4JPTFilterPtMin", 0.)),
+    //cAK4JPTPtMin(iConfig.getUntrackedParameter<double> ("RecAK4JPTPtMin", 0.)),
+    //cAK4JPTEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4JPTEtaMax", 1000000.)),
+    //cAK4JPTNum(iConfig.getUntrackedParameter<int> ("RecAK4JPTNum", 0)),
     cAK4PFCHSFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSFilterPtMin", 0.)),
     cAK4PFCHSPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSPtMin", 0.)),
     cAK4PFCHSEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSEtaMax", 1000000.)),
@@ -151,10 +150,10 @@ RootMaker::RootMaker(const edm::ParameterSet &iConfig) :
     cAK4PFCHSPuppiPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSPuppiPtMin", 0.)),
     cAK4PFCHSPuppiEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4PFCHSPuppiEtaMax", 1000000.)),
     cAK4PFCHSPuppiNum(iConfig.getUntrackedParameter<int> ("RecAK4PFCHSPuppiNum", 0)),
-    cAK4PFFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFFilterPtMin", 0.)),
-    cAK4PFPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFPtMin", 0.)),
-    cAK4PFEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4PFEtaMax", 1000000.)),
-    cAK4PFNum(iConfig.getUntrackedParameter<int> ("RecAK4PFNum", 0)),
+    //cAK4PFFilterPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFFilterPtMin", 0.)),
+    //cAK4PFPtMin(iConfig.getUntrackedParameter<double> ("RecAK4PFPtMin", 0.)),
+    //cAK4PFEtaMax(iConfig.getUntrackedParameter<double> ("RecAK4PFEtaMax", 1000000.)),
+    //cAK4PFNum(iConfig.getUntrackedParameter<int> ("RecAK4PFNum", 0)),
     cJetCorrection(iConfig.getUntrackedParameter<string> ("JetCorrection", "L1FastL2L3Residual")),
     cJetHLTriggerMatching(iConfig.getUntrackedParameter<vector<string> > ("RecJetHLTriggerMatching")),
     cMassMuMuMin(iConfig.getUntrackedParameter<double> ("RecMassMuMuMin", 0.)),
@@ -225,7 +224,6 @@ std::vector<double> RootMaker::extract(const Collection &cands, Function func) {
 void RootMaker::beginJob() {
     if(cdebug) { cout<<"begin job..."<<endl; }
 
-    cout<<"isMiniAOD = "<<cisMiniAOD<<endl;
     cout<<"is monte carlo = "<<cisMC<<endl;
     cout<<"debug = "<<cdebug<<endl;
     edm::Service<TFileService> FS;
@@ -407,6 +405,7 @@ void RootMaker::beginJob() {
     tree->Branch("muon_trigger", muon_trigger, "muon_trigger[muon_count]/i");
     tree->Branch("muon_trackermuonquality", muon_trackermuonquality, "muon_trackermuonquality[muon_count]/i");
 
+/*
     tree->Branch("ak4calojet_count", &ak4calojet_count, "ak4calojet_count/i");
     tree->Branch("ak4calojet_e", ak4calojet_e, "ak4calojet_e[ak4calojet_count]/F");
     tree->Branch("ak4calojet_px", ak4calojet_px, "ak4calojet_px[ak4calojet_count]/F");
@@ -478,6 +477,7 @@ void RootMaker::beginJob() {
     tree->Branch("ak4pfjet_btag", ak4pfjet_btag, "ak4pfjet_btag[ak4pfjet_count][6]/F");
     tree->Branch("ak4pfjet_trigger", ak4pfjet_trigger, "ak4pfjet_trigger[ak4pfjet_count]/i");
     tree->Branch("ak4pfjet_mcflavour", ak4pfjet_mcflavour, "ak4pfjet_mcflavour[ak4pfjet_count]/I");
+*/
 
     tree->Branch("ak4pfchsjet_count", &ak4pfchsjet_count, "ak4pfchsjet_count/i");
     tree->Branch("ak4pfchsjet_e", ak4pfchsjet_e, "ak4pfchsjet_e[ak4pfchsjet_count]/F");
@@ -1326,12 +1326,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     //TriggerEvent for matching
     iEvent.getByLabel(edm::InputTag("hltTriggerSummaryAOD", "", cTriggerProcess), HLTriggerEvent);
 
-    if(!cisMiniAOD) {
-        iEvent.getByLabel(edm::InputTag("hltTriggerSummaryAOD", "", cTriggerProcess), HLTriggerEvent);
-    }
-
-    //cout<<"PASSED! hlt"<<endl;
-    if(cisMiniAOD) {
+    //if(cisMiniAOD) {
         // TRIGGER MINIAOD ////////////////////////////////////////////////////////////////////////////////
         edm::Handle<edm::TriggerResults> triggerBits;
         edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
@@ -1394,7 +1389,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
-    }
+    //}
 
     if(HLTriggerIndexSelection.size() == 0 || !ctrigger) {
         takeevent = true;
@@ -1713,85 +1708,50 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
         takeevent = AddTracks(iEvent) || takeevent;
     }
 
-    if(crecmuon && !cisMiniAOD) {
-        takeevent = AddMuons(iEvent) || takeevent;
-    }
-
-    if(crecmuon && cisMiniAOD) {
+    if(crecmuon) {
         takeevent = AddPatMuons(iEvent) || takeevent;
     }
 
-    if(crecelectron && !cisMiniAOD) {
-        takeevent = AddElectrons(iEvent) || takeevent;
-    }
-
-    if(crecelectron && cisMiniAOD) {
+    if(crecelectron) {
         takeevent = AddPatElectrons(iEvent) || takeevent;
     }
-
-    if(crecphoton && !cisMiniAOD) {
-        takeevent = AddPhotons(iEvent, iSetup) || takeevent;
-    }
-
-    if(crecphoton && cisMiniAOD) {
+    if(crecphoton) {
         takeevent = AddPatPhotons(iEvent, iSetup) || takeevent;
     }
-
-    if(crectau && !cisMiniAOD) {
-        takeevent = AddTaus(iEvent) || takeevent;
-    }
-
-    if(crectau && cisMiniAOD) {
+    if(crectau) {
         takeevent = AddPatTaus(iEvent) || takeevent;
     }
-
-    if(crecak4calojet && !cisMiniAOD) {
-        takeevent = AddAK4CaloJets(iEvent, iSetup) || takeevent;
-    }
-
-    if(crecak4jptjet && !cisMiniAOD) {
-        takeevent = AddAK4JPTJets(iEvent, iSetup) || takeevent;
-    }
-
-    if(crecak4pfjet && !cisMiniAOD) {
-        takeevent = AddAK4PFJets(iEvent, iSetup) || takeevent;
-    }
-
     if(crecak4pfchsjet) {
         takeevent = AddAK4PFCHSJets(iEvent, iSetup) || takeevent;
     }
-
     if(crecak4pfchspuppijet) {
         takeevent = AddAK4PFCHSPuppiJets(iEvent, iSetup) || takeevent;
     }
-
     if(crecmusecvertices) {
         AddMuVertices(iEvent);
     }
-
     if(crecallconversion) {
         AddAllConversions(iEvent);
     }
-
     if(!takeevent) {
         return;
     }
 
-    if(cisMiniAOD) {
+    //if(cisMiniAOD) {
         edm::Handle<double> rho;
         iEvent.getByToken(rhoToken_, rho);
         ak4pfjet_rho = *rho;
-    } else if(!cisMiniAOD) {
-        edm::Handle<double> rho;
-        iEvent.getByLabel(edm::InputTag("kt6PFJets", "rho", "ROOTMAKER"), rho);
-        //edm::Handle<double> rho2;
-        //iEvent.getByLabel(edm::InputTag("kt6PFJets", "rho", "RECO"), rho2);
-        //cout << *rho << " " << *rho2 << endl;
-        ak4pfjet_rho = *rho;
-        edm::Handle<double> sigma;
-        iEvent.getByLabel(edm::InputTag("kt6PFJets", "sigma", "ROOTMAKER"), sigma);
-        ak4pfjet_sigma = *sigma;
-    }
+    //} else if(!cisMiniAOD) {
+    //    edm::Handle<double> rho;
+    //    iEvent.getByLabel(edm::InputTag("kt6PFJets", "rho", "ROOTMAKER"), rho);
+    //    //edm::Handle<double> rho2;
+    //    //iEvent.getByLabel(edm::InputTag("kt6PFJets", "rho", "RECO"), rho2);
+    //    //cout << *rho << " " << *rho2 << endl;
+    //    ak4pfjet_rho = *rho;
+    //    edm::Handle<double> sigma;
+    //    iEvent.getByLabel(edm::InputTag("kt6PFJets", "sigma", "ROOTMAKER"), sigma);
+    //    ak4pfjet_sigma = *sigma;
+    //}
 
     if(cMassMuMuMax != cMassMuMuMin) {
         takeevent = false;
@@ -1831,7 +1791,7 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
 
     if(crecpfmet) {
-        if(cisMiniAOD) {
+        //if(cisMiniAOD) {
             // mvaMET considering: ele, mu and tau leptons
             edm::Handle<std::vector<reco::PFMET> > mvaMetEMT;
             iEvent.getByLabel(patMVAMetEMTToken_, mvaMetEMT);
@@ -1953,45 +1913,45 @@ void RootMaker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
             } else {
                 errors |= 1<<24;
             }
-        } else if(!cisMiniAOD) {
-            edm::Handle<reco::PFMETCollection> pfMet;
-            iEvent.getByToken(recoMetToken_, pfMet);
+        //} else if(!cisMiniAOD) {
+        //    edm::Handle<reco::PFMETCollection> pfMet;
+        //    iEvent.getByToken(recoMetToken_, pfMet);
 
-            if(cdebug) {
-                cout<<"pfMet.isValid() = "<<pfMet.isValid()<<endl;
-            }
+        //    if(cdebug) {
+        //        cout<<"pfMet.isValid() = "<<pfMet.isValid()<<endl;
+        //    }
 
-            if(pfMet.isValid() && pfMet->size() > 0) {
-                pfmet_ex = (*pfMet)[0].px();
-                pfmet_ey = (*pfMet)[0].py();
-            } else {
-                errors |= 1<<21;
-            }
+        //    if(pfMet.isValid() && pfMet->size() > 0) {
+        //        pfmet_ex = (*pfMet)[0].px();
+        //        pfmet_ey = (*pfMet)[0].py();
+        //    } else {
+        //        errors |= 1<<21;
+        //    }
 
-            edm::Handle<reco::PFMETCollection> pfMetType1;
-            iEvent.getByToken(recoMetT1Token_, pfMetType1);
+        //    edm::Handle<reco::PFMETCollection> pfMetType1;
+        //    iEvent.getByToken(recoMetT1Token_, pfMetType1);
 
-            if(cdebug) { cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl; }
+        //    if(cdebug) { cout<<"pfMetType1.isValid() = "<<pfMetType1.isValid()<<endl; }
 
-            if(pfMetType1.isValid() && pfMetType1->size() > 0) {
-                pfmettype1_ex = (*pfMetType1)[0].px();
-                pfmettype1_ey = (*pfMetType1)[0].py();
-            } else {
-                errors |= 1<<24;
-            }
+        //    if(pfMetType1.isValid() && pfMetType1->size() > 0) {
+        //        pfmettype1_ex = (*pfMetType1)[0].px();
+        //        pfmettype1_ey = (*pfMetType1)[0].py();
+        //    } else {
+        //        errors |= 1<<24;
+        //    }
 
-            edm::Handle<reco::PFMETCollection> pfMetType0Type1;
-            iEvent.getByToken(recoMetT1T0Token_, pfMetType0Type1);
+        //    edm::Handle<reco::PFMETCollection> pfMetType0Type1;
+        //    iEvent.getByToken(recoMetT1T0Token_, pfMetType0Type1);
 
-            if(cdebug) { cout<<"pfMetType0Type1.isValid() = "<<pfMetType0Type1.isValid()<<endl; }
+        //    if(cdebug) { cout<<"pfMetType0Type1.isValid() = "<<pfMetType0Type1.isValid()<<endl; }
 
-            if(pfMetType0Type1.isValid() && pfMetType0Type1->size() > 0) {
-                pfmettype0type1_ex = (*pfMetType0Type1)[0].px();
-                pfmettype0type1_ey = (*pfMetType0Type1)[0].py();
-            } else {
-                errors |= 1<<26;
-            }
-        }
+        //    if(pfMetType0Type1.isValid() && pfMetType0Type1->size() > 0) {
+        //        pfmettype0type1_ex = (*pfMetType0Type1)[0].px();
+        //        pfmettype0type1_ey = (*pfMetType0Type1)[0].py();
+        //    } else {
+        //        errors |= 1<<26;
+        //    }
+        //}
     }
 
     genweight = 1.;
@@ -4028,14 +3988,7 @@ bool RootMaker::AddAK4PFCHSJets(const edm::Event &iEvent, const edm::EventSetup 
                 ak4pfchsjet_energycorrl7bottom[ak4pfchsjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
 
                 JetShape shape;
-
-                if(!cisMiniAOD) {
-                    shape = getJetShape(corjet);
-                }
-
-                if(cisMiniAOD) {
-                    shape = getSlimmedJetShape(corjet);
-                }
+                shape = getSlimmedJetShape(corjet);
 
                 ak4pfchsjet_chargeda[ak4pfchsjet_count] = shape.chargeda;
                 ak4pfchsjet_chargedb[ak4pfchsjet_count] = shape.chargedb;
@@ -4158,14 +4111,7 @@ bool RootMaker::AddAK4PFCHSPuppiJets(const edm::Event &iEvent, const edm::EventS
                 ak4pfchspuppijet_energycorrl7bottom[ak4pfchspuppijet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
 
                 JetShape shape;
-
-                if(!cisMiniAOD) {
-                    shape = getJetShape(corjet);
-                }
-
-                if(cisMiniAOD) {
-                    shape = getSlimmedJetShape(corjet);
-                }
+                shape = getSlimmedJetShape(corjet);
 
                 ak4pfchspuppijet_chargeda[ak4pfchspuppijet_count] = shape.chargeda;
                 ak4pfchspuppijet_chargedb[ak4pfchspuppijet_count] = shape.chargedb;
@@ -4235,145 +4181,6 @@ bool RootMaker::AddAK4PFCHSPuppiJets(const edm::Event &iEvent, const edm::EventS
     }
 
     if(NumGood >= cAK4PFCHSPuppiNum) {
-        return (true);
-    }
-
-    return (false);
-}
-
-bool RootMaker::AddAK4PFJets(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-    if(cdebug) { cout<<"AddAK4PFJets..."<<endl; }
-
-    int NumGood = 0;
-    edm::Handle<PFJetCollection> ak4pfJets;
-    iEvent.getByToken(ak4pfJetsToken_, ak4pfJets);
-    const JetCorrector *corrector = JetCorrector::getJetCorrector((string("ak4PF")+cJetCorrection).c_str(), iSetup);
-    edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-    iSetup.get<JetCorrectionsRecord>().get("AK4PF",JetCorParColl);
-    JetCorrectorParameters const &JetCorPar = (*JetCorParColl)["Uncertainty"];
-    JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
-    edm::Handle<JetFlavourMatchingCollection> jetMCFlHandle;
-    iEvent.getByLabel("AK4byValAlgo", jetMCFlHandle);
-    edm::Handle<ValueMap<float> > puidfullHandle;
-    iEvent.getByLabel(edm::InputTag("recoPuJetMva", "fullDiscriminant", "ROOTMAKER"), puidfullHandle);
-    //edm::Handle<ValueMap<float> > puidsimpleHandle;
-    //iEvent.getByLabel(edm::InputTag("recoPuJetMva", "simpleDiscriminant", "ROOTMAKER"), puidsimpleHandle);
-    edm::Handle<ValueMap<float> > puidcutbasedHandle;
-    iEvent.getByLabel(edm::InputTag("recoPuJetMva", "cutbasedDiscriminant", "ROOTMAKER"), puidcutbasedHandle);
-
-    if(cdebug) { cout<<"ak4pfJets.isValid() = "<<ak4pfJets.isValid()<<endl; }
-
-    if(ak4pfJets.isValid()) {
-        for(unsigned i = 0 ; i < ak4pfJets->size() ; i++) {
-            PFJet corjet((*ak4pfJets)[i]);
-            PFJetRef jetref(ak4pfJets, i);
-            double jec = corrector->correction(corjet, iEvent, iSetup);
-            corjet.scaleEnergy(jec);
-
-            if(corjet.pt() >= cAK4PFFilterPtMin) {
-                ak4pfjet_e[ak4pfjet_count] = corjet.energy();
-                ak4pfjet_px[ak4pfjet_count] = corjet.px();
-                ak4pfjet_py[ak4pfjet_count] = corjet.py();
-                ak4pfjet_pz[ak4pfjet_count] = corjet.pz();
-                ak4pfjet_area[ak4pfjet_count] = corjet.jetArea();
-                ak4pfjet_hadronicenergy[ak4pfjet_count] = corjet.chargedHadronEnergy() + corjet.neutralHadronEnergy();
-                ak4pfjet_chargedhadronicenergy[ak4pfjet_count] = corjet.chargedHadronEnergy();
-                ak4pfjet_emenergy[ak4pfjet_count] = corjet.chargedEmEnergy() + corjet.neutralEmEnergy();
-                ak4pfjet_chargedemenergy[ak4pfjet_count] = corjet.chargedEmEnergy();
-                ak4pfjet_hfhadronicenergy[ak4pfjet_count] = corjet.HFHadronEnergy();
-                ak4pfjet_hfemenergy[ak4pfjet_count] = corjet.HFEMEnergy();
-                ak4pfjet_electronenergy[ak4pfjet_count] = corjet.electronEnergy();
-                ak4pfjet_muonenergy[ak4pfjet_count] = corjet.muonEnergy();
-                ak4pfjet_chargedmulti[ak4pfjet_count] = corjet.chargedMultiplicity();
-                ak4pfjet_neutralmulti[ak4pfjet_count] = corjet.neutralMultiplicity();
-                ak4pfjet_hfhadronicmulti[ak4pfjet_count] = corjet.HFHadronMultiplicity();
-                ak4pfjet_hfemmulti[ak4pfjet_count] = corjet.HFEMMultiplicity();
-                ak4pfjet_electronmulti[ak4pfjet_count] = corjet.electronMultiplicity();
-                ak4pfjet_muonmulti[ak4pfjet_count] = corjet.muonMultiplicity();
-                ak4pfjet_energycorr[ak4pfjet_count] = 1./jec;
-                jecUnc->setJetEta(corjet.eta());
-                jecUnc->setJetPt(corjet.pt());
-                ak4pfjet_energycorrunc[ak4pfjet_count] = jecUnc->getUncertainty(true);
-                //cout << ak4pfjet_energycorr[ak4pfjet_count] << endl;
-                ak4pfjet_energycorrl7uds[ak4pfjet_count] = -1.;//corjet.jecFactor("L7Parton", "UDS");
-                ak4pfjet_energycorrl7bottom[ak4pfjet_count] = -1.;//corjet.jecFactor("L7Parton", "BOTTOM");
-                ak4pfjet_puidfull[ak4pfjet_count] = (*puidfullHandle)[jetref];
-                //ak4pfjet_puidsimple[ak4pfjet_count] = (*puidsimpleHandle)[jetref];
-                ak4pfjet_puidcutbased[ak4pfjet_count] = (*puidcutbasedHandle)[jetref];
-                JetShape shape = getJetShape(corjet);
-                ak4pfjet_chargeda[ak4pfjet_count] = shape.chargeda;
-                ak4pfjet_chargedb[ak4pfjet_count] = shape.chargedb;
-                ak4pfjet_neutrala[ak4pfjet_count] = shape.neutrala;
-                ak4pfjet_neutralb[ak4pfjet_count] = shape.neutralb;
-                ak4pfjet_alla[ak4pfjet_count] = shape.alla;
-                ak4pfjet_allb[ak4pfjet_count] = shape.allb;
-                ak4pfjet_chargedfractionmv[ak4pfjet_count] = shape.chargedfractionmv;
-                ak4pfjet_mcflavour[ak4pfjet_count] = 0;
-
-                if(jetMCFlHandle.isValid()) {
-                    const JetFlavourMatchingCollection &jetMCFl = * (jetMCFlHandle.product());
-                    double drmin = 0.5;
-                    int num = -1;
-
-                    for(size_t u = 0; u < jetMCFl.size(); u++) {
-                        double dr =  DR(* (jetMCFl[u].first), corjet);
-
-                        if(dr < drmin) {
-                            drmin = dr;
-                            num = u;
-                        }
-                    }
-
-                    if(num != -1) {
-                        ak4pfjet_mcflavour[ak4pfjet_count] = jetMCFl[num].second.getFlavour();
-                    }
-                }
-
-                for(unsigned n = 0 ; n < bdisclabel.size() ; n++) {
-                    ak4pfjet_btag[ak4pfjet_count][n] = -1000000;
-                    //ak4pfjet_btag[ak4pfjet_count][n] = corjet.bDiscriminator(bdisclabel[n]);
-                    edm::Handle<JetTagCollection> bTagHandle;
-                    iEvent.getByLabel(edm::InputTag(bdisclabel[n], "", "ROOTMAKER"), bTagHandle);
-
-                    if(bTagHandle.isValid()) {
-                        const JetTagCollection &bTags = * (bTagHandle.product());
-                        double drmin = 0.5;
-                        int num = -1;
-
-                        for(size_t u = 0; u < bTags.size(); u++) {
-                            double dr =  DR(* (bTags[u].first), corjet);
-
-                            if(dr < drmin) {
-                                drmin = dr;
-                                num = u;
-                            }
-                        }
-
-                        if(num != -1) {
-                            ak4pfjet_btag[ak4pfjet_count][n] = bTags[num].second;
-                        }
-                    }
-                }
-
-                ak4pfjet_trigger[ak4pfjet_count] = GetTrigger(corjet, jettriggers);
-                ak4pfjet_count++;
-
-                if(ak4pfjet_count == M_jetmaxcount) {
-                    cerr << "number of ak4pfjet > M_jetmaxcount. They are missing." << endl;
-                    errors |= 1<<10;
-                    break;
-                }
-
-                if(corjet.pt() >= cAK4PFPtMin && fabs(corjet.eta()) < cAK4PFEtaMax) {
-                    NumGood++;
-                }
-            }
-        }
-    }
-
-    delete jecUnc;
-
-    if(NumGood >= cAK4PFNum) {
         return (true);
     }
 
@@ -4522,151 +4329,6 @@ RootMaker::JetShape RootMaker::getJetShape(const pat::Jet &jet) {
     res.allb = allx2;
     res.chargedfractionmv = chargedptsummv/chargedptsum;
     return (res);
-}
-
-RootMaker::JetShape RootMaker::getJetShape(const PFJet &jet) {
-    if(cdebug) { cout<<"getJetShape..."<<endl; }
-
-    using namespace TMath;
-    RootMaker::JetShape res;
-    float chargedetaeta1 = 0.;
-    float chargedphiphi1 = 0.;
-    float chargedetaeta2 = 0.;
-    float chargedphiphi2 = 0.;
-    float chargedetaphi = 0.;
-    float chargedptsum = 0.;
-    float chargedptsummv = 0.;
-    float neutraletaeta1 = 0.;
-    float neutralphiphi1 = 0.;
-    float neutraletaeta2 = 0.;
-    float neutralphiphi2 = 0.;
-    float neutraletaphi = 0.;
-    float neutralptsum = 0.;
-    float alletaeta1 = 0.;
-    float alletaeta2 = 0.;
-    float alletaphi = 0.;
-    float allphiphi1 = 0.;
-    float allphiphi2 = 0.;
-    float allptsum = 0.;
-    vector<PFCandidatePtr> constituents(jet.getPFConstituents());
-
-    for(size_t i = 0 ; i < constituents.size() ; ++i) {
-        const PFCandidate &con = * (constituents[i]);
-        float deta = jet.eta() - con.eta();
-        float dphi = jet.phi() - con.phi();
-
-        if(dphi > 4.*atan(1.)) {
-            dphi = dphi-8.*atan(1.);
-        }
-
-        if(dphi < -1.*4.*atan(1.)) {
-            dphi = dphi+8.*atan(1.);
-        }
-
-        if(con.trackRef().isNonnull()) {
-            chargedptsum += con.pt();
-            chargedetaeta1 += deta*con.pt();
-            chargedetaeta2 += deta*deta*con.pt();
-            chargedetaphi += deta*dphi*con.pt();
-            chargedphiphi1 += dphi*con.pt();
-            chargedphiphi2 += dphi*dphi*con.pt();
-            int vertex = getPrimVertex(* (con.trackRef()));
-
-            if(vertex == 0 || vertex == -1) {
-                chargedptsummv += con.pt();
-            }
-        } else {
-            neutralptsum += con.pt();
-            neutraletaeta1 += deta*con.pt();
-            neutraletaeta2 += deta*deta*con.pt();
-            neutraletaphi += deta*dphi*con.pt();
-            neutralphiphi1 += dphi*con.pt();
-            neutralphiphi2 += dphi*dphi*con.pt();
-        }
-
-        allptsum += con.pt();
-        alletaeta1 += deta*con.pt();
-        alletaeta2 += deta*deta*con.pt();
-        alletaphi += deta*dphi*con.pt();
-        allphiphi1 += dphi*con.pt();
-        allphiphi2 += dphi*dphi*con.pt();
-    }
-
-    if(chargedptsum != 0) {
-        chargedetaeta1/=chargedptsum;
-        chargedetaeta2/=chargedptsum;
-        chargedetaphi/=chargedptsum;
-        chargedphiphi1/=chargedptsum;
-        chargedphiphi2/=chargedptsum;
-    } else {
-        chargedetaeta1 = 0.;
-        chargedetaeta2 = 0.;
-        chargedetaphi = 0.;
-        chargedphiphi1 = 0.;
-        chargedphiphi2 = 0.;
-    }
-
-    if(neutralptsum != 0) {
-        neutraletaeta1/=neutralptsum;
-        neutraletaeta2/=neutralptsum;
-        neutraletaphi/=neutralptsum;
-        neutralphiphi1/=neutralptsum;
-        neutralphiphi2/=neutralptsum;
-    } else {
-        neutraletaeta1 = 0.;
-        neutraletaeta2 = 0.;
-        neutraletaphi = 0.;
-        neutralphiphi1 = 0.;
-        neutralphiphi2 = 0.;
-    }
-
-    if(allptsum != 0) {
-        alletaeta1/=allptsum;
-        alletaeta2/=allptsum;
-        alletaphi/=allptsum;
-        allphiphi1/=allptsum;
-        allphiphi2/=allptsum;
-    } else {
-        alletaeta1 = 0.;
-        alletaeta2 = 0.;
-        alletaphi = 0.;
-        allphiphi1 = 0.;
-        allphiphi2 = 0.;
-    }
-
-    double chargedetavar = chargedetaeta2-chargedetaeta1*chargedetaeta1;
-    double chargedphivar = chargedphiphi2-chargedphiphi1*chargedphiphi1;
-    double chargedphidetacov = chargedetaphi - chargedetaeta1*chargedphiphi1;
-
-    double chargeddet = (chargedetavar-chargedphivar)* (chargedetavar-chargedphivar)+4*chargedphidetacov*chargedphidetacov;
-    double chargedx1 = (chargedetavar+chargedphivar+sqrt(chargeddet))/2.;
-    double chargedx2 = (chargedetavar+chargedphivar-sqrt(chargeddet))/2.;
-
-    double neutraletavar = neutraletaeta2-neutraletaeta1*neutraletaeta1;
-    double neutralphivar = neutralphiphi2-neutralphiphi1*neutralphiphi1;
-    double neutralphidetacov = neutraletaphi - neutraletaeta1*neutralphiphi1;
-
-    double neutraldet = (neutraletavar-neutralphivar)* (neutraletavar-neutralphivar)+4*neutralphidetacov*neutralphidetacov;
-    double neutralx1 = (neutraletavar+neutralphivar+sqrt(neutraldet))/2.;
-    double neutralx2 = (neutraletavar+neutralphivar-sqrt(neutraldet))/2.;
-
-    double alletavar = alletaeta2-alletaeta1*alletaeta1;
-    double allphivar = allphiphi2-allphiphi1*allphiphi1;
-    double allphidetacov = alletaphi - alletaeta1*allphiphi1;
-
-    double alldet = (alletavar-allphivar)* (alletavar-allphivar)+4*allphidetacov*allphidetacov;
-    double allx1 = (alletavar+allphivar+sqrt(alldet))/2.;
-    double allx2 = (alletavar+allphivar-sqrt(alldet))/2.;
-
-    res.chargeda = chargedx1;
-    res.chargedb = chargedx2;
-    res.neutrala = neutralx1;
-    res.neutralb = neutralx2;
-    res.alla = allx1;
-    res.allb = allx2;
-    res.chargedfractionmv = chargedptsummv/chargedptsum;
-    return (res);
-
 }
 
 RootMaker::JetShape RootMaker::getSlimmedJetShape(const pat::Jet &jet) {
@@ -5267,320 +4929,19 @@ Int_t RootMaker::getSuperClusterPh(const SuperClusterRef &A) {
     return (-1);
 }
 
-
-//// manual cut based electron ID
-//Int_t RootMaker::getCBElectronID(const pat::Electron &theel) {
-//    if(cdebug) {
-//        cout<<"getCBElectronID..."<<endl;
-//    }
-//
-//    float superClusterEta = theel.superCluster()->eta();
-//    float full5x5 = theel.full5x5_sigmaIetaIeta();
-//    float dEtaIn = abs(theel.deltaEtaSuperClusterTrackAtVtx());
-//    float dPhiIn = abs(theel.deltaPhiSuperClusterTrackAtVtx());
-//    float hOverE = theel.hadronicOverEm();
-//    float relIso = (theel.pfIsolationVariables().sumChargedHadronPt + std::max(0.0, theel.pfIsolationVariables().sumNeutralHadronEt + theel.pfIsolationVariables().sumPhotonEt - 0.5*theel.pfIsolationVariables().sumPUPt)) / theel.pt();
-//    float ooEmooP = fabs((1/theel.ecalEnergy()) - (1/(theel.ecalEnergy() / theel.eSuperClusterOverP())));
-//    float absd0 = fabs(theel.gsfTrack()->dxy(pv_position));
-//    float absdz = fabs(theel.gsfTrack()->dz(pv_position));
-//    int   expHits = theel.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
-//    int   passConv = theel.passConversionVeto();
-//
-//    // PHYS14 selection, conditions: PU20 bx25
-//    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
-//    if(fabs(superClusterEta) <= 1.479) {
-//        // BARREL TIGHT
-//        if(
-//            full5x5  < 0.010181 &&
-//            dEtaIn   < 0.006574 &&
-//            dPhiIn   < 0.022868 &&
-//            hOverE   < 0.037553 &&
-//            relIso   < 0.074355 &&
-//            ooEmooP  < 0.131191 &&
-//            absd0    < 0.009924 &&
-//            absdz    < 0.015310 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (4);
-//        }
-//        // BARREL MEDIUM
-//        if(
-//            full5x5  < 0.010399 &&
-//            dEtaIn   < 0.007641 &&
-//            dPhiIn   < 0.032643 &&
-//            hOverE   < 0.060662 &&
-//            relIso   < 0.097213 &&
-//            ooEmooP  < 0.153897 &&
-//            absd0    < 0.011811 &&
-//            absdz    < 0.070775 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (3);
-//        }
-//        // BARREL LOOSE
-//        if(
-//            full5x5  < 0.010557 &&
-//            dEtaIn   < 0.012442 &&
-//            dPhiIn   < 0.072624 &&
-//            hOverE   < 0.121476 &&
-//            relIso   < 0.120026 &&
-//            ooEmooP  < 0.221803 &&
-//            absd0    < 0.022664 &&
-//            absdz    < 0.173670 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (2);
-//        }
-//        // BARREL VETO
-//        if(
-//            full5x5  < 0.011100 &&
-//            dEtaIn   < 0.016315 &&
-//            dPhiIn   < 0.252044 &&
-//            hOverE   < 0.345843 &&
-//            relIso   < 0.164369 &&
-//            ooEmooP  < 0.248070 &&
-//            absd0    < 0.060279 &&
-//            absdz    < 0.800538 &&
-//            expHits  <= 2       &&
-//            passConv == 1
-//        ) {
-//            return (1);
-//        }
-//    }
-//    // ENDCAP
-//    else if(fabs(superClusterEta) > 1.479 && fabs(superClusterEta) <=2.5) {
-//        // ENDCAP TIGHT
-//        if(
-//            full5x5  < 0.028766 &&
-//            dEtaIn   < 0.005681 &&
-//            dPhiIn   < 0.032046 &&
-//            hOverE   < 0.081902 &&
-//            relIso   < 0.090185 &&
-//            ooEmooP  < 0.106055 &&
-//            absd0    < 0.027261 &&
-//            absdz    < 0.147154 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (4);
-//        }
-//        // ENDCAP MEDIUM
-//        if(
-//            full5x5  < 0.029524 &&
-//            dEtaIn   < 0.009285 &&
-//            dPhiIn   < 0.042447 &&
-//            hOverE   < 0.104263 &&
-//            relIso   < 0.116708 &&
-//            ooEmooP  < 0.137468 &&
-//            absd0    < 0.051682 &&
-//            absdz    < 0.180720 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (3);
-//        }
-//        // ENDCAP LOOSE
-//        if(
-//            full5x5  < 0.032602 &&
-//            dEtaIn   < 0.010654 &&
-//            dPhiIn   < 0.145129 &&
-//            hOverE   < 0.131862 &&
-//            relIso   < 0.162914 &&
-//            ooEmooP  < 0.142283 &&
-//            absd0    < 0.097358 &&
-//            absdz    < 0.198444 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (2);
-//        }
-//        // ENDCAP VETO
-//        if(
-//            full5x5  < 0.033987 &&
-//            dEtaIn   < 0.010671 &&
-//            dPhiIn   < 0.245263 &&
-//            hOverE   < 0.134691 &&
-//            relIso   < 0.212604 &&
-//            ooEmooP  < 0.157160 &&
-//            absd0    < 0.273097 &&
-//            absdz    < 0.885860 &&
-//            expHits  <= 3       &&
-//            passConv == 1
-//        ) {
-//            return (1);
-//        }
-//    } // end endcap
-//    return (-1);
-//}
-//
-//// manual cut based electron ID
-//Int_t RootMaker::getCBElectronID(const reco::GsfElectron &theel) {
-//    if(cdebug) {
-//        cout<<"getCBElectronID..."<<endl;
-//    }
-//
-//    float superClusterEta = theel.superCluster()->eta();
-//    float full5x5 = theel.full5x5_sigmaIetaIeta();
-//    float dEtaIn = abs(theel.deltaEtaSuperClusterTrackAtVtx());
-//    float dPhiIn = abs(theel.deltaPhiSuperClusterTrackAtVtx());
-//    float hOverE = theel.hadronicOverEm();
-//    float relIso = (theel.pfIsolationVariables().sumChargedHadronPt + std::max(0.0, theel.pfIsolationVariables().sumNeutralHadronEt + theel.pfIsolationVariables().sumPhotonEt - 0.5*theel.pfIsolationVariables().sumPUPt)) / theel.pt();
-//    float ooEmooP = fabs((1/theel.ecalEnergy()) - (1/(theel.ecalEnergy() / theel.eSuperClusterOverP())));
-//    float absd0 = fabs(theel.gsfTrack()->dxy(pv_position));
-//    float absdz = fabs(theel.gsfTrack()->dz(pv_position));
-//    int   expHits = theel.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
-//    //int   passConv = theel.passConversionVeto();
-//    int   passConv = 1;
-//
-//    // PHYS14 selection, conditions: PU20 bx25
-//    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
-//    if(fabs(superClusterEta) <= 1.479) {
-//        // BARREL TIGHT
-//        if(
-//            full5x5  < 0.010181 &&
-//            dEtaIn   < 0.006574 &&
-//            dPhiIn   < 0.022868 &&
-//            hOverE   < 0.037553 &&
-//            relIso   < 0.074355 &&
-//            ooEmooP  < 0.131191 &&
-//            absd0    < 0.009924 &&
-//            absdz    < 0.015310 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (4);
-//        }
-//        // BARREL MEDIUM
-//        if(
-//            full5x5  < 0.010399 &&
-//            dEtaIn   < 0.007641 &&
-//            dPhiIn   < 0.032643 &&
-//            hOverE   < 0.060662 &&
-//            relIso   < 0.097213 &&
-//            ooEmooP  < 0.153897 &&
-//            absd0    < 0.011811 &&
-//            absdz    < 0.070775 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (3);
-//        }
-//        // BARREL LOOSE
-//        if(
-//            full5x5  < 0.010557 &&
-//            dEtaIn   < 0.012442 &&
-//            dPhiIn   < 0.072624 &&
-//            hOverE   < 0.121476 &&
-//            relIso   < 0.120026 &&
-//            ooEmooP  < 0.221803 &&
-//            absd0    < 0.022664 &&
-//            absdz    < 0.173670 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (2);
-//        }
-//        // BARREL VETO
-//        if(
-//            full5x5  < 0.011100 &&
-//            dEtaIn   < 0.016315 &&
-//            dPhiIn   < 0.252044 &&
-//            hOverE   < 0.345843 &&
-//            relIso   < 0.164369 &&
-//            ooEmooP  < 0.248070 &&
-//            absd0    < 0.060279 &&
-//            absdz    < 0.800538 &&
-//            expHits  <= 2       &&
-//            passConv == 1
-//        ) {
-//            return (1);
-//        }
-//    }
-//    // ENDCAP
-//    else if(fabs(superClusterEta) > 1.479 && fabs(superClusterEta) <=2.5) {
-//        // ENDCAP TIGHT
-//        if(
-//            full5x5  < 0.028766 &&
-//            dEtaIn   < 0.005681 &&
-//            dPhiIn   < 0.032046 &&
-//            hOverE   < 0.081902 &&
-//            relIso   < 0.090185 &&
-//            ooEmooP  < 0.106055 &&
-//            absd0    < 0.027261 &&
-//            absdz    < 0.147154 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (4);
-//        }
-//        // ENDCAP MEDIUM
-//        if(
-//            full5x5  < 0.029524 &&
-//            dEtaIn   < 0.009285 &&
-//            dPhiIn   < 0.042447 &&
-//            hOverE   < 0.104263 &&
-//            relIso   < 0.116708 &&
-//            ooEmooP  < 0.137468 &&
-//            absd0    < 0.051682 &&
-//            absdz    < 0.180720 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (3);
-//        }
-//        // ENDCAP LOOSE
-//        if(
-//            full5x5  < 0.032602 &&
-//            dEtaIn   < 0.010654 &&
-//            dPhiIn   < 0.145129 &&
-//            hOverE   < 0.131862 &&
-//            relIso   < 0.162914 &&
-//            ooEmooP  < 0.142283 &&
-//            absd0    < 0.097358 &&
-//            absdz    < 0.198444 &&
-//            expHits  <= 1       &&
-//            passConv == 1
-//        ) {
-//            return (2);
-//        }
-//        // ENDCAP VETO
-//        if(
-//            full5x5  < 0.033987 &&
-//            dEtaIn   < 0.010671 &&
-//            dPhiIn   < 0.245263 &&
-//            hOverE   < 0.134691 &&
-//            relIso   < 0.212604 &&
-//            ooEmooP  < 0.157160 &&
-//            absd0    < 0.273097 &&
-//            absdz    < 0.885860 &&
-//            expHits  <= 3       &&
-//            passConv == 1
-//        ) {
-//            return (1);
-//        }
-//    } // end endcap
-//    return (-1);
-//}
-
 // for miniAOD, where trackRef is not available
 Int_t RootMaker::getPrimVertex(const pat::PackedCandidate *con) {
     if(Vertices.isValid()) {
         if(con->PVUsedInFit) {
             return  0;
         }
-
-        if(con->PVTight) {
+        else if(con->PVTight) {
             return -1;
         }
-
-        if(con->PVLoose) {
+        else if(con->PVLoose) {
             return -2;
         }
-
-        if(con->NoPV) {
+        else {
             return -2;
         }
     }
