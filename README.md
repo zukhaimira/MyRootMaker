@@ -15,5 +15,5 @@ Recipe:
 
     scram b -j 8
     
-    cmsRun MyRootMaker/MyRootMaker/RootTreeMC.py (monte carlo)  
-    cmsRun MyRootMaker/MyRootMaker/RootTreeDA.py (data)
+    cmsRun MyRootMaker/MyRootMaker/test/RootTreeMC.py (monte carlo)  
+    cmsRun MyRootMaker/MyRootMaker/test/RootTreeDA.py (data)
