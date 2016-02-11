@@ -262,19 +262,18 @@ process.patPFMetT2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
 process.shiftedPatJetEnDown.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
 process.shiftedPatJetEnUp.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
 
-from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
-runType1PFMEtUncertainties(process,addToPatDefaultSequence=False,
-                           photonCollection="slimmedPhotons",
-                           jetCollection="slimmedJets",
-                           electronCollection="slimmedElectrons",
-                           muonCollection="slimmedMuons",
-                           tauCollection="slimmedTaus")
-
+######from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
+######runType1PFMEtUncertainties(process,addToPatDefaultSequence=False,
+######                           photonCollection="slimmedPhotons",
+######                           jetCollection="slimmedJets",
+######                           electronCollection="slimmedElectrons",
+######                           muonCollection="slimmedMuons",
+######                           tauCollection="slimmedTaus")
+######
 
 # ROOTMAKER #########################################################################################
 process.makeroottree = cms.EDAnalyzer("RootMaker",
     
-    isMiniAOD = cms.untracked.bool(True),
     isMC = cms.untracked.bool(True),
     debug = cms.untracked.bool(False),
 
@@ -392,7 +391,6 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     # VERTICES ####################################################
     RecBeamSpot = cms.untracked.bool(True),
     RecPrimVertex = cms.untracked.bool(True),
-    RecSecVertices = cms.untracked.bool(True),
     RecVertexTRKChi2 = cms.untracked.double(5),
     RecVertexTRKHitsMin = cms.untracked.int32(6),
     RecVertexChi2 = cms.untracked.double(3),
@@ -408,9 +406,8 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     dEdxharmonic2 = cms.InputTag("dEdxharmonic2"),
     l1trigger = cms.InputTag("gtDigis"),
 #    metFilterBits = cms.InputTag("TriggerResults", "", "PAT"),
-    lostTracks = cms.InputTag("lostTracks", "", "PAT"), # mini only
-    generalTracks = cms.InputTag("generalTracks"), # AOD only
-    unpackedTracks = cms.InputTag("unpackedTracksAndVertices"), # mini only
+    lostTracks = cms.InputTag("lostTracks", "", "PAT"),
+    unpackedTracks = cms.InputTag("unpackedTracksAndVertices"),
     vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
     secondaryVertices = cms.InputTag("slimmedSecondaryVertices", "", "PAT"),
     beamSpot = cms.InputTag("offlineBeamSpot", "", "RECO"),
@@ -419,32 +416,25 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     photons = cms.InputTag("slimmedPhotons"),
     taus = cms.InputTag("slimmedTaus"),
     taujets = cms.InputTag("slimmedJets"),
-    ak4calojets = cms.InputTag("patJetsAK4Calo"), # AOD only
-    ak4jptjets = cms.InputTag("patJetsAK4JPT"), # AOD only
-    ak4pfjets = cms.InputTag("ak4PFJets"), # AOD only
-    ak4pfchsjets = cms.InputTag("slimmedJets"),# mini
+    ak4pfchsjets = cms.InputTag("slimmedJets"),
     ak4pfchsjetspuppi = cms.InputTag("slimmedJetsPuppi"),# mini, jets corrected for the pileup response
-    jetsAK8 = cms.InputTag("slimmedJetsAK8"), # mini only
-    pfMetMVAEMT = cms.InputTag("pfMetMVAEMT"), # mini only
-    pfMetMVAEM  = cms.InputTag("pfMetMVAEM"), # mini only
-    pfMetMVAET  = cms.InputTag("pfMetMVAET"), # mini only
-    pfMetMVAMT  = cms.InputTag("pfMetMVAMT"), # mini only
-    pfMetMVATT  = cms.InputTag("pfMetMVATT"), # mini only
+    jetsAK8 = cms.InputTag("slimmedJetsAK8"),
+    pfMetMVAEMT = cms.InputTag("pfMetMVAEMT"),
+    pfMetMVAEM  = cms.InputTag("pfMetMVAEM"),
+    pfMetMVAET  = cms.InputTag("pfMetMVAET"),
+    pfMetMVAMT  = cms.InputTag("pfMetMVAMT"),
+    pfMetMVATT  = cms.InputTag("pfMetMVATT"),
     #newCorrectedSlimmedMetLabel = cms.InputTag("slimmedMETs","","RERUN"),
-    patMETs = cms.InputTag("slimmedMETs"), #cms.InputTag("patMETs"),
-    mets = cms.InputTag("slimmedMETs"), # mini only
-    metspuppi = cms.InputTag("slimmedMETsPuppi"), # mini only
-    pfmet = cms.InputTag("pfMet"), # AOD only
-    pfmett1 = cms.InputTag("pfMetT1"), # AOD only
-    pfmett1t0 = cms.InputTag("pfType0Type1CorrectedMet"), # AOD only
-    packedGenParticles = cms.InputTag("packedGenParticles"), # mini only
+    patMETs = cms.InputTag("slimmedMETs"),
+    mets = cms.InputTag("slimmedMETs"),
+    metspuppi = cms.InputTag("slimmedMETsPuppi"),
+    packedGenParticles = cms.InputTag("packedGenParticles"),
     genSimParticles = cms.InputTag("prunedGenParticles"), 
     genParticles = cms.InputTag("prunedGenParticles"), 
     genJets = cms.InputTag("slimmedGenJets", "", "PAT"),
     genInfo = cms.InputTag("generator", "", "SIM"),
     puInfo = cms.InputTag("addPileupInfo", "", "HLT"),
-    PfCands = cms.InputTag("PFCandidates"), # AOD only
-    packedPfCands = cms.InputTag("packedPFCandidates"), # mini only
+    packedPfCands = cms.InputTag("packedPFCandidates"),
     barrelHits = cms.InputTag("reducedEgamma", "reducedEBRecHits", "PAT"),
     endcapHits = cms.InputTag("reducedEgamma", "reducedEERecHits", "PAT"),
     esHits = cms.InputTag("reducedEgamma", "reducedESRecHits", "PAT"),
@@ -452,8 +442,8 @@ process.makeroottree = cms.EDAnalyzer("RootMaker",
     ebeeClusters = cms.InputTag("reducedEgamma", "reducedEBEEClusters", "PAT"),
     esClusters = cms.InputTag("reducedEgamma", "reducedESClusters", "PAT"),
     conversions = cms.InputTag("reducedEgamma", "reducedConversions", "PAT"),
-    gedGsfElectronCores = cms.InputTag("reducedEgamma", "reducedGedGsfElectronCores", "PAT"), # mini only
-    gedPhotonCores = cms.InputTag("reducedEgamma", "reducedGedPhotonCores", "PAT"), # mini only
+    gedGsfElectronCores = cms.InputTag("reducedEgamma", "reducedGedGsfElectronCores", "PAT"),
+    gedPhotonCores = cms.InputTag("reducedEgamma", "reducedGedPhotonCores", "PAT"),
 )
 
 process.p = cms.Path(
